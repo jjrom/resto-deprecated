@@ -3,6 +3,8 @@ resto
 
 RESTo - REstful Semantic search Tool for geOspatial
 
+You can try the [RESTo demo] (http://mapshup.info/resto)
+
 Installation
 ============
 
