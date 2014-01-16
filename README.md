@@ -65,7 +65,12 @@ First you need to download geonames data in $GEONAMES_DIR directory
 
         export GEONAMES_DIR=/a/temporary/directory
         cd $GEONAMES_DIR
-        wget http://????
+        wget http://download.geonames.org/export/dump/allCountries.zip
+        wget http://download.geonames.org/export/dump/alternateNames.zip
+        wget http://download.geonames.org/export/dump/countryInfo.txt
+        wget http://download.geonames.org/export/dump/iso-languagecodes.txt
+        unzip allCountries.zip
+        unzip alternateNames.zip
 
 Next install the gazetteer within RESTo
 
