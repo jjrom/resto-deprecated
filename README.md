@@ -127,13 +127,13 @@ Basically, with URLs rewriting every request sent to RESTo application will end 
 http://localhost/resto/whatever/youwant/to/access will be rewrite as http://localhost/resto/index.php?RESToURL=/whatever/youwant/to/access
 
 
-1. Check that mod_rewrite is installed
+### Check that mod_rewrite is installed
 
 For instance on MacOS X, looks for something like this in /etc/apache2/httpd.conf
 
         LoadModule rewrite_module libexec/apache2/mod_rewrite.so 
 
-2. Configure target directory
+### Configure target directory
 
 Set an alias to the resto directory. To make mod_rewrite works, you need to verify that both 'FollowSymLinks'
 and 'AllowOverride All' are set in the apache directory configuration
@@ -148,12 +148,12 @@ For instance to access resto at http://localhost/resto (change "/directory/to/re
             Allow from all
         </Directory>
 
-3. Check "RewriteBase" value within $RESTO_INSTALLATION_TARGET/.htaccess
+### Check "RewriteBase" value within $RESTO_INSTALLATION_TARGET/.htaccess
 
 Edit this value so it matches your alias name. If you use the same alias as in 2. (i.e. '/resto/')
 there is no need to edit $RESTO_INSTALLATION_TARGET/.htaccess file
 
-4. Configure apache to support https (optional)
+### Configure apache to support https (optional)
 
 RESTo can be accessed either in http or https. For security reason, https is prefered when
 dealing with authenticated request (e.g. creation of a collection, insertion of a resource in the collection, etc.)
@@ -164,7 +164,7 @@ This document does not explain how to turn https on - but your system administra
 
 Note: a step by step guide for installing https on Mac OS X is provided in the FAQ section below
 
-4. Restart apache
+### Restart apache
 
         apachectl restart
 
