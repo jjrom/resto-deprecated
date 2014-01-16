@@ -515,3 +515,321 @@ function geoJSONGeometryToWKT($geometry) {
     return $wkt;
     
 }
+
+
+/**
+ * Return RESTo $response array as an atom feed 
+ * 
+ * @param array $response - RESTo response array
+ * @param object $dictionary - RESTo dictionary object
+ * @param string $version
+ * @param string $encoding
+ * @return string
+ */
+function toAtom($response, $dictionary, $version = '1.0', $encoding = 'UTF-8') {
+
+    $xml = new XMLWriter;
+    $xml->openMemory();
+    $xml->setIndent(true);
+    $xml->startDocument($version, $encoding);
+
+    /*
+     * feed - Start element
+     */
+    $xml->startElement('feed');
+    $xml->writeAttribute('xml:lang', 'en');
+    $xml->writeAttribute('xmlns', 'http://www.w3.org/2005/Atom');
+    $xml->writeAttribute('xmlns:time', 'http://a9.com/-/opensearch/extensions/time/1.0/');
+    $xml->writeAttribute('xmlns:os', 'http://a9.com/-/spec/opensearch/1.1/');
+    $xml->writeAttribute('xmlns:dc', 'http://purl.org/dc/elements/1.1/');
+    $xml->writeAttribute('xmlns:georss', 'http://www.georss.org/georss');
+    $xml->writeAttribute('xmlns:gml', 'http://www.opengis.net/gml');
+    $xml->writeAttribute('xmlns:geo', 'http://a9.com/-/opensearch/extensions/geo/1.0/');
+    $xml->writeAttribute('xmlns:eo', 'http://a9.com/-/opensearch/extensions/eo/1.0/');
+    $xml->writeAttribute('xmlns:metalink', 'urn:ietf:params:xml:ns:metalink');
+    $xml->writeAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+
+    /*
+     * Element 'title' 
+     *  read from $response['title']
+     */
+    $xml->writeElement('title', isset($response['title']) ? $response['title'] : '');
+
+    /*
+     * Element 'subtitle' 
+     *  constructed from $response['title']
+     */
+    $subtitle = $dictionary->translate($response['totalResults'] === 1 ? '_oneResult' : '_multipleResult', $response['totalResults']);
+    $previous = isset($response['links']['previous']) ? '<a href="' . updateURL($response['links']['previous'], array('format' => 'atom')) . '">' . $dictionary->translate('_previousPage') . '</a>&nbsp;' : '';
+    $next = isset($response['links']['next']) ? '&nbsp;<a href="' . updateURL($response['links']['next'], array('format' => 'atom')) . '">' . $dictionary->translate('_nextPage') . '</a>' : '';
+    $subtitle .= isset($response['startIndex']) ? '&nbsp;|&nbsp;' . $previous . $dictionary->translate('_pagination', $response['startIndex'], $response['lastIndex']) . $next : '';
+
+    $xml->startElement('subtitle');
+    $xml->writeAttribute('type', 'html');
+    $xml->text($subtitle);
+    $xml->endElement(); // subtitle
+
+    /*
+     * Updated time is now
+     */
+    $xml->startElement('generator');
+    $xml->writeAttribute('uri', 'http://mapshup.info');
+    $xml->writeAttribute('version', '1.0');
+    $xml->text('RESTo');
+    $xml->endElement(); // generator
+    $xml->writeElement('updated', date('Y-m-d\TH:i:s\Z'));
+
+    /*
+     * Element 'id' 
+     *  read from $response['??']
+     */
+    $xml->writeElement('id', 'TODO');
+
+    /*
+     * Self link
+     */
+    $xml->startElement('link');
+    $xml->writeAttribute('rel', 'self');
+    $xml->writeAttribute('type', 'application/atom+xml');
+    $xml->writeAttribute('href', updateURL($response['links']['self'], array('format' => 'atom')));
+    $xml->endElement(); // link
+
+    /*
+     * First link
+     */
+    if (isset($response['links']['first'])) {
+        $xml->startElement('link');
+        $xml->writeAttribute('rel', 'first');
+        $xml->writeAttribute('type', 'application/atom+xml');
+        $xml->writeAttribute('href', updateURL($response['links']['first'], array('format' => 'atom')));
+        $xml->endElement(); // link
+    }
+
+    /*
+     * Next link
+     */
+    if (isset($response['links']['next'])) {
+        $xml->startElement('link');
+        $xml->writeAttribute('rel', 'next');
+        $xml->writeAttribute('type', 'application/atom+xml');
+        $xml->writeAttribute('href', updateURL($response['links']['next'], array('format' => 'atom')));
+        $xml->endElement(); // link
+    }
+
+    /*
+     * Previous link
+     */
+    if (isset($response['links']['previous'])) {
+        $xml->startElement('link');
+        $xml->writeAttribute('rel', 'previous');
+        $xml->writeAttribute('type', 'application/atom+xml');
+        $xml->writeAttribute('href', updateURL($response['links']['previous'], array('format' => 'atom')));
+        $xml->endElement(); // link
+    }
+    /*
+     * Last link
+     */
+    if (isset($response['links']['last'])) {
+        $xml->startElement('link');
+        $xml->writeAttribute('rel', 'last');
+        $xml->writeAttribute('type', 'application/atom+xml');
+        $xml->writeAttribute('href', updateURL($response['links']['last'], array('format' => 'atom')));
+        $xml->endElement(); // link
+    }
+
+    /*
+     * Total results, startIndex and itemsPerpage
+     */
+    $xml->writeElement('os:totalResults', $response['totalResults']);
+    $xml->writeElement('os:startIndex', $response['startIndex']);
+    $xml->writeElement('os:itemsPerPage', $response['lastIndex'] - $response['startIndex'] + 1);
+
+    /*
+     * Query is made from request parameters
+     */
+    $xml->startElement('os:Query');
+    $xml->writeAttribute('role', 'request');
+    if (isset($response['query'])) {
+        foreach ($response['query']['original'] as $key => $value) {
+            $xml->writeAttribute($key, $value);
+        }
+    }
+    $xml->endElement(); // os:Query
+
+    /*
+     * Loop over all products
+     */
+    for ($i = 0, $l = count($response['features']); $i < $l; $i++) {
+
+        $product = $response['features'][$i];
+
+        /*
+         * entry - add element
+         */
+        $xml->startElement('entry');
+
+        /*
+         * Element 'id'
+         *  read from $product['properties']['identifier']
+         * 
+         * !! THIS SHOULD BE AN ABSOLUTE UNIQUE  AND PERMANENT IDENTIFIER !!
+         * 
+         */
+        $xml->writeElement('id', $product['properties']['identifier']);
+
+        /*
+         * Element 'title'
+         *  read from $product['properties']['title']
+         */
+        $xml->writeElement('title', $product['properties']['title']);
+
+        /*
+         * Element 'published' - date of metadata first publication
+         *  read from $product['properties']['title']
+         */
+        $xml->writeElement('published', $product['properties']['published']);
+
+        /*
+         * Element 'updated' - date of metadata last modification
+         *  read from $product['properties']['title']
+         */
+        $xml->writeElement('updated', $product['properties']['updated']);
+
+        /*
+         * Element 'dc:date' - date of the resource is beginning of acquisition i.e. startDate
+         *  read from $product['properties']['startDate']
+         */
+        $xml->writeElement('dc:date', $product['properties']['startDate']);
+
+        /*
+         * Element 'gml:validTime' - acquisition duration between startDate and completionDate
+         *  read from $product['properties']['startDate'] and $response['properties']['completionDate']
+         */
+        $xml->startElement('gml:validTime');
+        $xml->startElement('gml:TimePeriod');
+        $xml->writeElement('gml:beginPosition', $product['properties']['startDate']);
+        $xml->writeElement('gml:endPosition', $product['properties']['completionDate']);
+        $xml->endElement(); // gml:TimePeriod
+        $xml->endElement(); // gml:validTime
+
+        /*
+         * georss:polygon from geojson entry
+         * 
+         * WARNING !
+         * 
+         *      GeoJSON coordinates order is longitude,latitude
+         *      GML coordinates order is latitude,longitude 
+         *      
+         * 
+         */
+        $geometry = array();
+        foreach ($product['geometry']['coordinates'] as $key) {
+            foreach ($key as $value) {
+                array_push($geometry, $value[1] . ' ' . $value[0]);
+            }
+        }
+        $xml->startElement('georss:where');
+        $xml->startElement('gml:Polygon');
+        $xml->startElement('gml:exterior');
+        $xml->startElement('gml:LinearRing');
+        $xml->startElement('gml:posList');
+        $xml->writeAttribute('srsDimensions', '2');
+        $xml->text(join(' ', $geometry));
+        $xml->endElement(); // gml:posList
+        $xml->endElement(); // gml:LinearRing
+        $xml->endElement(); // gml:exterior
+        $xml->endElement(); // gml:Polygon
+        $xml->endElement(); // georss:where
+
+        /*
+         * Alternate links
+         */
+        $atomUrl = updateURL($product['properties']['self'], array('format' => 'atom'));
+        $xml->startElement('link');
+        $xml->writeAttribute('rel', 'alternate');
+        $xml->writeAttribute('type', 'application/atom+xml');
+        $xml->writeAttribute('title', $dictionary->translate('_atomLink', $product['properties']['identifier']));
+        $xml->writeAttribute('href', $atomUrl);
+        $xml->endElement(); // link
+
+        $htmlUrl = updateURL($product['properties']['self'], array('format' => 'html'));
+        $xml->startElement('link');
+        $xml->writeAttribute('rel', 'alternate');
+        $xml->writeAttribute('type', 'text/html');
+        $xml->writeAttribute('title', $dictionary->translate('_htmlLink', $product['properties']['identifier']));
+        $xml->writeAttribute('href', $htmlUrl);
+        $xml->endElement(); // link
+
+        $jsonUrl = updateURL($product['properties']['self'], array('format' => 'json'));
+        $xml->startElement('link');
+        $xml->writeAttribute('rel', 'alternate');
+        $xml->writeAttribute('type', 'application/json');
+        $xml->writeAttribute('title', $dictionary->translate('_geojsonLink', $product['properties']['identifier']));
+        $xml->writeAttribute('href', $jsonUrl);
+        $xml->endElement(); // link
+
+        /* TODO - RDF
+          $xml->startElement('link');
+          $xml->writeAttribute('rel', 'alternate');
+          $xml->writeAttribute('type', 'application/rdf+xml');
+          $xml->writeAttribute('title', '_rdfLink');
+          $xml->writeAttribute('href', updateURL($product['properties']['self'], array('format' => 'rdf')));
+          $xml->endElement(); // link
+         */
+
+        /* TODO - KML
+          $xml->startElement('link');
+          $xml->writeAttribute('rel', 'alternate');
+          $xml->writeAttribute('type', 'application/vnd.google-earth.kml+xml');
+          $xml->writeAttribute('title', '_kmlLink');
+          $xml->writeAttribute('href', updateURL($product['properties']['self'], array('format' => 'kml')));
+          $xml->endElement(); // link
+         */
+
+        /*
+         * Element 'enclosure' - download product
+         *  read from $product['properties']['archive']
+         */
+        $xml->startElement('link');
+        $xml->writeAttribute('rel', 'enclosure');
+        $xml->writeAttribute('type', $product['properties']['services']['download']['mimeType']);
+        //$xml->writeAttribute('length', 'TODO');
+        $xml->writeAttribute('title', 'File for ' . $product['properties']['identifier'] . ' product');
+        $xml->writeAttribute('metalink:priority', 50);
+        $xml->writeAttribute('href', $product['properties']['services']['download']['url']);
+        $xml->endElement(); // link
+
+        /*
+         * Element 'summary' - HTML description
+         *  construct from $product['properties'][*]
+         */
+        $content = '<p>' . $product['properties']['platform'] . ($product['properties']['platform'] && $product['properties']['instrument'] ? '/' : '') . $product['properties']['instrument'] . ' ' . $dictionary->translate('_acquiredOn', $product['properties']['startDate']) . '</p>';
+        if ($product['properties']['keywords']) {
+            $keywords = array();
+            foreach ($product['properties']['keywords'] as $keyword => $value) {
+                array_push($keywords, '<a href="' . updateURL($value['url'], array('format' => 'atom')) . '">' . $keyword . '</a>');
+            }
+            $content .= '<p>' . $dictionary->translate('Keywords') . ' ' . join(' | ', $keywords) . '</p>';
+        }
+        $content .= '<p>' . $dictionary->translate('_viewMetadata', '<a href="' . updateURL($product['properties']['self'], array('format' => 'html')) . '">HTML</a>&nbsp;|&nbsp;<a href="' . updateURL($product['properties']['self'], array('format' => 'atom')) . '">ATOM</a>&nbsp;|&nbsp;<a href="' . updateURL($product['properties']['self'], array('format' => 'json')) . '">GeoJSON</a>') . '</p>';
+        $xml->startElement('content');
+        $xml->writeAttribute('type', 'html');
+        $xml->text($content);
+        $xml->endElement(); // content
+
+        /*
+         * entry - close element
+         */
+        $xml->endElement(); // entry
+    }
+
+    /*
+     * feed - End element
+     */
+    $xml->endElement();
+
+    /*
+     * Return ATOM result
+     */
+    return $xml->outputMemory(true);
+}
