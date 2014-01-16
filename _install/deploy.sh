@@ -35,14 +35,12 @@
 #  The fact that you are presently reading this means that you have had
 #  knowledge of the CeCILL-B license and that you accept its terms.
 #  
-HTTPS=0
-usage="## Update a collection\n\n  Usage $0 -c <Collection name> -f <Collection description file (i.e. JSON file)>  -u <username:password> [-s (use https if set)]\n"
-while getopts "c:sf:u:h" options; do
+
+# Paths are mandatory from command line
+usage="## RESTo deployment\n\n  Usage $0 -d <Target directory>\n"
+while getopts "d:h" options; do
     case $options in
-        c ) COLLECTION=`echo $OPTARG`;;
-        u ) AUTH=`echo $OPTARG`;;
-        f ) JSON=`echo $OPTARG`;;
-        s ) HTTPS=1;;
+        d ) TARGETDIR=`echo $OPTARG`;;
         h ) echo -e $usage;;
         \? ) echo -e $usage
             exit 1;;
@@ -50,20 +48,10 @@ while getopts "c:sf:u:h" options; do
             exit 1;;
     esac
 done
-if [ "$JSON" = "" ]
-then
-    echo -e $usage
-    exit 1
-fi
-if [ "$COLLECTION" = "" ]
+if [ "$TARGETDIR" = "" ]
 then
     echo -e $usage
     exit 1
 fi
 
-if [ "$HTTPS" = "1" ]
-then
-    curl -k -X PUT -F "file[]=@$JSON" https://$AUTH@localhost/resto/$COLLECTION
-else
-    curl -X PUT -F "file[]=@$JSON" http://$AUTH@localhost/resto/$COLLECTION
-fi
+mkdir $TARGETDIR && cp -Rf .htaccess favicon.ico index.php css js resto $TARGETDIR && echo ' ==> Successfully install RESTo to $TARGETDIR directory' && echo ' ==> Now, do not forget to check $TARGETDIR/resto/resto.ini configuration !'
