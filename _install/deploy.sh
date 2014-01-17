@@ -36,11 +36,11 @@
 #  knowledge of the CeCILL-B license and that you accept its terms.
 #  
 
-# Paths are mandatory from command line
-usage="## RESTo deployment\n\n  Usage $0 -d <Target directory>\n"
-while getopts "d:h" options; do
+usage="## RESTo deployment\n\n  Usage $0 -s <RESTO_HOME> -t <RESTO_TARGET>\n"
+while getopts "s:t:h" options; do
     case $options in
-        d ) TARGETDIR=`echo $OPTARG`;;
+        s ) SRCDIR=`echo $OPTARG`;;
+        t ) TARGETDIR=`echo $OPTARG`;;
         h ) echo -e $usage;;
         \? ) echo -e $usage
             exit 1;;
@@ -48,10 +48,25 @@ while getopts "d:h" options; do
             exit 1;;
     esac
 done
+if [ "$SRCDIR" = "" ]
+then
+    echo -e $usage
+    exit 1
+fi
 if [ "$TARGETDIR" = "" ]
 then
     echo -e $usage
     exit 1
 fi
 
-mkdir $TARGETDIR && cp -Rf .htaccess favicon.ico index.php css js resto $TARGETDIR && echo ' ==> Successfully install RESTo to $TARGETDIR directory' && echo ' ==> Now, do not forget to check $TARGETDIR/resto/resto.ini configuration !'
+if [ -d "$TARGETDIR" ]; then
+    if [ "$(ls $DIR)" ]; then
+        echo "ERROR : $TARGETDIR is not empty. Cannot install"
+        exit 1
+    fi
+fi
+
+mkdir $TARGETDIR
+cp -Rf $SRCDIR/.htaccess $SRCDIR/favicon.ico $SRCDIR/index.php $SRCDIR/css $SRCDIR/js $SRCDIR/resto $TARGETDIR
+echo ' ==> Successfully install RESTo to $TARGETDIR directory'
+echo ' ==> Now, do not forget to check $TARGETDIR/resto/resto.ini configuration !'
