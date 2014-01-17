@@ -8,7 +8,7 @@ You can try the [RESTo demo] (http://mapshup.info/resto)
 Installation
 ============
 
-In the following, we suppose that $RESTO_HOME is the directory where resto will be installed
+In the following, we suppose that $RESTO_HOME is the directory where resto sources will be installed
 
         export RESTO_HOME=/wherever/you/want/resto
 
