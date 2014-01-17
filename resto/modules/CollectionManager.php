@@ -442,7 +442,7 @@ class CollectionManager {
             throw new Exception('Cannot insert collection ' . $this->request['name'] . ' in resto collections table', 500);
         }
         
-        return array('Status' => 'success', 'Message' => 'Collection ' . $this->request['name'] . 'created');
+        return array('Status' => 'success', 'Message' => 'Collection ' . $this->request['name'] . ' created');
     }
 
     /**
@@ -485,6 +485,12 @@ class CollectionManager {
      */
     public function delete() {
 
+        /*
+         * Comment
+         */
+        $comment = '';
+        $status = 'success';
+        
         if (!$this->dbh) {
             throw new Exception('Database connection error', 500);
         }
@@ -506,7 +512,7 @@ class CollectionManager {
          */
         if ($this->request['physical']) {
             
-            $results = pg_query($this->dbh, 'SELECT collection, dbname, schemaname FROM admin.collections WHERE collection=\'' . pg_escape_string($this->collection) . '\'');
+            $results = pg_query($this->dbh, 'SELECT collection, dbname, schemaname, tablename FROM admin.collections WHERE collection=\'' . pg_escape_string($this->collection) . '\'');
             if (!$results) {
                 throw new Exception('Database connection error', 500);
             }
@@ -527,7 +533,17 @@ class CollectionManager {
                  * Only schema within RESTo database can be deleted
                  */
                 if (pg_dbname($this->dbh) === $result['dbname'] && $result['schemaname'] !== 'public' && $result['schemaname'] !== 'admin') {
-                    pg_query($this->dbh, 'DROP SCHEMA ' . $result['schemaname'] . ' CASCADE');
+                    
+                    /*
+                     * Do not drop schema if product table is not empty
+                     */
+                    if ($this->tableIsEmpty($result['schemaname'] . '.' . $result['tablename'])) {
+                        pg_query($this->dbh, 'DROP SCHEMA ' . $result['schemaname'] . ' CASCADE');
+                    }
+                    else {
+                        $comment = '. WARNING! Schema ' . $result['schemaname'] . ' not dropped (not empty)';
+                        $status = 'partially';
+                    }
                 }
 
                 pg_query($this->dbh, 'COMMIT');
@@ -553,7 +569,7 @@ class CollectionManager {
             }
         }
         
-        return array('Status' => 'success', 'Message' => 'Collection ' . $this->collection . ($this->request['physical'] ? ' physically' : ' logically') . ' deleted');
+        return array('Status' => $status, 'Message' => 'Collection ' . $this->collection . ($this->request['physical'] ? ' physically' : ' logically') . ' deleted' . $comment);
     }
 
     /**
@@ -591,6 +607,25 @@ class CollectionManager {
         }
 
         return false;
+    }
+
+    /**
+     * Check if table $name is empty
+     * 
+     * @param string $name - table name
+     */
+    private function tableIsEmpty($name) {
+
+        $results = pg_query($this->dbh, 'SELECT EXISTS(SELECT 1 FROM ' . $name . ')');
+        if (!$results) {
+            throw new Exception('Database connection error', 500);
+        }
+        $result = pg_fetch_assoc($results);
+        if ($result['exists'] === 't') {
+            return false;
+        }
+
+        return true;
     }
 
 }
