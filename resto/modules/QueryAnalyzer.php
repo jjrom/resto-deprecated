@@ -539,12 +539,15 @@ class QueryAnalyzer {
             }
             /*
              * Day is an int value < 31
+             * Month shoud specified immediately before or after
              */
             else if (is_numeric($searchTerms[$i])) {
-                $d = intval($searchTerms[$i]);
-                if ($d > 0 && $d < 31) {
-                    $day = $d < 10 ? '0' . $d : $d;
-                    array_push($toRemove, $searchTerms[$i]);
+                if (($i - 1 > 0 && $this->dictionary->getMonth($searchTerms[$i - 1])) || ($i + 1 < $l && $this->dictionary->getMonth($searchTerms[$i + 1]))) {
+                    $d = intval($searchTerms[$i]);
+                    if ($d > 0 && $d < 31) {
+                        $day = $d < 10 ? '0' . $d : $d;
+                        array_push($toRemove, $searchTerms[$i]);
+                    }
                 }
             }
             
