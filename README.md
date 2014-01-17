@@ -89,9 +89,9 @@ or in whatever directory accessed through web server Alias configuration. The la
 
 To install RESTo launch the following script
 
-        # Note : RESTO_INSTALLATION_TARGET should not exist - it will be created by deploy.sh script
-        export RESTO_INSTALLATION_TARGET=/your/installation/directory
-        $RESTO_HOME/_install/deploy.sh -d $RESTO_INSTALLATION_TARGET
+        # Note : RESTO_TARGET should not exist - it will be created by deploy.sh script
+        export RESTO_TARGET=/your/installation/directory
+        $RESTO_HOME/_install/deploy.sh -s $RESTO_HOME -t $RESTO_TARGET
 
 
 Install iTag (optional)
@@ -138,7 +138,7 @@ For instance on MacOS X, looks for something like this in /etc/apache2/httpd.con
 Set an alias to the resto directory. To make mod_rewrite works, you need to verify that both 'FollowSymLinks'
 and 'AllowOverride All' are set in the apache directory configuration
 
-For instance to access resto at http://localhost/resto (change "/directory/to/resto" by $$RESTO_INSTALLATION_TARGET below):
+For instance to access resto at http://localhost/resto (change "/directory/to/resto" by $RESTO_TARGET below):
 
         Alias /resto/ "/directory/to/resto"
         <Directory "/directory/to/resto">
@@ -148,10 +148,10 @@ For instance to access resto at http://localhost/resto (change "/directory/to/re
             Allow from all
         </Directory>
 
-### Check "RewriteBase" value within $RESTO_INSTALLATION_TARGET/.htaccess
+### Check "RewriteBase" value within $RESTO_TARGET/.htaccess
 
 Edit this value so it matches your alias name. If you use the same alias as in 2. (i.e. '/resto/')
-there is no need to edit $RESTO_INSTALLATION_TARGET/.htaccess file
+there is no need to edit $RESTO_TARGET/.htaccess file
 
 ### Configure apache to support https (optional)
 
@@ -172,7 +172,7 @@ Note: a step by step guide for installing https on Mac OS X is provided in the F
 RESTo configuration
 -------------------
 
-All configuration parameters are defined within $RESTO_INSTALLATION_TARGET/resto/resto.ini file
+All configuration parameters are defined within $RESTO_TARGET/resto/resto.ini file
 
 The configuration file is self explanatory. For a standard installation you should only check that :
 * db.password value is the same as the 'resto' user password set during database installation
