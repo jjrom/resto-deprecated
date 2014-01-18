@@ -276,6 +276,11 @@ class QueryAnalyzer {
         }
         
         /*
+         * Store input
+         */
+        $input = $params['searchTerms'];
+        
+        /*
          * Transliterate searchTerms string
          * Split each terms with (" "character)
          */
@@ -334,7 +339,7 @@ class QueryAnalyzer {
          */
         $this->extractKeywordsAndLocation($searchTerms, $params);
 
-        return array($params, microtime(true) - $startTime);
+        return array('query' => $input, 'analyze' => $params, 'queryAnalyzeProcessingTime' => microtime(true) - $startTime);
         
     }
 
@@ -688,7 +693,11 @@ class QueryAnalyzer {
                 if (count($locations) > 0) {
                     $countryFoundInGazetteer = $locations[0]['country'];
                     $params['geo:name'] = $locations[0]['name'] . ', ' . $countryFoundInGazetteer;
-                    $params['__geo:name:bbox__'] = $locations[0]['longitude'] . ',' . $locations[0]['latitude'];
+                    $params['geo:lon'] = $locations[0]['longitude'];
+                    $params['geo:lat'] = $locations[0]['latitude'];
+                    if (!$params['geo:radius']) {
+                        $params['geo:radius'] = 10000;
+                    }
                 }
             }
             

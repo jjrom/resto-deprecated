@@ -833,3 +833,14 @@ function toAtom($response, $dictionary, $version = '1.0', $encoding = 'UTF-8') {
      */
     return $xml->outputMemory(true);
 }
+
+/**
+ * Return radius length in degrees for a radius in meters
+ * at a given latitude
+ * 
+ * @param float $r
+ * @param float $lat
+ */
+function radiusInDegrees($radius, $lat) {
+    return ($radius * cos(deg2rad($lat))) / 111110.0;
+}
