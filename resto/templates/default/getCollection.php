@@ -224,7 +224,7 @@
                             foreach (array_keys($tmp) as $arr) {
                                 if (count($tmp[$arr]) > 0) {
                                     for ($j = 0, $k = count($tmp[$arr]); $j < $k; $j++) {
-                                        echo '<a href="' . updateURL($tmp[$arr][$j]['url'], array('format' => 'html')) . '" class="keyword keyword-' . $tmp[$arr][$j]['type'] . '">' . $tmp[$arr][$j]['keyword'] . '</a> ';
+                                        echo '<a href="' . updateURL($tmp[$arr][$j]['url'], array('format' => 'html')) . '" class="keyword keyword-' . str_replace(' ', '', $tmp[$arr][$j]['type']) . '">' . $tmp[$arr][$j]['keyword'] . '</a> ';
                                     }
                                     
                                 }
