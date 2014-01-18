@@ -1376,14 +1376,10 @@ abstract class RestoController {
              * Close database connection
              */
             pg_close($dbh);
-        } else {
-
-            if ($this->description['model']['archive']) {
-                $product = array(
-                    'archive' => $this->description['model']['archive'],
-                    'mimetype' => $this->description['model']['mimetype']
-                );
-            }
+            
+        }
+        else {
+            $product = $this->getModelValue('archive');
         }
 
         /*
@@ -1392,13 +1388,11 @@ abstract class RestoController {
         if (!$product) {
             return $this->error('Not Found', 404);
         }
-
+        
         /*
          * Consolidate archive url
          */
-        if ($this->dbConnector->get('archiveUrl')) {
-            $product['archive'] = replace($this->dbConnector->get('archiveUrl'), array($product['archive']));
-        }
+        $product['archive'] = $this->getModelValue('archive', $product['archive']);
 
         /*
          * This is a stream - this will bypass RESTo::send() function
