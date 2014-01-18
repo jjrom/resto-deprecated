@@ -597,7 +597,7 @@ class CollectionManager {
      */
     private function schemaExists($name) {
 
-        $results = pg_query($this->dbh, 'SELECT EXISTS(SELECT 1 FROM pg_namespace WHERE nspname = \'' . $name . '\')');
+        $results = pg_query($this->dbh, 'SELECT EXISTS(SELECT 1 FROM pg_namespace WHERE nspname = \'' . $name . '\') AS exists');
         if (!$results) {
             throw new Exception('Database connection error', 500);
         }
@@ -616,7 +616,7 @@ class CollectionManager {
      */
     private function tableIsEmpty($name) {
 
-        $results = pg_query($this->dbh, 'SELECT EXISTS(SELECT 1 FROM ' . $name . ')');
+        $results = pg_query($this->dbh, 'SELECT EXISTS(SELECT 1 FROM ' . $name . ') AS exists');
         if (!$results) {
             throw new Exception('Database connection error', 500);
         }
