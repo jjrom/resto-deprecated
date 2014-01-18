@@ -85,6 +85,9 @@ class DefaultController extends RestoController {
         'startIndex?',
         'geo:box?', // Bounding Box
         'geo:name?', // Location name
+        'geo:lon?', // Longitude
+        'geo:lat?', // Latitude
+        'geo:radius?', // Radius in meters
         'time:start?', // Start of acquisition
         'time:end?', // End of acquisition
         'ptsc:modifiedDate?', // Modified date (for harvesting)
