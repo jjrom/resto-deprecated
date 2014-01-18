@@ -1554,7 +1554,7 @@ abstract class RestoController {
     final private function getKeywords($product, $baseUrl) {
 
         $keywords = array();
-        
+
         /*
          * Add a keyword for year, month and day of acquisition
          */
@@ -1599,9 +1599,9 @@ abstract class RestoController {
          * 
          * Note: hstore_to_array() is only available in PostgreSQL >= 9.3
          */
-        $json = json_decode('{' . str_replace('"=>"', '":"', str_replace('NULL', '""', $product[$this->description['searchFiltersDescription']['searchTerms']['key']])) . '}');
+        $json = json_decode('{' . str_replace('"=>"', '":"', str_replace('NULL', '""', $product[$this->description['searchFiltersDescription']['searchTerms']['key']])) . '}', true);
         foreach ($json as $key => $value) {
-            
+
             /*
              * $key format is "type:name"
              */
@@ -1609,16 +1609,16 @@ abstract class RestoController {
             $name = $key;
             $splitted = explode(':', $key);
             if ($splitted > 1) {
-                
+
                 $type = $splitted[0];
-                
+
                 /*
                  * Do not display landuse_details
                  */
                 if ($type === 'landuse_details') {
                     continue;
                 }
-                
+
                 $name = substr($key, strlen($splitted[0]) + 1);
             }
             $translated = $this->description['dictionary']->translate($name);
@@ -1629,7 +1629,7 @@ abstract class RestoController {
             if ($value !== null) {
                 $keywords[$translated]['value'] = $value;
             }
-            $keywords[$translated]['url'] =updateUrl($baseUrl, array('format' => $this->request['format'], $this->outputName('searchTerms') => trim(str_replace(' ', '-', $translated))));
+            $keywords[$translated]['url'] = updateUrl($baseUrl, array('format' => $this->request['format'], $this->outputName('searchTerms') => trim(str_replace(' ', '-', $translated))));
         }
 
         return $keywords;
