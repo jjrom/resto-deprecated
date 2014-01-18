@@ -97,6 +97,11 @@ class Resto {
     private $config = array();
 
     /*
+     * Boolean for pretty print JSON output
+     */
+    private $pretty = false;
+
+    /*
      * List of collections
      */
     private $collections = array();
@@ -243,9 +248,16 @@ class Resto {
         $this->request['format'] = isset($_GET['format']) && array_key_exists(trim($_GET['format']), self::$contentTypes) ? trim($_GET['format']) : ($this->request['method'] === 'get' ? self::DEFAULT_GET_RESPONSE_FORMAT : self::DEFAULT_RESPONSE_FORMAT);
 
         /*
+         * Set pretty print JSON boolean
+         */
+        if (isset($_GET['_pretty'])) {
+           $this->pretty = trueOrFalse($_GET['_pretty']); 
+        }
+        
+        /*
          * Query parameters
          */
-        unset($_GET['RESToURL'], $_GET['format'], $_GET['lang']);
+        unset($_GET['RESToURL'], $_GET['format'], $_GET['lang'], $_GET['pretty']);
         switch ($this->request['method']) {
             case 'get':
                 $this->request['params'] = $_GET;
@@ -620,7 +632,7 @@ class Resto {
      * Converts response array to json.
      */
     private function jsonResponse() {
-        return json_encode($this->response);
+        return json_format($this->response, $this->pretty);
     }
 
     /**
