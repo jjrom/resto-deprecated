@@ -49,7 +49,7 @@ abstract class RestoController {
     /*
      * RESTo generic OpenSearch model
      */
-    static private $searchFiltersDescription = array(
+    static public $searchFiltersDescription = array(
         'searchTerms' => array(
             'key' => 'keywords',
             'osKey' => 'q',
@@ -72,6 +72,21 @@ abstract class RestoController {
         'geo:name' => array(
             'key' => 'geometry',
             'osKey' => 'location',
+            'operation' => 'intersects'
+        ),
+        'geo:lon' => array(
+            'key' => 'geometry',
+            'osKey' => 'lon',
+            'operation' => 'intersects'
+        ),
+        'geo:lat' => array(
+            'key' => 'geometry',
+            'osKey' => 'lat',
+            'operation' => 'intersects'
+        ),
+        'geo:radius' => array(
+            'key' => 'geometry',
+            'osKey' => 'radius',
             'operation' => 'intersects'
         ),
         'time:start' => array(
@@ -591,6 +606,9 @@ abstract class RestoController {
             'count',
             'startIndex',
             'startPage',
+            // geo:lat and geo:radius are linked to geo:lon
+            'geo:lat',
+            'geo:radius'
         );
 
         if (in_array($filterName, $exclude)) {
@@ -693,31 +711,35 @@ abstract class RestoController {
              */
             else if ($operation === 'intersects') {
 
+                /*
+                 * Default bounding box is the whole earth
+                 */
                 $lonmin = -180;
                 $lonmax = 180;
                 $latmin = -90;
                 $latmax = 90;
-
+                
+                /*
+                 * geo:lon and geo:lat have preseance to any other geographical
+                 * filters
+                 */
+                if ($requestParams['geo:lon'] && $requestParams['geo:lat']) {
+                    $radius = radiusInDegrees(isset($requestParams['geo:radius']) ? floatval($requestParams['geo:radius']) : 10000, $requestParams['geo:lat']);
+                    $lonmin = $requestParams['geo:lon'] - $radius;
+                    $latmin = $requestParams['geo:lat'] - $radius;
+                    $lonmax = $requestParams['geo:lon'] + $radius;
+                    $latmax = $requestParams['geo:lat'] + $radius;
+                }
                 /*
                  * Location case 
                  * Check in Gazetteer
                  */
-                if ($filterName === 'geo:name') {
-                    
-                    $radius = 0.1;
-                    
-                    // No need to recall Gazetteer
-                    if ($requestParams['__geo:name:bbox__']) {
-                        list($longitude, $latitude) = explode(',', $requestParams['__geo:name:bbox__']);
-                        $lonmin = $longitude - $radius;
-                        $latmin = $latitude - $radius;
-                        $lonmax = $longitude + $radius;
-                        $latmax = $latitude + $radius;
-                    }
-                    else if (class_exists('Gazetteer')) {
+                else if ($filterName === 'geo:name') {
+                    if (class_exists('Gazetteer')) {
                         $gazetteer = new Gazetteer($this->R);
                         $locations = $gazetteer->locate($requestParams[$filterName], $this->description['dictionary']->lang, null, $requestParams['geo:box']);
                         if (count($locations) > 0) {
+                            $radius = radiusInDegrees(isset($requestParams['geo:radius']) ? floatval($requestParams['geo:radius']) : 10000, $requestParams['geo:lat']);
                             $lonmin = $locations[0]['longitude'] - $radius;
                             $latmin = $locations[0]['latitude'] - $radius;
                             $lonmax = $locations[0]['longitude'] + $radius;
@@ -725,7 +747,7 @@ abstract class RestoController {
                         }
                     }
                 }
-                else {
+                else if ($filterName === 'geo:box') {
                     $coords = explode(',', $requestParams[$filterName]);
                     if (count($coords) === 4) {
                         $lonmin = is_numeric($coords[0]) ? $coords[0] : $lonmin;
@@ -846,7 +868,9 @@ abstract class RestoController {
          */
         if (class_exists('QueryAnalyzer')) {
             $qa = new QueryAnalyzer($this->description['dictionary'], $this->description['searchFiltersDescription'], class_exists('Gazetteer') ? new Gazetteer($this->R) : null);
-            list($this->request['realParams'], $this->request['queryAnalyzeProcessingTime']) = $qa->analyze($this->request['params']);
+            $analyze = $qa->analyze($this->request['params']);
+            $this->request['realParams'] = $analyze['analyze'];
+            $this->request['queryAnalyzeProcessingTime'] = $analyze['queryAnalyzeProcessingTime'];
         }
 
         /*
@@ -1141,8 +1165,7 @@ abstract class RestoController {
         $exclude = array(
             'count',
             'startIndex',
-            'startPage',
-            '__geo:name:bbox__'
+            'startPage'
         );
         foreach ($this->request['params'] as $key => $value) {
             if (in_array($key, $exclude)) {
@@ -1160,13 +1183,6 @@ abstract class RestoController {
                 continue;
             }
             $real[$key] = $value;
-        }
-
-        /*
-         * Add lang to real array
-         */
-        if (!$real['lang']) {
-            $real['lang'] = $this->description['dictionary']->lang;
         }
 
         /*

@@ -276,6 +276,13 @@ class QueryAnalyzer {
         }
         
         /*
+         * Set analyze language
+         */
+        if (!$params['lang']) {
+            $params['lang'] = $this->dictionary->lang;
+        }
+        
+        /*
          * Store input
          */
         $input = $params['searchTerms'];

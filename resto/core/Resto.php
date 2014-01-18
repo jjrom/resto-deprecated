@@ -291,12 +291,34 @@ class Resto {
     public function process() {
 
         try {
-
+            
+            /*
+             * Reserved actions 
+             */
+            if ($this->request['collection'] && substr($this->request['collection'], 0 , 1) === '$') {
+                
+                /*
+                 * Action always returns JSON
+                 */
+                $this->request['format'] = self::DEFAULT_RESPONSE_FORMAT;
+                
+                /*
+                 * QueryAnalyzer standalone service
+                 */
+                if ($this->request['collection'] === '$analyzeQuery' && class_exists('QueryAnalyzer')) {
+                    $qa = new QueryAnalyzer($this->dictionary, RestoController::$searchFiltersDescription, class_exists('Gazetteer') ? new Gazetteer($this) : null);
+                    $this->response = $qa->analyze(array('searchTerms' => $this->request['params']['q']));
+                    $this->responseStatus = 200;
+                }
+                else {
+                    throw new Exception('Not Found', 404);
+                }
+            }
             /*
              * Collection is requested
              */
-            if ($this->request['collection']) {
-
+            else if ($this->request['collection']) {
+                
                 /*
                  * Collection does not exist
                  */
