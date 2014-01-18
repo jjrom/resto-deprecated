@@ -272,7 +272,8 @@ class QueryAnalyzer {
          * queryAnalyzer only apply on searchTerms filter
          */
         if (!$params['searchTerms']) {
-            return $params;
+            $params['searchTerms'] = "";
+            return array('query' => '', 'analyze' => $params, 'queryAnalyzeProcessingTime' => microtime(true) - $startTime);
         }
         
         /*
