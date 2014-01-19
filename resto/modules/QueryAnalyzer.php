@@ -50,6 +50,7 @@ class QueryAnalyzer {
     private $dictionary;
     private $searchFiltersDescription;
     private $gazetteer;
+    private $unProcessed = array();
 
     public function __construct($dictionary, $searchFiltersDescription, $gazetteer) {
         $this->dictionary = $dictionary;
@@ -347,7 +348,7 @@ class QueryAnalyzer {
          */
         $this->extractKeywordsAndLocation($searchTerms, $params);
 
-        return array('query' => $input, 'analyze' => $params, 'queryAnalyzeProcessingTime' => microtime(true) - $startTime);
+        return array('query' => $input, 'analyze' => $params, 'unProcessed' => $this->unProcessed, 'queryAnalyzeProcessingTime' => microtime(true) - $startTime);
         
     }
 
@@ -707,8 +708,13 @@ class QueryAnalyzer {
                         $params['geo:radius'] = 10000;
                     }
                 }
+                else {
+                    array_push($this->unProcessed, $searchTerms[$i]);
+                }
             }
-            
+            else {
+                array_push($this->unProcessed, $searchTerms[$i]);
+            }
         }
         
         /*
