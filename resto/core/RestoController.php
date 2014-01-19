@@ -72,22 +72,22 @@ abstract class RestoController {
         'geo:name' => array(
             'key' => 'geometry',
             'osKey' => 'location',
-            'operation' => 'intersects'
+            'operation' => 'distance'
         ),
         'geo:lon' => array(
             'key' => 'geometry',
             'osKey' => 'lon',
-            'operation' => 'intersects'
+            'operation' => 'distance'
         ),
         'geo:lat' => array(
             'key' => 'geometry',
             'osKey' => 'lat',
-            'operation' => 'intersects'
+            'operation' => 'distance'
         ),
         'geo:radius' => array(
             'key' => 'geometry',
             'osKey' => 'radius',
-            'operation' => 'intersects'
+            'operation' => 'distance'
         ),
         'time:start' => array(
             'key' => 'startDate',
@@ -207,7 +207,7 @@ abstract class RestoController {
      *              'osKey' => OpenSearch key
      *              'key' => Equivalent column name within RESTo database model
      *              'type' => string | numeric | date
-     *              'operation' => hstore | intersects | interval | = | >= | <=
+     *              'operation' => hstore | intersects | distance | interval | = | >= | <=
      *              'keyword' => array(
      *                  'value' => value display as keyword (form "vcsc{a:1}")
      *                  'type' => type of keyword
@@ -707,7 +707,7 @@ abstract class RestoController {
                 return $this->getModelName($this->description['searchFiltersDescription'][$filterName]['key']) . ' ' . $operation . ' ' . $quote . pg_escape_string($requestParams[$filterName]) . $quote;
             }
             /*
-             * Spatial operation cases
+             * Spatial operation ST_Intersects (Input bbox or polygon)
              */
             else if ($operation === 'intersects') {
 
@@ -719,16 +719,46 @@ abstract class RestoController {
                 $latmin = -90;
                 $latmax = 90;
                 
+                if ($filterName === 'geo:box') {
+                    $coords = explode(',', $requestParams[$filterName]);
+                    if (count($coords) === 4) {
+                        $lonmin = is_numeric($coords[0]) ? $coords[0] : $lonmin;
+                        $latmin = is_numeric($coords[1]) ? $coords[1] : $latmin;
+                        $lonmax = is_numeric($coords[2]) ? $coords[2] : $lonmax;
+                        $latmax = is_numeric($coords[3]) ? $coords[3] : $latmax;
+                    }
+                }
+
+                return 'ST_' . $operation . '(' . $this->getModelName($this->description['searchFiltersDescription'][$filterName]['key']) . ", ST_GeomFromText('" . pg_escape_string('POLYGON((' . $lonmin . ' ' . $latmin . ',' . $lonmin . ' ' . $latmax . ',' . $lonmax . ' ' . $latmax . ',' . $lonmax . ' ' . $latmin . ',' . $lonmin . ' ' . $latmin . '))') . "', 4326))";
+            }
+            /*
+             * Spatial operation ST_Distance (Center point + radius)
+             * 
+             * WARNING ! Quick benchmark show that st_distance is 100x slower than st_intersects
+             * 
+             * TODO - check if st_distance performance can be improved.
+             * 
+             */
+            else if ($operation === 'distance') {
+                
+                $use_distance = false;
+                
                 /*
-                 * geo:lon and geo:lat have preseance to any other geographical
-                 * filters
+                 * geo:lon and geo:lat have preseance to geo:name
+                 * (avoid double call to Gazetteer)
                  */
                 if ($requestParams['geo:lon'] && $requestParams['geo:lat']) {
                     $radius = radiusInDegrees(isset($requestParams['geo:radius']) ? floatval($requestParams['geo:radius']) : 10000, $requestParams['geo:lat']);
-                    $lonmin = $requestParams['geo:lon'] - $radius;
-                    $latmin = $requestParams['geo:lat'] - $radius;
-                    $lonmax = $requestParams['geo:lon'] + $radius;
-                    $latmax = $requestParams['geo:lat'] + $radius;
+                    if ($use_distance) {
+                        $lon = $requestParams['geo:lon'];
+                        $lat = $requestParams['geo:lat'];
+                    }
+                    else {
+                        $lonmin = $requestParams['geo:lon'] - $radius;
+                        $latmin = $requestParams['geo:lat'] - $radius;
+                        $lonmax = $requestParams['geo:lon'] + $radius;
+                        $latmax = $requestParams['geo:lat'] + $radius;
+                    }
                 }
                 /*
                  * Location case 
@@ -740,24 +770,26 @@ abstract class RestoController {
                         $locations = $gazetteer->locate($requestParams[$filterName], $this->description['dictionary']->lang, null, $requestParams['geo:box']);
                         if (count($locations) > 0) {
                             $radius = radiusInDegrees(isset($requestParams['geo:radius']) ? floatval($requestParams['geo:radius']) : 10000, $requestParams['geo:lat']);
-                            $lonmin = $locations[0]['longitude'] - $radius;
-                            $latmin = $locations[0]['latitude'] - $radius;
-                            $lonmax = $locations[0]['longitude'] + $radius;
-                            $latmax = $locations[0]['latitude'] + $radius;
+                            if ($use_distance){
+                                $lon = $locations[0]['longitude'];
+                                $lat = $locations[0]['latitude'];
+                            }
+                            else {
+                                $lonmin = $locations[0]['longitude'] - $radius;
+                                $latmin = $locations[0]['latitude'] - $radius;
+                                $lonmax = $locations[0]['longitude'] + $radius;
+                                $latmax = $locations[0]['latitude'] + $radius;
+                            }        
                         }
                     }
                 }
-                else if ($filterName === 'geo:box') {
-                    $coords = explode(',', $requestParams[$filterName]);
-                    if (count($coords) === 4) {
-                        $lonmin = is_numeric($coords[0]) ? $coords[0] : $lonmin;
-                        $latmin = is_numeric($coords[1]) ? $coords[1] : $latmin;
-                        $lonmax = is_numeric($coords[2]) ? $coords[2] : $lonmax;
-                        $latmax = is_numeric($coords[3]) ? $coords[3] : $latmax;
-                    }
+                
+                if ($use_distance) {
+                    return 'ST_distance(' . $this->getModelName($this->description['searchFiltersDescription'][$filterName]['key']) . ', ST_GeomFromText(\'' . pg_escape_string('POINT(' . $lon . ' ' . $lat . ')') . '\', 4326)) < ' . $radius;
                 }
-
-                return 'ST_' . $operation . '(' . $this->getModelName($this->description['searchFiltersDescription'][$filterName]['key']) . ", ST_GeomFromText('" . pg_escape_string('POLYGON((' . $lonmin . ' ' . $latmin . ',' . $lonmin . ' ' . $latmax . ',' . $lonmax . ' ' . $latmax . ',' . $lonmax . ' ' . $latmin . ',' . $lonmin . ' ' . $latmin . '))') . "', 4326))";
+                
+                return 'ST_intersects(' . $this->getModelName($this->description['searchFiltersDescription'][$filterName]['key']) . ", ST_GeomFromText('" . pg_escape_string('POLYGON((' . $lonmin . ' ' . $latmin . ',' . $lonmin . ' ' . $latmax . ',' . $lonmax . ' ' . $latmax . ',' . $lonmax . ' ' . $latmin . ',' . $lonmin . ' ' . $latmin . '))') . "', 4326))";
+            
             }
             /*
              * hstore case - i.e. searchTerms in keywords column

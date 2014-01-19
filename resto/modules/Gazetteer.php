@@ -358,8 +358,6 @@ class Gazetteer {
      *      geom
      *  );
      * 
-     * TODO rajouter les deux autres tables
-     * 
      * @param String $toponym toponym
      * @param String $lang language
      * @param String $countryName limit search to country name
