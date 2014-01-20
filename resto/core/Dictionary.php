@@ -65,29 +65,29 @@ class Dictionary {
     /*
      * Reference to the dictionary language
      */
-    public $lang;
+    public $language;
 
     /**
      * Constructor
      * 
-     * @param string $lang
+     * @param string $language
      * @param array $dictionary
      * @throws Exception
      */
-    public function __construct($lang, $dictionary = array()) {
+    public function __construct($language, $dictionary = array()) {
         
         /*
-         * Set dictionary lang
+         * Set dictionary language
          */
-        $this->lang = $lang;
+        $this->language = $language;
         
         /*
-         * Retrieve dictionary in input lang if exists
+         * Retrieve dictionary in input language if exists
          * otherwise switch to english (default)
          */
-        $dictionaryFile = realpath(dirname(__FILE__)) . '/../dictionaries/dictionary_' . $lang . '.php';
+        $dictionaryFile = realpath(dirname(__FILE__)) . '/../dictionaries/dictionary_' . $language . '.php';
         if (!file_exists($dictionaryFile)) {
-            $this->lang = 'en';
+            $this->language = 'en';
             $dictionaryFile = realpath(dirname(__FILE__)) . '/../dictionaries/dictionary_en.php';
             if (!file_exists($dictionaryFile)) {
                 throw new Exception('Missing mandatory dictionary file', 500);
@@ -135,7 +135,7 @@ class Dictionary {
      */
     final public function add($dictionary = array()) {
         
-        $a = 'dictionary_' . $this->lang;
+        $a = 'dictionary_' . $this->language;
         
         if (is_array($dictionary) && isset($dictionary[$a])) {
             

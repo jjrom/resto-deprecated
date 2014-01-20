@@ -172,10 +172,10 @@ class Resto {
             /*
              * Set dictionary instance
              * 
-             * Note: dictionary constructor require a 2 digits input lang (i.e. fr instead of fr-FR)
+             * Note: dictionary constructor require a 2 digits input language (i.e. fr instead of fr-FR)
              */
-            $this->dictionary = new Dictionary(substr(isset($_GET['lang']) ? $_GET['lang'] : $this->getLanguage(), 0, 2));
-            $this->request['lang'] = $this->dictionary->lang;
+            $this->dictionary = new Dictionary(substr(isset($_GET[RestoController::$searchFiltersDescription['language']['osKey']]) ? $_GET[RestoController::$searchFiltersDescription['language']['osKey']] : $this->getLanguage(), 0, 2));
+            $this->request['language'] = $this->dictionary->language;
 
             /*
              * Retrieve collections from resto database using a connection
@@ -257,7 +257,7 @@ class Resto {
         /*
          * Query parameters
          */
-        unset($_GET['RESToURL'], $_GET['format'], $_GET['lang'], $_GET['pretty']);
+        unset($_GET['RESToURL'], $_GET['format'], $_GET['_pretty']);
         switch ($this->request['method']) {
             case 'get':
                 $this->request['params'] = $_GET;
@@ -305,7 +305,9 @@ class Resto {
         try {
             
             /*
-             * Reserved actions 
+             * !! IMPORTANT !!
+             * Collections with a name starting with '$' character are not collection
+             * but reserved actions 
              */
             if ($this->request['collection'] && substr($this->request['collection'], 0 , 1) === '$') {
                 
@@ -318,8 +320,23 @@ class Resto {
                  * QueryAnalyzer standalone service
                  */
                 if ($this->request['collection'] === '$analyzeQuery' && class_exists('QueryAnalyzer')) {
+                    
+                   /*
+                    * Change parameter keys to model parameter key
+                    * and remove unset parameters
+                    */
+                    $params = array();
+                    foreach ($this->request['params'] as $key => $value) {
+                        if ($value) {
+                            foreach(array_keys(RestoController::$searchFiltersDescription) as $filterKey) {
+                                if ($key === RestoController::$searchFiltersDescription[$filterKey]['osKey']) {
+                                    $params[$filterKey] = $value;
+                                }
+                            }
+                        }
+                    }
                     $qa = new QueryAnalyzer($this->dictionary, RestoController::$searchFiltersDescription, class_exists('Gazetteer') ? new Gazetteer($this) : null);
-                    $this->response = $qa->analyze(array('searchTerms' => $this->request['params']['q']));
+                    $this->response = $qa->analyze($params);
                     $this->responseStatus = 200;
                 }
                 else {
@@ -511,7 +528,7 @@ class Resto {
     }
 
     /**
-     * Return accepted langs
+     * Return accepted languages
      */
     public function getAcceptedLangs() {
         return $this->config['general']['acceptedLangs'];
@@ -582,7 +599,7 @@ class Resto {
     }
 
     /**
-     * Get browser lang
+     * Get browser language
      * (see http://www.thefutureoftheweb.com/blog/use-accept-language-header)
      * 
      * @return string $lang
@@ -694,9 +711,9 @@ class Resto {
     private function getOpenSearchDescription($dbh, $name) {
 
         /*
-         * Get description in request lang
+         * Get description in request language
          */
-        $results = pg_query($dbh, 'SELECT * FROM admin.osdescriptions WHERE collection = \'' . pg_escape_string($name) . '\' AND lang=\'' . $this->request['lang'] . '\'');
+        $results = pg_query($dbh, 'SELECT * FROM admin.osdescriptions WHERE collection = \'' . pg_escape_string($name) . '\' AND lang=\'' . $this->request['language'] . '\'');
         /*
          * No result => switch to english
          */

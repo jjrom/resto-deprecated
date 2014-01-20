@@ -10,7 +10,7 @@
         <link rel="stylesheet" href="<?php echo $this->request['restoUrl'] ?>/css/default/style.css" type="text/css" />
         <link rel="stylesheet" href="<?php echo $this->request['restoUrl'] ?>/js/lib/jquery.fancybox.css" type="text/css" />
         <link rel="stylesheet" href="<?php echo $this->request['restoUrl'] ?>/js/lib/leaflet.css" type="text/css"/>
-        <link rel="search" type="application/opensearchdescription+xml" href="<?php echo $collectionUrl ?>_describe" hreflang="<?php echo $this->request['lang'] ?>" title="<?php echo $this->description['name']; ?>" />
+        <link rel="search" type="application/opensearchdescription+xml" href="<?php echo $collectionUrl ?>_describe" hreflang="<?php echo $this->request['language'] ?>" title="<?php echo $this->description['name']; ?>" />
     </head>
     <body>
         <div id="container">
@@ -37,15 +37,15 @@
                     <form id="searchform" action="<?php echo $collectionUrl ?>">
                         <input type="hidden" name="format" value="html" />
                         <?php
-                        if ($this->request['lang']) {
-                            echo '<input type="hidden" name="lang" value="' . $this->request['lang'] . '" />';
+                        if ($this->request['language']) {
+                            echo '<input type="hidden" name="language" value="' . $this->request['language'] . '" />';
                         }
                         ?>
                         <input type="text" id="search" name="<?php echo $this->description['searchFiltersDescription']['searchTerms']['osKey'] ?>" value="<?php echo str_replace('"', '&quot;', stripslashes($this->request['params'][$this->description['searchFiltersDescription']['searchTerms']['osKey']])); ?>" placeholder="<?php echo $this->description['dictionary']->translate('_placeHolder', $this->description['os']['Query']);?>"/>
                         <label>
                             <?php
                                 for ($i = 0, $l = count($this->description['acceptedLangs']); $i < $l; $i++) {
-                                    echo '<a class="item" title="' . $this->description['dictionary']->translate($this->description['acceptedLangs'][$i] === $this->request['lang'] ? '_inLang' : '_switchLang', $this->description['dictionary']->translate('_' . $this->description['acceptedLangs'][$i])) . '" id="lang-' . $this->description['acceptedLangs'][$i] . '" href="' . updateURL($collectionUrl, array('q' => stripslashes($this->request['params'][$this->description['searchFiltersDescription']['searchTerms']['osKey']]), 'lang' => $this->description['acceptedLangs'][$i])) . '">' . $this->description['acceptedLangs'][$i] . '</a>';
+                                    echo '<a class="item" title="' . $this->description['dictionary']->translate($this->description['acceptedLangs'][$i] === $this->request['language'] ? '_inLang' : '_switchLang', $this->description['dictionary']->translate('_' . $this->description['acceptedLangs'][$i])) . '" id="language-' . $this->description['acceptedLangs'][$i] . '" href="' . updateURL($collectionUrl, array($this->description['searchFiltersDescription']['searchTerms']['osKey'] => stripslashes($this->request['params'][$this->description['searchFiltersDescription']['searchTerms']['osKey']]), $this->description['searchFiltersDescription']['language']['osKey'] => $this->description['acceptedLangs'][$i])) . '">' . $this->description['acceptedLangs'][$i] . '</a>';
                                 }
                             ?>
                         </label>
@@ -108,7 +108,7 @@
                                 'type' => 'GeoJSON',
                                 'clusterized' => false,
                                 // Hint - remove \ i.e. %5C
-                                'url' => str_replace('%5C', '', updateUrl($this->response['links']['self'], array('format' => 'json', 'lang' => $this->request['lang']))),
+                                'url' => str_replace('%5C', '', updateUrl($this->response['links']['self'], array('format' => 'json', $this->description['searchFiltersDescription']['language']['osKey'] => $this->request['language']))),
                                 'zoomOnNew' => true,
                                 'unremovable' => true
                             );
@@ -262,7 +262,7 @@
         <script type="text/javascript">
             $(document).ready(function() {
                 initResto({
-                    lang:'<?php echo $this->request['lang']; ?>',
+                    language:'<?php echo $this->request['language']; ?>',
                     mapshupUrl:'<?php echo $mapshup && $mapshup['url'] ? $mapshup['url'] : null; ?>'
                 });
             });

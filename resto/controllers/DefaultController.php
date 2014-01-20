@@ -83,6 +83,7 @@ class DefaultController extends RestoController {
         'searchTerms',
         'count?',
         'startIndex?',
+        'language?',
         'geo:box?', // Bounding Box
         'geo:name?', // Location name
         'geo:lon?', // Longitude

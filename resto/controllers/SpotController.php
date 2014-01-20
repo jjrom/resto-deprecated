@@ -147,6 +147,7 @@ class SpotController extends RestoController {
         'searchTerms',
         'count?',
         'startIndex?',
+        'language?',
         'geo:box?',
         'geo:name?',
         'geo:lon?',

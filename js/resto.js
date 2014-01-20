@@ -50,8 +50,8 @@ function initResto(options) {
     
     options = options || {};
     
-    if (options.lang) {
-        $('#lang-' + options.lang).addClass('red');
+    if (options.language) {
+        $('#language-' + options.language).addClass('red');
     }
     
     if (options.mapshupUrl) {

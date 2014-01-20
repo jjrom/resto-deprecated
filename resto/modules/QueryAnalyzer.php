@@ -280,8 +280,8 @@ class QueryAnalyzer {
         /*
          * Set analyze language
          */
-        if (!$params['lang']) {
-            $params['lang'] = $this->dictionary->lang;
+        if (!$params['language']) {
+            $params['language'] = $this->dictionary->language;
         }
         
         /*

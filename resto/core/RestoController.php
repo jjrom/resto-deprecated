@@ -64,6 +64,9 @@ abstract class RestoController {
         'startPage' => array(
             'osKey' => 'nextPage'
         ),
+        'language' => array(
+            'osKey' => 'lang'
+        ),
         'geo:box' => array(
             'key' => 'geometry',
             'osKey' => 'box',
@@ -328,7 +331,7 @@ abstract class RestoController {
             /*
              * Update dictionary
              */
-            else if ($key === 'dictionary_' . $this->description['dictionary']->lang) {
+            else if ($key === 'dictionary_' . $this->description['dictionary']->language) {
                 $this->description['dictionary']->add(array($key => $value));
             }
 
@@ -551,13 +554,25 @@ abstract class RestoController {
          */
         if (!$list || !($list !== array_values($list))) {
             foreach ($this->request['params'] as $key => $value) {
-                $arr[$this->outputName($key)] = $value;
+                
+                /*
+                 * Support key tuples
+                 */
+                if (is_array($value)) {
+                    for ($i = 0, $l = count($value); $i < $l; $i++) {
+                        $arr[$this->outputName($key) . '[]'] = $value[$i];
+                    }
+                }
+                else {
+                    $arr[$this->outputName($key)] = $value;
+                }
             }
         }
         /*
          * Input $list - modify params accordingly and add $list elements
          * that are not present in params
-         */ else {
+         */
+        else {
             foreach ($this->request['params'] as $key => $value) {
                 $skip = false;
                 foreach (array_keys($list) as $key2) {
@@ -567,11 +582,33 @@ abstract class RestoController {
                     }
                 }
                 if (!$skip) {
-                    $arr[$this->outputName($key)] = $value;
+                    
+                   /*
+                    * Support key tuples
+                    */
+                   if (is_array($value)) {
+                       for ($i = 0, $l = count($value); $i < $l; $i++) {
+                           $arr[$this->outputName($key) . '[]'] = $value[$i];
+                       }
+                   }
+                   else {
+                       $arr[$this->outputName($key)] = $value;
+                   }
                 }
             }
             foreach ($list as $key => $value) {
-                $arr[$this->outputName($key)] = $value;
+                
+                /*
+                 * Support key tuples
+                 */
+                if (is_array($value)) {
+                    for ($i = 0, $l = count($value); $i < $l; $i++) {
+                        $arr[$this->outputName($key) . '[]'] = $value[$i];
+                    }
+                }
+                else {
+                    $arr[$this->outputName($key)] = $value;
+                }
             }
         }
 
@@ -606,6 +643,7 @@ abstract class RestoController {
             'count',
             'startIndex',
             'startPage',
+            'language',
             // geo:lat and geo:radius are linked to geo:lon
             'geo:lat',
             'geo:radius'
@@ -767,7 +805,7 @@ abstract class RestoController {
                 else if ($filterName === 'geo:name') {
                     if (class_exists('Gazetteer')) {
                         $gazetteer = new Gazetteer($this->R);
-                        $locations = $gazetteer->locate($requestParams[$filterName], $this->description['dictionary']->lang, null, $requestParams['geo:box']);
+                        $locations = $gazetteer->locate($requestParams[$filterName], $this->description['dictionary']->language, null, $requestParams['geo:box']);
                         if (count($locations) > 0) {
                             $radius = radiusInDegrees(isset($requestParams['geo:radius']) ? floatval($requestParams['geo:radius']) : 10000, $requestParams['geo:lat']);
                             if ($use_distance){
@@ -1010,7 +1048,7 @@ abstract class RestoController {
          */
         foreach (Resto::$contentTypes as $format => $mimeType) {
 
-            $url = updateUrl($this->request['restoUrl'] . $this->request['collection'], array('format' => $format, 'lang' => '{language?}'));
+            $url = updateUrl($this->request['restoUrl'] . $this->request['collection'], array('format' => $format));
 
             /*
              * Roll over filters
@@ -1145,10 +1183,10 @@ abstract class RestoController {
         $features = array();
 
         /*
-         * BaseUrl can be modified if lang is forced !
+         * BaseUrl can be modified if language is forced !
          */
         $collectionUrl = $this->request['restoUrl'] . $this->request['collection'] . '/';
-        $baseUrl = updateUrl($collectionUrl, array('lang' => $this->description['dictionary']->lang));
+        $baseUrl = updateUrl($collectionUrl, array($this->description['searchFiltersDescription']['language']['osKey'] => $this->description['dictionary']->language));
 
         /*
          * Loop over all products
@@ -1331,11 +1369,11 @@ abstract class RestoController {
         }
 
         /*
-         * BaseUrl can be modified if lang is forced !
+         * BaseUrl can be modified if language is forced !
          */
         $collectionUrl = $this->request['restoUrl'] . $this->request['collection'] . '/';
         $resourceUrl = $collectionUrl . $identifier . '/';
-        $mods = array('lang' => $this->description['dictionary']->lang, 'format' => $this->request['format']);
+        $mods = array($this->description['searchFiltersDescription']['language']['osKey'] => $this->description['dictionary']->language, 'format' => $this->request['format']);
 
         /*
          * Retrieve product
