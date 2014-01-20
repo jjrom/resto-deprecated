@@ -391,14 +391,15 @@ class QueryAnalyzer {
                      && !$this->dictionary->getQuantity($searchTerms[$i])
                      && !$this->dictionary->getKeyword($searchTerms[$i])
                      && !$this->dictionary->isKeywordsValue($searchTerms[$i])) {
-                
                 array_push($toRemove, $searchTerms[$i]);
+                array_push($this->unProcessed, $searchTerms[$i]);
             }
             /*
              * Remove excluded terms
              */
             else if ($this->dictionary->isExcluded($searchTerms[$i])) {
                 array_push($toRemove, $searchTerms[$i]);
+                array_push($this->unProcessed, $searchTerms[$i]);
             }
             
         }
