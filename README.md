@@ -196,7 +196,7 @@ Access OpenSearch Description for a collection
 ----------------------------------------------
 Only works for an existing collection (so create a collection first !)
 
-        Open you browser to http://localhost/resto/Example/_describe
+        Open you browser to http://localhost/resto/Example/$describe
 
 Delete a collection
 -------------------

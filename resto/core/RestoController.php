@@ -379,9 +379,9 @@ abstract class RestoController {
         }
 
         /*
-         * GET on /collection/_describe
+         * GET on /collection/$describe
          */
-        if (isset($this->request['identifier']) && $this->request['identifier'] === '_describe') {
+        if (isset($this->request['identifier']) && $this->request['identifier'] === '$describe') {
             return $this->describeCollection();
         }
 
@@ -396,7 +396,7 @@ abstract class RestoController {
          * GET on /collection/identifier/download
          */
         if (isset($this->request['modifier'])) {
-            if ($this->request['modifier'] === 'download') {
+            if ($this->request['modifier'] === '$download') {
                 return $this->getResource($this->request['identifier']);
             }
         }
@@ -416,10 +416,10 @@ abstract class RestoController {
      * 
      *      curl -F "file[]=@file1.json" -X POST http://localhost/resto/Collection
      * 
-     * @param array $featuresCollection an array of 
+     * @param array $featuresCollection an array of GeoJSON featureCollection 
      * 
      */
-    public function defaultPost($featuresCollections = array()) {
+    public function defaultPost($featuresCollections) {
         
         /*
          * POST is processed by ResourceManager module
@@ -436,7 +436,15 @@ abstract class RestoController {
         }
         
         $resourceManager = new ResourceManager($this);
-        $this->response = $resourceManager->create($featuresCollections);
+        
+        /*
+         * Important : if $featureCollections is not set, then it is assume that
+         * POST files are GeoJSON files
+         * 
+         * If it is not the case, you should superseed this function is the child
+         * Controller
+         */
+        $this->response = $resourceManager->create(isset($featuresCollections) ? $featuresCollections : getFiles(true));
         $this->responseStatus = 200;
         
     }

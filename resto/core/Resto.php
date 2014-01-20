@@ -66,7 +66,7 @@
  *      A collection contains a list of resources.
  *      
  *      A 'resource' is a metadata file describing a product identified by 'identifier'.
- *      The product itself (e.g. an image) can be access through resource 'modifier' (when set to 'download')
+ *      The product itself (e.g. an image) can be access through resource 'modifier' (when set to '$download')
  * 
  * Resto handles the following actions
  * 
@@ -75,14 +75,14 @@
  * | Create a new collection                      |     POST    |   /
  * | List all collections                         |     GET     |   /
  * | List all resources within collection         |     GET     |   /collection
- * | Describe collection (OpenSearch.xml)         |     GET     |   /collection/_describe
+ * | Describe collection (OpenSearch.xml)         |     GET     |   /collection/$describe
  * | Delete a collection                          |     DELETE  |   /collection
  * | Update a collection                          |     PUT     |   /collection
  * | Get resource within the collection           |     GET     |   /collection/identifier
  * | Insert a new resource within the collection  |     POST    |   /collection
  * | Update a resource from the collection        |     PUT     |   /collection/identifier
  * | Delete a resource from the collection        |     DELETE  |   /collection/identifier
- * | Download product linked to resource          |     GET     |   /collection/identifier/download
+ * | Download product linked to resource          |     GET     |   /collection/identifier/$download
  * 
  * 
  * Note: HTTP methods on relative URI that are not listed in the table

@@ -153,6 +153,14 @@ class CollectionManager {
         }
 
         /*
+         * Collection name starting with '$' is not permitted
+         * (special action - see Resto.php)
+         */
+        if (substr($this->request['name'], 0, 1) === '$') {
+            throw new Exception('Collection name cannot start with "$" character', 500);
+        }
+        
+        /*
          * Collection must not already exist
          */
         if ($this->collectionExists($this->request['name'])) {
@@ -537,8 +545,10 @@ class CollectionManager {
                     /*
                      * Do not drop schema if product table is not empty
                      */
-                    if ($this->tableIsEmpty($result['schemaname'] . '.' . $result['tablename'])) {
-                        pg_query($this->dbh, 'DROP SCHEMA ' . $result['schemaname'] . ' CASCADE');
+                    if (!$this->tableExists($result['tablename'], $result['schemaname']) || $this->tableIsEmpty($result['tablename'], $result['schemaname'])) {
+                        if ($this->schemaExists($result['schemaname'])) {
+                            pg_query($this->dbh, 'DROP SCHEMA ' . $result['schemaname'] . ' CASCADE');
+                        }
                     }
                     else {
                         $comment = '. WARNING! Schema ' . $result['schemaname'] . ' not dropped (not empty)';
@@ -610,13 +620,34 @@ class CollectionManager {
     }
 
     /**
+     * Check if table $name exists within resto database
+     * 
+     * @param string $name - table name
+     * @param string $schema - schema name
+     */
+    private function tableExists($name, $schema = 'public') {
+
+        $results = pg_query($this->dbh, 'select EXISTS(SELECT 1 FROM pg_tables WHERE schemaname=\'' . $schema . ' \' AND tablename=\'' . $name . '\') AS exists');
+        if (!$results) {
+            throw new Exception('Database connection error', 500);
+        }
+        $result = pg_fetch_assoc($results);
+        if ($result['exists'] === 't') {
+            return true;
+        }
+
+        return false;
+    }
+    
+    /**
      * Check if table $name is empty
      * 
      * @param string $name - table name
+     * @param string $schema - schema name
      */
-    private function tableIsEmpty($name) {
-
-        $results = pg_query($this->dbh, 'SELECT EXISTS(SELECT 1 FROM ' . $name . ') AS exists');
+    private function tableIsEmpty($name, $schema = 'public') {
+        
+        $results = pg_query($this->dbh, 'SELECT EXISTS(SELECT 1 FROM ' . $schema . '.' . $name . ') AS exists');
         if (!$results) {
             throw new Exception('Database connection error', 500);
         }

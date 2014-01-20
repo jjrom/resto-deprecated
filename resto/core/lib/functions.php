@@ -946,3 +946,56 @@ function trueOrFalse($str) {
     return false;
     
 }
+
+/**
+ * Return an array of POST files
+ * 
+ * @param boolean $isGeoJSON - true if input files are GeoJSON (default is true)
+ * @throws Exception
+ */
+function getFiles($isGeoJSON = true) {
+    
+    $arr = array();
+    
+   /*
+    * Nothing posted
+    */
+    if (count($_FILES) == 0 || !is_array($_FILES['file'])) {
+        return $arr;
+    }
+
+   /*
+    * Read file assuming this is ascii file (i.e. plain text, GeoJSON, etc.)
+    */        
+    $tmpFiles = $_FILES['file']['tmp_name'];
+    if (!is_array($tmpFiles)) {
+        $tmpFiles = array($tmpFiles);
+    }
+    for ($i = 0, $l = count($tmpFiles); $i < $l; $i++) {
+        if (is_uploaded_file($tmpFiles[$i])) {
+            
+            /*
+             * This is GeoJSON
+             */
+            if ($isGeoJSON) {
+                try {
+                    $json = json_decode(join('', file($tmpFiles[$i])), true);
+                } catch (Exception $e) {
+                    throw new Exception('Invalid posted file(s)', 500);
+                }
+                if ($json['type'] === 'FeatureCollection' && is_array($json['features'])) {
+                    array_push($arr, $json);
+                }
+                else {
+                    throw new Exception('Invalid posted file(s)', 500);
+                }
+            }
+            else {
+                array_push($arr, file($tmpFiles[$i]));
+            }
+        }
+    }
+    
+    return $arr;
+}
+

@@ -93,28 +93,20 @@ class ResourceManager {
 
     /**
      * 
-     * Insert input features within collection database 
+     * Insert input resources within collection database 
      * 
      *  !! VERY IMPORTANT !!
      *
-     *  It is assumes that GeoJSON property names of input featuresCollections
-     *  are the same as the property names of the RESTo model.
+     *  It is assumes that input $resources is an array of GeoJSON featureCollection
      * 
-     * @param array $featuresCollection
+     * @param array $resources
      * @return type
      * @throws Exception
      */
-    public function create($featuresCollections = array()) {
+    public function create($resources = array()) {
 
         if (!$this->dbh) {
             throw new Exception('Database connection error', 500);
-        }
-        
-        /*
-         * This should not happens
-         */
-        if (!is_array($featuresCollections)) {
-            throw new Exception('Invalid posted file(s)', 500);
         }
         
         /*
@@ -126,63 +118,17 @@ class ResourceManager {
         }
         
         /*
-         * $featuresCollections is empty - search within posted files ?
+         * This should not happens
          */
-        if (count($featuresCollections) === 0) {
-         
-            /*
-             * Nothing to post !
-             */
-            if (count($_FILES) == 0 || !is_array($_FILES['file'])) {
-                throw new Exception('Nothing to post', 200);
-            }
-            
-            /*
-             * Roll over input files 
-             */
-            $tmpFiles = $_FILES['file']['tmp_name'];
-            if (!is_array($tmpFiles)) {
-                $tmpFiles = array($tmpFiles);
-            }
-            for($i = 0, $l = count($tmpFiles); $i < $l; $i++) {
-                if (is_uploaded_file($tmpFiles[$i])) {
-                    
-                    /*
-                     * Read file assuming this is JSON (GeoJSON)
-                     */
-                    try {
-                        $featuresCollection = json_decode(join('', file($tmpFiles[$i])), true);
-                    } catch (Exception $e) {
-                        throw new Exception('Invalid posted file(s)', 500);
-                    }
-                    
-                    /*
-                     * Push FeatureCollection to $featuresCollections array
-                     */
-                    if (is_array($featuresCollection) && $featuresCollection['type'] === 'FeatureCollection' && is_array($featuresCollection['features'])) {
-
-                        /*
-                         * Rewrite features array if Controller::inputPropertiesMapping is set
-                         */
-                        if (property_exists($this->Controller, 'inputPropertiesMapping')) {
-                            $Controller = $this->Controller;
-                            foreach ($Controller::$inputPropertiesMapping as $key => $modelName) {
-                                for ($j = 0, $k = count($featuresCollection['features']); $j < $k; $j++) {
-                                    if (isset($featuresCollection['features'][$j]['properties'][$key])) {
-                                        $featuresCollection['features'][$j]['properties'][$modelName] = $featuresCollection['features'][$j]['properties'][$key];
-                                        unset($featuresCollection['features'][$j]['properties'][$key]);
-                                    }
-                                }
-                            }
-                        }
-
-                        array_push($featuresCollections, $featuresCollection);
-                    }
-                    else {
-                        throw new Exception('Invalid posted file(s)', 500);
-                    }
-                }
-            }
+        if (!is_array($resources)) {
+            throw new Exception('Invalid posted file(s)', 500);
+        }
+        
+        /*
+         * Nothing to POST
+         */
+        if (count($resources) === 0) {
+            throw new Exception('Nothing to post', 200);
         }
         
         /*
@@ -192,19 +138,29 @@ class ResourceManager {
         $alreadyInDatabase = array();
         $inError = array();
         $status = 'success';
-        for($i = 0, $l = count($featuresCollections); $i < $l; $i++) {
-            for($j = 0, $k = count($featuresCollections[$i]['features']); $j < $k; $j++) {
+        for($i = 0, $l = count($resources); $i < $l; $i++) {
+            
+            if (!is_array($resources[$i]['features'])) {
+                throw new Exception('Invalid posted file(s)', 500);
+            }
+            
+            for($j = 0, $k = count($resources[$i]['features']); $j < $k; $j++) {
                 
                 /*
                  * Process unitary feature
                  */
-                $feature = $featuresCollections[$i]['features'][$j];
+                $feature = $resources[$i]['features'][$j];
                 
                 /*
-                 * Resource already exist in database 
+                 * Get remapped properties
                  */
-                if ($this->resourceExists($feature['properties']['identifier'])) {
-                    array_push($alreadyInDatabase, $feature['properties']['identifier']);
+                $properties = $this->remap($feature['properties']);
+                
+                /*
+                 * Check that resource does not already exist in database
+                 */
+                if ($this->resourceExists($properties['identifier'])) {
+                    array_push($alreadyInDatabase, $properties['identifier']);
                     $status = 'partially';
                     continue;
                 }
@@ -219,7 +175,7 @@ class ResourceManager {
                  */
                 $keys = array();
                 $values = array();
-                foreach ($feature['properties'] as $key => $value) {
+                foreach ($properties as $key => $value) {
                     $columnName = getModelName($this->description['model'], $key);
                     if ($columnName) {
                         array_push($keys, pg_escape_string($columnName));
@@ -252,11 +208,11 @@ class ResourceManager {
                         throw new Exception();
                     }
                 } catch (Exception $e) {
-                    array_push($inError, $feature['properties']['identifier']);
+                    array_push($inError, $properties['identifier']);
                     $status = 'error';
                     continue;
                 }
-                array_push($inserted, $feature['properties']['identifier']);
+                array_push($inserted, $properties['identifier']);
             }
             
         }
@@ -375,6 +331,29 @@ class ResourceManager {
         $quote = count($splitted) > 1 ? '"' : '';
         return $quote . strtolower($string) . $quote;
         
+    }
+    
+    /**
+     * Remap properties array accordingly to $Controller::$inputPropertiesMapping
+     * 
+     * @param array $properties
+     */
+    private function remap($properties) {
+
+        /*
+         * Rewrite feature if Controller::inputPropertiesMapping
+         */
+        if (property_exists($this->Controller, 'inputPropertiesMapping')) {
+            $Controller = $this->Controller;
+            foreach ($Controller::$inputPropertiesMapping as $key => $modelName) {
+                if (isset($properties[$key])) {
+                    $properties[$modelName] = $properties[$key];
+                    unset($properties[$key]);
+                }
+            }
+        }
+        
+        return $properties;
     }
 
 }
