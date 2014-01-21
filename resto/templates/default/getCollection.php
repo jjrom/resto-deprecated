@@ -56,7 +56,10 @@
                     $items = array();
                     foreach ($this->response['query']['real'] as $key => $value) {
                         if ($value) {
-                            array_push($items, '<b>' . $key . '</b> ' . $value);
+                            // Do not count language
+                            if ($key !== 'language') {
+                                array_push($items, '<b>' . $key . '</b> ' . $value);
+                            }
                         }
                     }
                     if (count($items) > 0) {
