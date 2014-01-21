@@ -58,8 +58,11 @@ function initResto(options) {
         
         // Preload mapshup in hidden frame
         setFrameContent(options.mapshupUrl);
-        hideAbove();
-
+        
+        if (options.hideMapshup) {
+            hideMapshup();
+        }
+        
         // Map is displayed within hidden frame
         $('.displayMap').click(function(e) {
             e.preventDefault();
@@ -71,7 +74,7 @@ function initResto(options) {
                 setFrameContent($(this).attr('href'), data);
             }
             showMask();
-            showAbove();
+            showMapshup();
             return false;
         });
     }
@@ -108,10 +111,10 @@ function initResto(options) {
         initMap($(this).attr('id'), $.parseJSON($(this).attr('geom')));
     });
 
-    // Set Show/Hide hidden above div
-    $('#above .close').click(function(e) {
+    // Set Show/Hide hidden mapshup div
+    $('#mapshup .close').click(function(e) {
         hideMask();
-        hideAbove();
+        hideMapshup();
     });
 
 }
@@ -140,20 +143,20 @@ function hideMask() {
 }
 
 /**
- * Hide above div
+ * Hide mapshup div
  */
-function hideAbove() {
-    $('#above').css({
+function hideMapshup() {
+    $('#mapshup').css({
         visibility: "hidden",
         opacity: 0 // Chrome bug
     });
 }
 
 /**
- * Show above div
+ * Show mapshup div
  */
-function showAbove() {
-    $('#above').css({
+function showMapshup() {
+    $('#mapshup').css({
         visibility: "visible",
         opacity: 1 // Chrome bug
     });
@@ -214,24 +217,24 @@ function initMap(divId, geometry) {
 }
 
 /**
- * Set frame content of above frame
+ * Set frame content of mapshup frame
  * 
  * @param {string} url
  * @param {string} data
  */
 function setFrameContent(url, data) {
-    var target = $('#above .content');
+    var target = $('#mapshup .content');
     target.empty();
     $('<iframe>', {
         src: url,
-        id: 'aboveFrame',
+        id: 'mapshupFrame',
         height: '100%',
         width: '100%',
         frameborder: 0,
         scrolling: 'no'
     }).appendTo(target);
 
-    $('#aboveFrame').load(function(e) {
+    $('#mapshupFrame').load(function(e) {
         frameIsLoaded = true;
         if (data) {
             setTimeout(function() {
@@ -247,6 +250,6 @@ function setFrameContent(url, data) {
  * @param {string} data (URIEncoded JSON string conforms to mapshup API.js plugin) 
  */
 function postMessage(data) {
-    document.getElementById('aboveFrame').contentWindow.postMessage(data, $('#aboveFrame').attr('src'));
+    document.getElementById('mapshupFrame').contentWindow.postMessage(data, $('#mapshupFrame').attr('src'));
 }
                 

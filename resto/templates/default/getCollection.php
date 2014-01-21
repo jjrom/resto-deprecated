@@ -251,7 +251,7 @@
                 <?php } ?>
             </div>
         </div>
-        <div id="above">
+        <div id="mapshup">
             <div class="content"></div>
             <div class="close large"><?php echo $this->description['dictionary']->translate('_close') ?></div>
         </div>
