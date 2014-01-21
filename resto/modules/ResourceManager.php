@@ -197,7 +197,7 @@ class ResourceManager {
                  * Tag metadata
                  */
                 if ($this->iTag) {
-                    $tags = $this->tagResource($wkt);
+                    $tags = '\'' . pg_escape_string(join(',', $this->getTags($wkt))) . '\'';
                     if ($tags) {
                         array_push($keys, getModelName($this->description['model'], 'keywords'));
                         array_push($values, $tags);
@@ -263,19 +263,25 @@ class ResourceManager {
     /**
      * Tag POLYGON WKT
      * 
-     * @param type $wkt
+     * @param string $wkt - Polygon wkt
+     * @param string $urlParameters - iTag urlParameters to superseed iTag default urlParameters
      */
-    private function tagResource($wkt) {
+    protected function getTags($wkt, $urlParameters = null) {
     
         if (substr(strtolower($wkt), 0, 7) !== 'polygon') {
             return null;
         }
-
+        
+        /*
+         * If $urlParameters is set, replace default iTag urlParameters 
+         */
+        $itag = explode('?', $this->iTag);
+        
         /*
          * Call iTag
          */
         $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, $this->iTag . '&ordered=true&footprint=' . urlencode($wkt));
+        curl_setopt($curl, CURLOPT_URL, $itag[0] .  '?' . ($urlParameters ? $urlParameters : $itag[1]) . '&ordered=true&footprint=' . urlencode($wkt));
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($curl, CURLOPT_HEADER, false);
@@ -319,7 +325,7 @@ class ResourceManager {
                 array_push($pairs, $this->quoteForHstore('landuse_details:' . $landuse['name']) . '=>"' . $landuse['pcover'] . '"');
             }
         }
-        return '\'' . pg_escape_string(join(',', $pairs)) . '\'';
+        return $pairs;
     }
     
     /**
