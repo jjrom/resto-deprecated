@@ -246,7 +246,7 @@ class ResourceManager {
      * 
      * @param string $identifier - resource unique identifier 
      */
-    private function resourceExists($identifier) {
+    protected function resourceExists($identifier) {
         
         $results = pg_query($this->dbh, 'SELECT 1 FROM ' . $this->Controller->getDbConnector()->getSchema() . '.' . $this->Controller->getDbConnector()->getTable() . ' WHERE ' . getModelName($this->description['model'], 'identifier') . '=\'' . pg_escape_string($identifier) . '\'');
         
