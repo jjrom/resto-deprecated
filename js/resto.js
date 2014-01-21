@@ -59,9 +59,7 @@ function initResto(options) {
         // Preload mapshup in hidden frame
         setFrameContent(options.mapshupUrl);
         
-        if (options.hideMapshup) {
-            hideMapshup();
-        }
+        options.showMapshup ? showMapshup() : hideMapshup();
         
         // Map is displayed within hidden frame
         $('.displayMap').click(function(e) {

@@ -266,7 +266,8 @@
             $(document).ready(function() {
                 initResto({
                     language:'<?php echo $this->request['language']; ?>',
-                    mapshupUrl:'<?php echo $mapshup && $mapshup['url'] ? $mapshup['url'] : null; ?>'
+                    mapshupUrl:'<?php echo $mapshup && $mapshup['url'] ? $mapshup['url'] : null; ?>',
+                    showMapshup:false
                 });
             });
         </script>
