@@ -327,7 +327,7 @@ class ResourceManager {
      * 
      * @param type $string
      */
-    private function quoteForHstore($string) {
+    protected function quoteForHstore($string) {
         $string = trim($string);
         $splitted = split(' ', $string);
         $quote = count($splitted) > 1 ? '"' : '';
