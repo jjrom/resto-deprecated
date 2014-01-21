@@ -38,7 +38,7 @@
                         <input type="hidden" name="format" value="html" />
                         <?php
                         if ($this->request['language']) {
-                            echo '<input type="hidden" name="language" value="' . $this->request['language'] . '" />';
+                            echo '<input type="hidden" name="' . $this->description['searchFiltersDescription']['language']['osKey'] . '" value="' . $this->request['language'] . '" />';
                         }
                         ?>
                         <input type="text" id="search" name="<?php echo $this->description['searchFiltersDescription']['searchTerms']['osKey'] ?>" value="<?php echo str_replace('"', '&quot;', stripslashes($this->request['params'][$this->description['searchFiltersDescription']['searchTerms']['osKey']])); ?>" placeholder="<?php echo $this->description['dictionary']->translate('_placeHolder', $this->description['os']['Query']);?>"/>
