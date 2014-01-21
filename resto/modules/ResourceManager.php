@@ -50,9 +50,9 @@
  */
 class ResourceManager {
 
-    private $Controller;
-    private $description;
-    private $dbh;
+    protected $Controller;
+    protected $description;
+    protected $dbh;
     private $iTag;
     
     /**
@@ -196,10 +196,12 @@ class ResourceManager {
                 /*
                  * Tag metadata
                  */
-                $tags = $this->tagResource($wkt);
-                if ($tags) {
-                    array_push($keys, getModelName($this->description['model'], 'keywords'));
-                    array_push($values, $tags);
+                if ($this->iTag) {
+                    $tags = $this->tagResource($wkt);
+                    if ($tags) {
+                        array_push($keys, getModelName($this->description['model'], 'keywords'));
+                        array_push($values, $tags);
+                    }
                 }
                 
                 try {
