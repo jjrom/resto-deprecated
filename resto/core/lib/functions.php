@@ -280,15 +280,6 @@ function stripURN($str) {
 }
 
 /**
- * Remove OGC URN prefix
- * 
- * @param {string} $str
- */
-function stripOGCURN($str) {
-    return str_replace('urn:ogc:def:EOP:', '', $str);
-}
-
-/**
  * Transform input string to 7bits ascii equivalent (i.e. remove accent on letters and so on)
  * (see http://www.php.net/manual/fr/function.iconv.php)
  * 
