@@ -171,6 +171,13 @@ class Dictionary {
     }
     
     /**
+     * Return translation array
+     */
+    final public function getTranslation() {
+        return $this->dictionary['translation'];
+    }
+    
+    /**
      * Return $property entry in dictionary identified by $name
      * 
      * @param string $property
