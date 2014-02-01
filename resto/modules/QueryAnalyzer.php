@@ -699,7 +699,7 @@ class QueryAnalyzer {
              * Check in Gazetteer except if a toponym was already found !
              */
             if ($this->gazetteer && !$countryFoundInGazetteer) {
-                $locations = $this->gazetteer->locate($searchTerms[$i], $this->dictionary->lang, $countryName, $params['geo:box']);
+                $locations = $this->gazetteer->locate($searchTerms[$i], $this->dictionary->language, $countryName, $params['geo:box']);
                 if (count($locations) > 0) {
                     $countryFoundInGazetteer = $locations[0]['country'];
                     $params['geo:name'] = $locations[0]['name'] . ', ' . $countryFoundInGazetteer;
