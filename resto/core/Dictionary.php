@@ -111,6 +111,7 @@ class Dictionary {
          * file for a valid example
          */
         $this->add($dictionary);
+        
     }
     
     /**
