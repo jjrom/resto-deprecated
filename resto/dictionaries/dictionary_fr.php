@@ -588,7 +588,7 @@ return array(
         '_about' => 'A propos',
         '_close' => 'fermer',
         '_acquiredOn' => 'acquise en <b>{a:1}</b>',
-        '_placeHolder' => 'Entrer une phrase - ex. {a:1}',
+        '_placeHolder' => 'Chercher - ex. {a:1}',
         '_query' => 'Filtres de recherche - {a:1}',
         '_notUnderstood' => 'Requête non comprise - aucun filtre de recherche n\'est appliqué',
         '_noResult' => 'Aucun résultat - essayez une autre recherche !',

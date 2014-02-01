@@ -380,7 +380,7 @@ return array(
         '_about' => 'About',
         '_close' => 'close',
         '_acquiredOn' => 'acquired on <b>{a:1}</b>',
-        '_placeHolder' => 'Search query - ex. {a:1}',
+        '_placeHolder' => 'Search - ex. {a:1}',
         '_query' => 'Search filters - {a:1}',
         '_notUnderstood' => 'Request not understood - no search filters applied',
         '_noResult' => 'Found no result - try another request !',

@@ -568,7 +568,7 @@ return array(
         '_about' => 'Über',
         '_close' => 'schließen',
         '_acquiredOn' => 'erworben am <b>{a:1}</b>',
-        '_placeHolder' => 'Geben Sie einen Begriff - zB. {a:1}',
+        '_placeHolder' => 'Suche - zB. {a:1}',
         '_query' => 'Suchfilter - {a:1}',
         '_notUnderstood' => 'Anforderung nicht enthalten - keine Suchfilter angewandt wird',
         '_noResult' => 'Keine Ergebnisse - versuchen Sie einen anderen suchen!',

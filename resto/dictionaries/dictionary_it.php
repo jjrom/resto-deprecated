@@ -563,7 +563,7 @@ return array(
         '_about' => 'Circa',
         '_close' => 'chiudi',
         '_acquiredOn' => 'acquisita in <b>{a:1}</b>',
-        '_placeHolder' => 'Inserisci una frase - ex. {a:1}',
+        '_placeHolder' => 'Ricerca - ex. {a:1}',
         '_query' => 'Filtri di ricerca - {a:1}',
         '_notUnderstood' => 'La richiesta non è stato capito - nessun filtro di ricerca applicato',
         '_noResult' => 'Nessun risultato - provare un\'altra ricerca!',
