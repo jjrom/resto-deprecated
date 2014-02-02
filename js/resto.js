@@ -551,10 +551,10 @@
         /**
          * Post message to mapshup
          * 
-         * @param {string} json
+         * @param {string/object} json
          */
         postMessage: function(json) {
-            document.getElementById('mapshupFrame').contentWindow.postMessage(encodeURI(JSON.stringify(json)), $('#mapshupFrame').attr('src'));
+            document.getElementById('mapshupFrame').contentWindow.postMessage(typeof json === 'string' ? json : encodeURI(JSON.stringify(json)), $('#mapshupFrame').attr('src'));
         }
 
     };
