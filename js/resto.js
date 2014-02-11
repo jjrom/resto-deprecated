@@ -41,78 +41,73 @@
      * Create RESTo javascript object
      */
     window.R = {
-        
         VERSION_NUMBER: 'RESTo 1.0',
-        
         /*
          * Translation array
          */
         translation: {},
-        
         /*
          * RESTO URL
          */
         restoUrl: null,
-        
-        /*
-         * mapshup URL
-         */
-        mapshupUrl: null,
-        
         /*
          * Initialize RESTo
          * 
          * @param {Object} options
          */
         init: function(options) {
-            
-            var self = this;
-            
+
+            var timer, self = this;
+
             options = options || {};
-            
+
             this.translation = options.translation || {};
             this.restoUrl = options.restoUrl;
-            this.mapshupUrl = options.mapshupUrl;
-                   
+
             if (options.language) {
-                $('#language-' + options.language).addClass('red');
+                $('#language-' + options.language).addClass('resto-red');
             }
 
             /*
-             * Load mapshup within iFrame
+             * mapshup is defined
              */
-            if (this.mapshupUrl) {
-                $('<iframe>', {
-                    src: this.mapshupUrl,
-                    id: 'mapshupFrame',
-                    height: '100%',
-                    width: '100%',
-                    frameborder: 0,
-                    scrolling: 'no'
-                }).appendTo($('#mapshup .content'));
-                $('#mapshupFrame').load(function(e) {
+            if (window.M) {
 
-                    /*
-                     * Call postMessage only when mapshup is loaded
-                     */
-                    if (options.data) {
-                        setTimeout(function() {
-                            self.postMessage({
-                                command: 'addLayer',
-                                options: {
-                                    title: options.data.query ? options.data.query.original.searchTerms : '',
-                                    type: 'GeoJSON',
-                                    clusterized: false,
-                                    data: options.data,
-                                    zoomOnNew: true,
-                                    MID: '__resto__'
-                                }
-                            });
-                        }, 500);
-                    }
-
+                /*
+                 * mapshup bug ?
+                 * Force map size refresh when user scroll RESTo page
+                 */
+                $('#resto-container').bind('scroll', function() {
+                    clearTimeout(timer);
+                    timer = setTimeout(function() {
+                        window.M.events.trigger('resizeend');
+                    }, 150);
                 });
 
+                /*
+                 * Display GeoJSON data within mapshup on startup
+                 * 
+                 * Note : setInterval function is needed to ensure that mapshup map
+                 * is loaded before sending the GeoJSON feed
+                 */
+                if (options.data) {
+                    var fct = setInterval(function() {
+                        if (window.M.Map.map && window.M.isLoaded) {
+                            window.M.Map.addLayer({
+                                title: options.data.query ? options.data.query.original.searchTerms : '',
+                                type: 'GeoJSON',
+                                clusterized: false,
+                                data: options.data,
+                                zoomOnNew: true,
+                                MID: '__resto__'
+                            },
+                            {
+                                noDeletionCheck: true
+                            });
+                            clearInterval(fct);
+                        }
+                    }, 500);
+                }
             }
 
             /*
@@ -143,7 +138,7 @@
             /*
              * Update searchForm input
              */
-            $("#searchform").submit(function(e) {
+            $("#resto-searchform").submit(function(e) {
                 e.preventDefault();
                 window.History.pushState(null, null, '?' + $(this).serialize());
             });
@@ -159,7 +154,6 @@
             self.updatePage(options.data, false);
 
         },
-                
         /**
          * Update getCollection page
          * 
@@ -172,30 +166,49 @@
             var i, l, thumbnail, quicklook, feature, metadata, keywords, $content, key, foundFilters = [], self = this;
 
             json = json || {};
-            
+
             /*
              * Update mapshup view
              */
-            if (updateMapshup) {
-                self.postMessage({
-                    command: 'addLayer',
-                    options: {
-                        title: json.query ? json.query.original.searchTerms : '',
+            if (window.M && updateMapshup) {
+
+                /*
+                 * Layer already exist => reload content
+                 */
+                var layer = window.M.Map.Util.getLayerByMID('__resto__');
+                if (layer) {
+
+                    // Remove old features
+                    layer.destroyFeatures();
+
+                    // Load new features
+                    window.M.Map.layerTypes['GeoJSON'].load({
+                        data: json,
+                        layerDescription: layer['_M'].layerDescription,
+                        layer: layer,
+                        zoomOnNew: true
+                    });
+
+                }
+                else {
+                    window.M.Map.addLayer({
                         type: 'GeoJSON',
                         clusterized: false,
-                        url: json.links ? json.links.self.replace('format=html', 'format=json') : '',
-                        //data: json,
+                        data: json,
                         zoomOnNew: true,
                         MID: '__resto__'
-                    }
-                });
+                    },
+                    {
+                        noDeletionCheck: true
+                    });
+                }
             }
 
             /*
              * Update search input form
              */
             $('#search').val(json.query ? json.query.original.searchTerms : '');
-            
+
             /*
              * Update query analysis result
              */
@@ -207,23 +220,23 @@
                         }
                     }
                 }
-                
+
                 if (foundFilters.length > 0) {
-                    $('.queryanalyze').html('<div class="query">' + this.translate('_query', [foundFilters.concat()]) + '</div>');
+                    $('.resto-queryanalyze').html('<div class="resto-query">' + this.translate('_query', [foundFilters.concat()]) + '</div>');
                 }
                 else {
-                    $('.queryanalyze').html('<div class="query"><span class="warning">' + this.translate('_notUnderstood') + '</span></div>'); 
+                    $('.resto-queryanalyze').html('<div class="resto-query"><span class="resto-warning">' + this.translate('_notUnderstood') + '</span></div>');
                 }
             }
             else if (json.missing) {
-                $('.queryanalyze').html('<div class="query"><span class="warning">Missing mandatory search filters - ' + json.missing.concat() + '</span></div>');
+                $('.resto-queryanalyze').html('<div class="resto-query"><span class="resto-warning">Missing mandatory search filters - ' + json.missing.concat() + '</span></div>');
             }
-            
+
             /*
              * Update pagination
              */
             var first = '', previous = '', next = '', last = '', pagination = '';
-            
+
             if (json.missing) {
                 pagination = '';
             }
@@ -231,45 +244,45 @@
                 pagination = this.translate('_noResult');
             }
             else {
-                
+
                 if (json.links) {
                     if (json.links.first) {
-                        first = ' <a class="ajaxified" href="' + this.updateURL(json.links.first, {format:'html'}) + '">' + this.translate('_firstPage') + '</a> ';
+                        first = ' <a class="resto-link resto-ajaxified" href="' + this.updateURL(json.links.first, {format: 'html'}) + '">' + this.translate('_firstPage') + '</a> ';
                     }
                     if (json.links.previous) {
-                        previous = ' <a class="ajaxified" href="' + this.updateURL(json.links.previous, {format:'html'}) + '">' + this.translate('_previousPage') + '</a> ';
+                        previous = ' <a class="resto-link resto-ajaxified" href="' + this.updateURL(json.links.previous, {format: 'html'}) + '">' + this.translate('_previousPage') + '</a> ';
                     }
                     if (json.links.next) {
-                        next = ' <a class="ajaxified" href="' + this.updateURL(json.links.next, {format:'html'}) + '">' + this.translate('_nextPage') + '</a> ';
+                        next = ' <a class="resto-link resto-ajaxified" href="' + this.updateURL(json.links.next, {format: 'html'}) + '">' + this.translate('_nextPage') + '</a> ';
                     }
                     if (json.links.last) {
-                        last = ' <a class="ajaxified" href="' + this.updateURL(json.links.last, {format:'html'}) + '">' + this.translate('_lastPage') + '</a> ';
+                        last = ' <a class="resto-link resto-ajaxified" href="' + this.updateURL(json.links.last, {format: 'html'}) + '">' + this.translate('_lastPage') + '</a> ';
                     }
-                    
+
                 }
-                
+
                 if (json.totalResults === 1) {
                     pagination += this.translate('_oneResult', [json.totalResults]);
                 }
                 else if (json.totalResults > 1) {
                     pagination += this.translate('_multipleResult', [json.totalResults]);
                 }
-                
+
                 pagination += json.startIndex ? '&nbsp;|&nbsp;' + first + previous + this.translate('_pagination', [json.startIndex, json.lastIndex]) + next + last : '';
-                
+
             }
-            
+
             /*
              * Update each pagination element
              */
-            $('.pagination').each(function() {
+            $('.resto-pagination').each(function() {
                 $(this).html(pagination);
             });
-                
+
             /*
              * Iterate on features and update result container
              */
-            $content = $('.result .content').empty();
+            $content = $('.resto-result .resto-content').empty();
             for (i = 0, l = json.features.length; i < l; i++) {
 
                 feature = json.features[i];
@@ -305,7 +318,7 @@
                  *  </div>
                  * 
                  */
-                $content.append('<div class="entry" style="clear:both;" id="id' + i + '"><span class="thumbnail"><a href="' + thumbnail + '" class="quicklook" title="' + feature.properties['identifier'] + '"><img src="' + thumbnail + '"/></a></span><span class="map" id="idmap' + i + '"></span><div class="metadata"></div><div class="keywords"></div></div>');
+                $content.append('<div class="resto-entry" style="clear:both;" id="rid' + i + '"><span class="resto-thumbnail"><a href="' + thumbnail + '" class="resto-link resto-quicklook" title="' + feature.properties['identifier'] + '"><img class="resto-image" src="' + thumbnail + '"/></a></span><span class="resto-map" id="idmap' + i + '"></span><div class="resto-metadata"></div><div class="resto-keywords"></div></div>');
 
                 /*
                  * Preview map
@@ -315,8 +328,8 @@
                 /*
                  * Metadata
                  */
-                $('.metadata', $('#id' + i)).html('<p><b>' + feature.properties['platform'] + (feature.properties['platform'] && feature.properties['instrument'] ? "/" + feature.properties['instrument'] : "") + '</b> ' + self.translate('_acquiredOn', [feature.properties['startDate']]) + '</p>');
-                metadata = '<p class="tabbed-left small"><b>' + self.translate('_identifier') + '</b> : <span title="' + feature.properties['identifier'] + '">' + self.stripOGCURN(feature.properties['identifier']) + '</span><br/>';
+                $('.resto-metadata', $('#rid' + i)).html('<p><b>' + feature.properties['platform'] + (feature.properties['platform'] && feature.properties['instrument'] ? "/" + feature.properties['instrument'] : "") + '</b> ' + self.translate('_acquiredOn', [feature.properties['startDate']]) + '</p>');
+                metadata = '<p class="resto-tabbed-left resto-small"><b>' + self.translate('_identifier') + '</b> : <span title="' + feature.properties['identifier'] + '">' + self.stripOGCURN(feature.properties['identifier']) + '</span><br/>';
                 if (feature.properties['resolution']) {
                     metadata += '<b>' + self.translate('_resolution') + '</b> : ' + feature.properties['resolution'] + ' m<br/>';
                 }
@@ -326,57 +339,54 @@
                 if (feature.properties['completionDate']) {
                     metadata += '<b>' + self.translate('_completionDate') + '</b> : ' + feature.properties['completionDate'] + '<br/>';
                 }
-                metadata += self.translate('_viewMetadata', ['<a href="' + self.updateURL(feature.properties['self'], {format: 'html'}) + '">HTML</a> | <a href="' + self.updateURL(feature.properties['self'], {format: 'atom'}) + '">ATOM</a> | <a href="' + self.updateURL(feature.properties['self'], {format: 'json'}) + '">GeoJSON</a></li></p><p>']);
+                metadata += self.translate('_viewMetadata', ['<a class="resto-link" href="' + self.updateURL(feature.properties['self'], {format: 'html'}) + '">HTML</a> | <a class="resto-link" href="' + self.updateURL(feature.properties['self'], {format: 'atom'}) + '">ATOM</a> | <a class="resto-link" href="' + self.updateURL(feature.properties['self'], {format: 'json'}) + '">GeoJSON</a></li></p><p>']);
 
                 if (feature.properties['services']) {
                     if (feature.properties['services']['download'] && feature.properties['services']['download']['url']) {
-                        metadata += '&nbsp;&nbsp;<a href="' + feature.properties['services']['download']['url'] + '"' + (feature.properties['services']['download']['mimeType'] === 'text/html' ? ' target="_blank"' : '') + '>' + self.translate('_download') + '</a>';
+                        metadata += '&nbsp;&nbsp;<a class="resto-link" href="' + feature.properties['services']['download']['url'] + '"' + (feature.properties['services']['download']['mimeType'] === 'text/html' ? ' target="_blank"' : '') + '>' + self.translate('_download') + '</a>';
                     }
                     if (feature.properties['services']['browse'] && feature.properties['services']['browse']['layer']) {
-                        if (self.mapshupUrl) {
+                        if (window.M) {
                             message = {
-                                command: 'addLayer',
-                                options: {
-                                    title: feature.properties['identifier'],
-                                    type: feature.properties['services']['browse']['layer']['type'],
-                                    layers: feature.properties['services']['browse']['layer']['layers'],
-                                    url: feature.properties['services']['browse']['layer']['url'].replace('%5C', ''),
-                                    zoomOnNew: true
-                                }
+                                title: feature.properties['identifier'],
+                                type: feature.properties['services']['browse']['layer']['type'],
+                                layers: feature.properties['services']['browse']['layer']['layers'],
+                                url: feature.properties['services']['browse']['layer']['url'].replace('%5C', ''),
+                                zoomOnNew: true
                             };
-                            metadata += '&nbsp;&nbsp;<a class="postToMapshup" data="' + encodeURI(JSON.stringify(message)) + '" href="' + self.mapshupUrl + '">' + self.translate('_viewMapshupFullResolution') + '</a>';
+                            metadata += '&nbsp;&nbsp;<a class="resto-link resto-addLayer" data="' + encodeURI(JSON.stringify(message)) + '" href="#">' + self.translate('_viewMapshupFullResolution') + '</a>';
                         }
                     }
                 }
 
                 metadata += '</p></p>'; // End of metatada
-                $('.metadata', $('#id' + i)).append(metadata);
-                
+                $('.resto-metadata', $('#rid' + i)).append(metadata);
+
                 /*
                  * Keywords
                  */
                 if (feature.properties.keywords) {
                     keywords = '';
                     for (key in feature.properties.keywords) {
-                        keywords += '<a href="' + this.updateURL(feature.properties.keywords[key]['url'], {format:'html'}) + '" class="ajaxified keyword keyword-' + feature.properties.keywords[key]['type'].replace(' ', '') + '">' + key + '</a> ';
+                        keywords += '<a href="' + this.updateURL(feature.properties.keywords[key]['url'], {format: 'html'}) + '" class="resto-link resto-ajaxified resto-keyword resto-keyword-' + feature.properties.keywords[key]['type'].replace(' ', '') + '">' + key + '</a> ';
                     }
-                    $('.keywords', $('#id' + i)).html(keywords);
+                    $('.resto-keywords', $('#rid' + i)).html(keywords);
                 }
-                
-                
+
+
             }
 
             /*
              * Set fancybox for quicklooks
              */
-            $('a.quicklook').fancybox({
+            $('a.resto-quicklook').fancybox({
                 type: "image"
             });
 
             /*
              * Click on ajaxified element call href url through Ajax
              */
-            $('.ajaxified').each(function() {
+            $('.resto-ajaxified').each(function() {
                 $(this).click(function(e) {
                     e.preventDefault();
                     window.History.pushState(null, null, $(this).attr('href'));
@@ -384,20 +394,19 @@
             });
 
             /*
-             * Click on postToMapshup element send request to mapshup iframe
+             * Click on postToMapshup element send request to mapshup
              */
-            $('.postToMapshup').click(function(e) {
+            $('.resto-addLayer').click(function(e) {
                 e.preventDefault();
-                self.postMessage($(this).attr('data'));
+                self.addLayer($(this).attr('data'));
             });
 
         },
-                
         /**
          * Show mask overlay (during loading)
          */
         showMask: function() {
-            $('<div id="mask-overlay"></div>').appendTo($('body')).css({
+            $('<div id="resto-mask-overlay"></div>').appendTo($('body')).css({
                 'position': 'absolute',
                 'z-index': '1000',
                 'top': '0px',
@@ -409,15 +418,13 @@
             }).show();
             $.fancybox.showActivity();
         },
-                
         /**
          * Clear mask overlay
          */
         hideMask: function() {
-            $('#mask-overlay').remove();
+            $('#resto-mask-overlay').remove();
             $.fancybox.hideActivity();
         },
-                
         /**
          * Create a preview Leaflet map
          * 
@@ -472,7 +479,6 @@
             }
 
         },
-        
         /**
          * Replace {a:1}, {a:2}, etc within str by array values
          * 
@@ -481,25 +487,24 @@
          * 
          */
         translate: function(str, values) {
-            
+
             if (!this.translation || !this.translation[str]) {
                 return str;
             }
-            
+
             var i, l, out = this.translation[str];
-            
+
             /*
              * Replace additional arguments
              */
             if (values && out.indexOf('{a:') !== -1) {
-                for (i = 0, l = values.length; i < l; i++ ) {
+                for (i = 0, l = values.length; i < l; i++) {
                     out = out.replace('{a:' + (i + 1) + '}', values[i]);
                 }
             }
 
             return out;
         },
-                
         /**
          * Update key/value parameters from url by values
          * 
@@ -508,9 +513,9 @@
          * 
          */
         updateURL: function(url, params) {
-            
+
             var key, value, i, l, sourceParamsList, sourceParams = {}, newParamsString = "", sourceBase = url.split("?")[0];
-            
+
             try {
                 sourceParamsList = url.split("?")[1].split("&");
             }
@@ -524,18 +529,17 @@
                     sourceParams[key] = value ? value : '';
                 }
             }
-            
+
             for (key in params) {
                 sourceParams[key] = params[key];
             }
-            
+
             for (key in sourceParams) {
-                newParamsString += key + "=" + sourceParams[key]+"&";
+                newParamsString += key + "=" + sourceParams[key] + "&";
             }
-            
-            return sourceBase+"?"+newParamsString;
+
+            return sourceBase + "?" + newParamsString;
         },
-                
         /**
          * Remove OGC URN prefix
          * 
@@ -547,16 +551,29 @@
             }
             return str.replace('urn:ogc:def:EOP:', '');
         },
-                
         /**
-         * Post message to mapshup
+         * Post to mapshup
          * 
          * @param {string/object} json
          */
-        postMessage: function(json) {
-            document.getElementById('mapshupFrame').contentWindow.postMessage(typeof json === 'string' ? json : encodeURI(JSON.stringify(json)), $('#mapshupFrame').attr('src'));
+        addLayer: function(json) {
+
+            if (!window.M) {
+                return false;
+            }
+
+            if (typeof json === 'string') {
+                json = JSON.parse(decodeURI(json));
+            }
+
+            window.M.Map.addLayer(json, {
+                noDeletionCheck: true
+            });
+
+            return true;
+
         }
 
     };
-    
+
 })(window, navigator);

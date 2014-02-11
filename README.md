@@ -106,15 +106,6 @@ If you want to use iTag with RESTo, you should install it (follow the [instructi
 the [online version of iTag] (http://mapshup.info/itag/?) - see RESTo configuration below
 
 
-Install mapshup (optional)
------------------------
-
-[mapshup] (http://github.com/jjrom/mapshup) is a webmapping application that provides an innovative and efficient access to Geospatial web services.
-
-If you want to use mapshup within RESTo MMI, you should install the [mapshup-resto] (https://github.com/jjrom/mapshup-resto) dedicated build or
-use the [online version of mapshup-resto] (http://engine.mapshup.info/mapshupresto) - see RESTo configuration below
-
-
 Configuration
 =============
 
@@ -183,6 +174,10 @@ If you do not want to see products on map comment this line.
 * (optional) ResourceManager.iTag value is changed accordingly to your configuration. If you
 don't want to tag your products during ingestion comment this line.
 
+masphup configuration
+---------------------
+
+Edit $RESTO_TARGET/js/config/default/config.js and set c["general"].rootUrl value to $RESTO_TARGET url  
 
 Quick Start
 ===========

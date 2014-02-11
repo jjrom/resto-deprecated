@@ -542,13 +542,6 @@ class Resto {
     }
 
     /**
-     * Return mapshup configuration
-     */
-    public function getMapshupConfig() {
-        return $this->config['general']['mapshup'];
-    }
-
-    /**
      * Return a new DatabaseConnector instance
      */
     public function getDatabaseConnectorInstance() {

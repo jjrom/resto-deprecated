@@ -183,10 +183,6 @@ abstract class RestoController {
      * 
      *  acceptedLangs =>            ==  Array of acceptedLangs (i.e. ['en', 'fr', ...])
      * 
-     *  mapshup => array(           ==
-     *      url =>                  ==  mapshup endpoint url
-     *  )                           ==
-     * 
      *  os => array(                ==
      *      ShortName               ==
      *      LongName                ==  OpenSearch description
@@ -278,7 +274,6 @@ abstract class RestoController {
             'template' => isset($collectionDescription['template']) ? $collectionDescription['template'] : $R->getTemplateName(),
             'acceptedLangs' => $R->getAcceptedLangs(),
             'dictionary' => $R->getDictionary(),
-            'mapshup' => isset($collectionDescription['mapshup']) ? $collectionDescription['mapshup'] : $R->getMapshupConfig(),
             'os' => $collectionDescription['os'],
             'model' => $controller::$model,
             'searchFiltersList' => $controller::$searchFiltersList,
