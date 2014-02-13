@@ -125,7 +125,7 @@
                     },
                     error: function(e) {
                         self.hideMask();
-                        // TODO
+                        alert("Connection error");
                     }
                 });
             });
@@ -163,7 +163,7 @@
          */
         updatePage: function(json, updateMapshup) {
 
-            var i, l, thumbnail, quicklook, feature, metadata, keywords, $content, key, foundFilters = [], self = this;
+            var i, l, j, k, alternates, thumbnail, quicklook, feature, metadata, keywords, $content, key, foundFilters = [], self = this;
 
             json = json || {};
 
@@ -245,20 +245,22 @@
             }
             else {
 
-                if (json.links) {
-                    if (json.links.first) {
-                        first = ' <a class="resto-link resto-ajaxified" href="' + this.updateURL(json.links.first, {format: 'html'}) + '">' + this.translate('_firstPage') + '</a> ';
-                    }
-                    if (json.links.previous) {
-                        previous = ' <a class="resto-link resto-ajaxified" href="' + this.updateURL(json.links.previous, {format: 'html'}) + '">' + this.translate('_previousPage') + '</a> ';
-                    }
-                    if (json.links.next) {
-                        next = ' <a class="resto-link resto-ajaxified" href="' + this.updateURL(json.links.next, {format: 'html'}) + '">' + this.translate('_nextPage') + '</a> ';
-                    }
-                    if (json.links.last) {
-                        last = ' <a class="resto-link resto-ajaxified" href="' + this.updateURL(json.links.last, {format: 'html'}) + '">' + this.translate('_lastPage') + '</a> ';
-                    }
+                if ($.isArray(json.links)) {
+                    for (i = 0, l = json.links.length; i < l; i++) {
+                        if (json.links[i]['rel'] === 'first') {
+                            first = ' <a class="resto-link resto-ajaxified" href="' + this.updateURL(json.links[i]['href'], {format: 'html'}) + '">' + this.translate('_firstPage') + '</a> ';
+                        }
+                        if (json.links[i]['rel'] === 'previous') {
+                            previous = ' <a class="resto-link resto-ajaxified" href="' + this.updateURL(json.links[i]['href'], {format: 'html'}) + '">' + this.translate('_previousPage') + '</a> ';
+                        }
+                        if (json.links[i]['rel'] === 'next') {
+                            next = ' <a class="resto-link resto-ajaxified" href="' + this.updateURL(json.links[i]['href'], {format: 'html'}) + '">' + this.translate('_nextPage') + '</a> ';
+                        }
+                        if (json.links[i]['rel'] === 'last') {
+                            last = ' <a class="resto-link resto-ajaxified" href="' + this.updateURL(json.links[i]['href'], {format: 'html'}) + '">' + this.translate('_lastPage') + '</a> ';
+                        }
 
+                    }
                 }
 
                 if (json.totalResults === 1) {
@@ -339,7 +341,13 @@
                 if (feature.properties['completionDate']) {
                     metadata += '<b>' + self.translate('_completionDate') + '</b> : ' + feature.properties['completionDate'] + '<br/>';
                 }
-                metadata += self.translate('_viewMetadata', ['<a class="resto-link" href="' + self.updateURL(feature.properties['self'], {format: 'html'}) + '">HTML</a> | <a class="resto-link" href="' + self.updateURL(feature.properties['self'], {format: 'atom'}) + '">ATOM</a> | <a class="resto-link" href="' + self.updateURL(feature.properties['self'], {format: 'json'}) + '">GeoJSON</a></li></p><p>']);
+                alternates = [];
+                if ($.isArray(feature.properties['links'])) {
+                    for (j = 0, k = feature.properties['links'].length; j < k; j++) {
+                        alternates.push('<a class="resto-link" href="' + feature.properties['links'][j]['href'] + '" title="' + feature.properties['links'][j]['title'] + ' ">' + self.mimeToType(feature.properties['links'][j]['type']) + '</a>');
+                    }
+                }
+                metadata += self.translate('_viewMetadata', [alternates.join(' | ') + '</li></p><p>']);
 
                 if (feature.properties['services']) {
                     if (feature.properties['services']['download'] && feature.properties['services']['download']['url']) {
@@ -572,6 +580,26 @@
 
             return true;
 
+        },
+        /**
+         * Return type from mimeType
+         * 
+         * @param {string} mimeType
+         */
+        mimeToType: function(mimeType) {
+            switch(mimeType) {
+                case 'application/json':
+                  return 'GeoJSON';
+                  break;
+                case 'application/atom+xml':
+                  return 'ATOM';
+                  break;
+                case 'text/html':
+                  return 'HTML';
+                  break;
+                default:
+                    return mimeType;
+            }
         }
 
     };

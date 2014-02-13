@@ -135,7 +135,15 @@ class Resto {
 
     const DEFAULT_RESPONSE_FORMAT = 'json';
     const DEFAULT_GET_RESPONSE_FORMAT = 'html';
-
+    
+    /*
+     * RESTo v4 UUID generated at http://uuidgenerator.net/
+     * 
+     * This UUID is used to generate UUID for search resource
+     * (see UUIDv5 function in $RESTO_HOME/resto/lib/functions.php)
+     */
+    const UUID = '92708059-2077-45a3-a4f3-1eb428789cff';
+    
     /**
      * Constructor
      * 
@@ -658,7 +666,7 @@ class Resto {
             $this->request['content-type'] = self::DEFAULT_RESPONSE_FORMAT;
             return $this->jsonResponse();
         }
-
+        
         /*
          * No collection set => renders home page
          */

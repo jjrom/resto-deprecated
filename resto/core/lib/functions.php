@@ -286,7 +286,7 @@ function stripURN($str) {
  * @param {string} $text
  * @param {string} $charset
  */
-function asciify($text, $charset = 'utf-8') {
+function asciify($text, $charset = 'UTF-8') {
     
     /*
      * Includes combinations of characters that present as a single glyph
@@ -299,7 +299,7 @@ function asciify($text, $charset = 'utf-8') {
         /*
          * IGNORE characters that can't be TRANSLITerated to ASCII
          */
-        $text = iconv("UTF-8", "ASCII//IGNORE//TRANSLIT", $text[0]);
+        $text = iconv($charset, 'ASCII//IGNORE//TRANSLIT', $text[0]);
         
         /*
          * The documentation says that iconv() returns false on failure but it returns ''
@@ -571,63 +571,24 @@ function toAtom($response, $dictionary, $version = '1.0', $encoding = 'UTF-8') {
     $xml->writeElement('updated', date('Y-m-d\TH:i:s\Z'));
 
     /*
-     * Element 'id' 
-     *  read from $response['??']
+     * Element 'id' - UUID generate from RESTo::UUID and response URL
      */
-    $xml->writeElement('id', 'TODO');
+    $xml->writeElement('id', $response['id']);
 
     /*
-     * Self link
+     * Links
      */
-    $xml->startElement('link');
-    $xml->writeAttribute('rel', 'self');
-    $xml->writeAttribute('type', 'application/atom+xml');
-    $xml->writeAttribute('href', updateURL($response['links']['self'], array('format' => 'atom')));
-    $xml->endElement(); // link
-
-    /*
-     * First link
-     */
-    if (isset($response['links']['first'])) {
-        $xml->startElement('link');
-        $xml->writeAttribute('rel', 'first');
-        $xml->writeAttribute('type', 'application/atom+xml');
-        $xml->writeAttribute('href', updateURL($response['links']['first'], array('format' => 'atom')));
-        $xml->endElement(); // link
+    if (is_array($response['links'])) {
+        for ($i = 0, $l = count($response['links']); $i < $l; $i++) {
+            $xml->startElement('link');
+            $xml->writeAttribute('rel', $response['links'][$i]['rel']);
+            $xml->writeAttribute('type', 'application/atom+xml');
+            $xml->writeAttribute('title', $response['links'][$i]['title']);
+            $xml->writeAttribute('href', updateURL($response['links'][$i]['href'], array('format' => 'atom')));
+            $xml->endElement(); // link
+        }
     }
-
-    /*
-     * Next link
-     */
-    if (isset($response['links']['next'])) {
-        $xml->startElement('link');
-        $xml->writeAttribute('rel', 'next');
-        $xml->writeAttribute('type', 'application/atom+xml');
-        $xml->writeAttribute('href', updateURL($response['links']['next'], array('format' => 'atom')));
-        $xml->endElement(); // link
-    }
-
-    /*
-     * Previous link
-     */
-    if (isset($response['links']['previous'])) {
-        $xml->startElement('link');
-        $xml->writeAttribute('rel', 'previous');
-        $xml->writeAttribute('type', 'application/atom+xml');
-        $xml->writeAttribute('href', updateURL($response['links']['previous'], array('format' => 'atom')));
-        $xml->endElement(); // link
-    }
-    /*
-     * Last link
-     */
-    if (isset($response['links']['last'])) {
-        $xml->startElement('link');
-        $xml->writeAttribute('rel', 'last');
-        $xml->writeAttribute('type', 'application/atom+xml');
-        $xml->writeAttribute('href', updateURL($response['links']['last'], array('format' => 'atom')));
-        $xml->endElement(); // link
-    }
-
+    
     /*
      * Total results, startIndex and itemsPerpage
      */
@@ -733,50 +694,19 @@ function toAtom($response, $dictionary, $version = '1.0', $encoding = 'UTF-8') {
         $xml->endElement(); // georss:where
 
         /*
-         * Alternate links
+         * Links
          */
-        $atomUrl = updateURL($product['properties']['self'], array('format' => 'atom'));
-        $xml->startElement('link');
-        $xml->writeAttribute('rel', 'alternate');
-        $xml->writeAttribute('type', 'application/atom+xml');
-        $xml->writeAttribute('title', $dictionary->translate('_atomLink', $product['properties']['identifier']));
-        $xml->writeAttribute('href', $atomUrl);
-        $xml->endElement(); // link
-
-        $htmlUrl = updateURL($product['properties']['self'], array('format' => 'html'));
-        $xml->startElement('link');
-        $xml->writeAttribute('rel', 'alternate');
-        $xml->writeAttribute('type', 'text/html');
-        $xml->writeAttribute('title', $dictionary->translate('_htmlLink', $product['properties']['identifier']));
-        $xml->writeAttribute('href', $htmlUrl);
-        $xml->endElement(); // link
-
-        $jsonUrl = updateURL($product['properties']['self'], array('format' => 'json'));
-        $xml->startElement('link');
-        $xml->writeAttribute('rel', 'alternate');
-        $xml->writeAttribute('type', 'application/json');
-        $xml->writeAttribute('title', $dictionary->translate('_geojsonLink', $product['properties']['identifier']));
-        $xml->writeAttribute('href', $jsonUrl);
-        $xml->endElement(); // link
-
-        /* TODO - RDF
-          $xml->startElement('link');
-          $xml->writeAttribute('rel', 'alternate');
-          $xml->writeAttribute('type', 'application/rdf+xml');
-          $xml->writeAttribute('title', '_rdfLink');
-          $xml->writeAttribute('href', updateURL($product['properties']['self'], array('format' => 'rdf')));
-          $xml->endElement(); // link
-         */
-
-        /* TODO - KML
-          $xml->startElement('link');
-          $xml->writeAttribute('rel', 'alternate');
-          $xml->writeAttribute('type', 'application/vnd.google-earth.kml+xml');
-          $xml->writeAttribute('title', '_kmlLink');
-          $xml->writeAttribute('href', updateURL($product['properties']['self'], array('format' => 'kml')));
-          $xml->endElement(); // link
-         */
-
+        if (is_array($product['properties']['links'])) {
+            for ($j = 0, $k = count($response['links']); $j < $k; $j++) {
+                $xml->startElement('link');
+                $xml->writeAttribute('rel', $response['links'][$j]['rel']);
+                $xml->writeAttribute('type', $response['links'][$j]['rel']);
+                $xml->writeAttribute('title', $response['links'][$j]['title']);
+                $xml->writeAttribute('href', $response['links'][$j]['href']);
+                $xml->endElement(); // link
+            }
+        }
+        
         /*
          * Element 'enclosure' - download product
          *  read from $product['properties']['archive']
@@ -990,3 +920,67 @@ function getFiles($isGeoJSON = true) {
     return $arr;
 }
 
+/**
+ * Generate v5 UUID
+ * 
+ * Version 5 UUIDs are named based. They require a namespace (another 
+ * valid UUID) and a value (the name). Given the same namespace and 
+ * name, the output is always the same.
+ * 
+ * @param	uuid	$namespace
+ * @param	string	$name
+ * 
+ * @author Andrew Moore
+ * @link http://www.php.net/manual/en/function.uniqid.php#94959
+ */
+function UUIDv5($namespace, $name) {
+    
+       if(!isValidUUID($namespace)) {
+           return false;
+       }
+
+       // Get hexadecimal components of namespace
+       $nhex = str_replace(array('-','{','}'), '', $namespace);
+
+       // Binary Value
+       $nstr = '';
+
+       // Convert Namespace UUID to bits
+       for($i = 0; $i < strlen($nhex); $i+=2) {
+               $nstr .= chr(hexdec($nhex[$i].$nhex[$i+1]));
+       }
+
+       // Calculate hash value
+       $hash = sha1($nstr . $name);
+
+       return sprintf('%08s-%04s-%04x-%04x-%12s',
+
+       // 32 bits for "time_low"
+       substr($hash, 0, 8),
+
+       // 16 bits for "time_mid"
+       substr($hash, 8, 4),
+
+       // 16 bits for "time_hi_and_version",
+       // four most significant bits holds version number 5
+       (hexdec(substr($hash, 12, 4)) & 0x0fff) | 0x5000,
+
+       // 16 bits, 8 bits for "clk_seq_hi_res",
+       // 8 bits for "clk_seq_low",
+       // two most significant bits holds zero and one for variant DCE1.1
+       (hexdec(substr($hash, 16, 4)) & 0x3fff) | 0x8000,
+
+       // 48 bits for "node"
+       substr($hash, 20, 12)
+       );
+}
+
+/**
+ * Check that input $uuid has a valid uuid syntax
+ * @link http://tools.ietf.org/html/rfc4122
+ * 
+ * @param	uuid	$uuid
+ */
+function isValidUUID($uuid) {
+    return preg_match('/^\{?[0-9a-f]{8}\-?[0-9a-f]{4}\-?[0-9a-f]{4}\-?[0-9a-f]{4}\-?[0-9a-f]{12}\}?$/i', $uuid) === 1;
+}

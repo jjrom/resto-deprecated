@@ -187,9 +187,15 @@ class ResourceManager {
                 /*
                  * Special columns
                  */
+                if (getModelName($this->description['model'], 'published')) {
+                    array_push($keys, getModelName($this->description['model'], 'published'));
+                    array_push($values, 'now()');
+                }
+                if (getModelName($this->description['model'], 'updated')) {
+                    array_push($keys, getModelName($this->description['model'], 'updated'));
+                    array_push($values, 'now()');
+                }
                 $wkt = geoJSONGeometryToWKT($feature['geometry']);
-                array_push($keys, getModelName($this->description['model'], 'updated'));
-                array_push($values, 'now()');
                 array_push($keys, getModelName($this->description['model'], 'geometry'));
                 array_push($values, 'ST_GeomFromText(\'' . $wkt . '\', 4326)');
                 

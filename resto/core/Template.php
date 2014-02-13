@@ -54,7 +54,7 @@ class Template {
         $this->R = $R;
         $this->request = $this->R->getRequest();
         $this->response = $response;
-        $this->description = $responseDescription;
+        $this->description = $responseDescription;        
     }
     
     public function render() {

@@ -377,6 +377,13 @@ return array(
      * Keywords Translation array
      */
     'translation' => array(
+        '_selfCollectionLink' => 'self',
+        '_alternateCollectionLink' => 'alternate',
+        '_firstCollectionLink' => 'first',
+        '_lastCollectionLink' => 'last',
+        '_nextCollectionLink' => 'next',
+        '_previousCollectionLink' => 'previous',
+        '_selfFeatureLink' => 'self',
         '_about' => 'About',
         '_close' => 'close',
         '_acquiredOn' => 'acquired on <b>{a:1}</b>',
@@ -400,9 +407,9 @@ return array(
         '_viewMapshupFullResolution' => 'View on map',
         '_download' => 'Download',
         '_keywords' => 'Keywords',
-        '_atomLink' => 'ATOM link for "{a:1}"',
-        '_htmlLink' => 'HTML link for "{a:1}"',
-        '_geojsonLink' => 'GeoJSON link for "{a:1}"',
+        '_atomLink' => 'ATOM link for {a:1}',
+        '_htmlLink' => 'HTML link for {a:1}',
+        '_jsonLink' => 'GeoJSON link for {a:1}',
         '_inLang' => 'You are in {a:1} language',
         '_switchLang' => 'Switch to {a:1} language',
         '_en' => 'english',
