@@ -93,16 +93,18 @@
                 if (options.data) {
                     var fct = setInterval(function() {
                         if (window.M.Map.map && window.M.isLoaded) {
-                            window.M.Map.addLayer({
-                                title: options.data.query ? options.data.query.original.searchTerms : '',
+                            self.addLayer({
                                 type: 'GeoJSON',
                                 clusterized: false,
                                 data: options.data,
                                 zoomOnNew: true,
-                                MID: '__resto__'
-                            },
-                            {
-                                noDeletionCheck: true
+                                MID: '__resto__',
+                                featureInfo:{
+                                    noMenu:true,
+                                    onSelect:function(f) {
+                                        //console.log(f);
+                                    }
+                                }
                             });
                             clearInterval(fct);
                         }
@@ -114,9 +116,21 @@
              * State change - Ajax call to RESTo backend server
              */
             window.History.Adapter.bind(window, 'statechange', function() {
+                
+                // Be sure that json is called !
+                var url = window.History.getState().cleanUrl.replace('format=html', 'format=json');
+                
                 self.showMask();
+                
+                /*
+                 * Bound search to map view 
+                 */
+                if (window.M) {
+                    url += '&box=' + window.M.Map.Util.p2d(M.Map.map.getExtent()).toBBOX();
+                }
+                
                 $.ajax({
-                    url: window.History.getState().cleanUrl.replace('format=html', 'format=json'), // Be sure that json is called !
+                    url: url, 
                     async: true,
                     dataType: 'json',
                     success: function(json) {
@@ -191,15 +205,18 @@
 
                 }
                 else {
-                    window.M.Map.addLayer({
+                    self.addLayer({
                         type: 'GeoJSON',
                         clusterized: false,
                         data: json,
                         zoomOnNew: true,
-                        MID: '__resto__'
-                    },
-                    {
-                        noDeletionCheck: true
+                        MID: '__resto__',
+                        featureInfo:{
+                            noMenu:true,
+                            onSelect:function(f) {
+                                //console.log(f);
+                            }
+                        }
                     });
                 }
             }
@@ -376,7 +393,7 @@
                 if (feature.properties.keywords) {
                     keywords = '';
                     for (key in feature.properties.keywords) {
-                        keywords += '<a href="' + this.updateURL(feature.properties.keywords[key]['url'], {format: 'html'}) + '" class="resto-link resto-ajaxified resto-keyword resto-keyword-' + feature.properties.keywords[key]['type'].replace(' ', '') + '">' + key + '</a> ';
+                        keywords += '<a href="' + this.updateURL(feature.properties.keywords[key]['url'], {format: 'html'}) + '" class="resto-link resto-ajaxified resto-keyword' + (feature.properties.keywords[key]['type'] ? ' resto-keyword-' + feature.properties.keywords[key]['type'].replace(' ', '') : '') + '">' + key + '</a> ';
                     }
                     $('.resto-keywords', $('#rid' + i)).html(keywords);
                 }
