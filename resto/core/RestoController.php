@@ -655,7 +655,20 @@ abstract class RestoController {
         if (in_array($filterName, $exclude)) {
             return null;
         }
-
+        
+        /*
+         * Spatial filter preseance is
+         *  - geo:lon / geo:lat
+         *  - geo:name
+         *  - geo:box
+         */
+        if ($filterName === 'geo:box' && ($requestParams['geo:lon'] || $requestParams['geo:name'])) {
+            return null;
+        }
+        if ($filterName === 'geo:name' && $requestParams['geo:lon']) {
+            return null;
+        }
+        
         /*
          * Get filter type
          */
