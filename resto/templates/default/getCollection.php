@@ -15,7 +15,7 @@
         <link rel="stylesheet" href="<?php echo $this->request['restoUrl'] ?>/css/<?php echo $templateName ?>/style.css" type="text/css" />
         <link rel="stylesheet" href="<?php echo $this->request['restoUrl'] ?>/js/_addons/jquery.fancybox.css" type="text/css" />
         <link rel="stylesheet" href="<?php echo $this->request['restoUrl'] ?>/js/_addons/leaflet.css" type="text/css"/>
-        <link rel="search" type="application/opensearchdescription+xml" href="<?php echo $collectionUrl ?>_describe" hreflang="<?php echo $this->request['language'] ?>" title="<?php echo $this->description['name']; ?>" />
+        <link rel="search" type="application/opensearchdescription+xml" href="<?php echo $collectionUrl ?>$describe" hreflang="<?php echo $this->request['language'] ?>" title="<?php echo $this->description['name']; ?>" />
     </head>
     <body>
         <div id="resto-container">

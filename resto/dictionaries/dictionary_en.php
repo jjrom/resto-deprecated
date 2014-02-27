@@ -30,7 +30,8 @@ return array(
         'image',
         'images',
         'cover',
-        'area'
+        'area',
+        'zone'
     ),
     /*
      * Modifiers

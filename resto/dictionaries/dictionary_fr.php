@@ -32,7 +32,9 @@ return array(
         'acquises',
         'comprise',
         'comprises',
-        'couverture'
+        'couverture',
+        'aire',
+        'zone'
     ),
     /*
      * Modifiers

@@ -99,6 +99,7 @@
                                 data: options.data,
                                 zoomOnNew: true,
                                 MID: '__resto__',
+                                color:'#FFF1FB',
                                 featureInfo:{
                                     noMenu:true,
                                     onSelect:function(f) {
@@ -211,6 +212,7 @@
                         data: json,
                         zoomOnNew: true,
                         MID: '__resto__',
+                        color:'#FFF1FB',
                         featureInfo:{
                             noMenu:true,
                             onSelect:function(f) {
