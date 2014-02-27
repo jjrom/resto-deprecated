@@ -11,14 +11,18 @@ CREATE SCHEMA admin;
 --
 CREATE TABLE admin.history (
     gid                 SERIAL PRIMARY KEY,
+    service             VARCHAR(10),
     collection          VARCHAR(50),
     query               TEXT DEFAULT NULL,
     realquery           TEXT DEFAULT NULL,
     querytime           TIMESTAMP,
     url                 TEXT DEFAULT NULL,
     ip                  VARCHAR(15),
-    userid              INTEGER DEFAULT -1
+    userid              VARCHAR(255) DEFAULT 'anonymous'
 );
+CREATE INDEX idx_service_history ON admin.history (service);
+CREATE INDEX idx_userid_history ON admin.history (userid);
+
 
 --
 -- collections table list all RESTo collections

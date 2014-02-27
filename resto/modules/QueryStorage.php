@@ -83,15 +83,16 @@ class QueryStorage {
         }
         
         $values = array(
+            "'" . pg_escape_string($query['service']) . "'",
             "'" . pg_escape_string($query['collection']) . "'",
-            "'" . pg_escape_string($query['query']) . "'",
-            "'" . pg_escape_string(json_encode($query['realquery'])) . "'",
+            "'" . pg_escape_string($query['resource']) . "'",
+            $query['realquery'] ? "'" . pg_escape_string(json_encode($query['realquery'])) . "'" : "null",
             "now()",
             "'" . $_SERVER['REMOTE_ADDR'] . "'",
             "'" . pg_escape_string($query['url']) . "'"
         );
 
-        return pg_query($this->dbh, 'INSERT INTO admin.history (collection,query,realquery,querytime,ip,url) VALUES (' . join(',', $values) . ')');
+        return pg_query($this->dbh, 'INSERT INTO admin.history (service,collection,query,realquery,querytime,ip,url) VALUES (' . join(',', $values) . ')');
 
     }
 

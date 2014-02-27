@@ -1407,8 +1407,9 @@ abstract class RestoController {
         if (class_exists('QueryStorage')) {
             $storage = new QueryStorage($this->R);
             $storage->store(array(
+                'service' => 'search',
                 'collection' => $this->request['collection'],
-                'query' => $query['searchTerms'],
+                'resource' => $query['searchTerms'],
                 'realquery' => $real,
                 'url' => updateUrl($baseUrl, $this->writeRequestParams())
             ));
@@ -1521,6 +1522,19 @@ abstract class RestoController {
                 'features' => array($this->toFeature($product))
             );
         }
+        
+        /*
+         * Store query
+         */
+        if (class_exists('QueryStorage')) {
+            $storage = new QueryStorage($this->R);
+            $storage->store(array(
+                'service' => 'describe',
+                'collection' => $this->request['collection'],
+                'resource' => $identifier,
+                'url' => $resourceUrl
+            ));
+        }
 
         $this->responseStatus = 200;
     }
@@ -1544,7 +1558,7 @@ abstract class RestoController {
                 if (!$dbh) {
                     throw new Exception('Database connection error', 500);
                 }
-                $products = pg_query($dbh, 'SELECT ' . $this->getModelName('archive') . ' AS archive' . ($this->description['model']['mimetype'] ? ',' . $this->getModelName('mimetype') . ' AS mimetype  ' : '') . ' FROM ' . $this->dbConnector->getSchema() . '.' . $this->dbConnector->getTable() . ' WHERE ' . $this->getModelName('identifier') . "='" . pg_escape_string($identifier) . "'");
+                $products = pg_query($dbh, 'SELECT ' . $this->getModelName('archive') . ' AS archive' . ($this->getModelName('mimetype') ? ',' . $this->getModelName('mimetype') . ' AS mimetype  ' : '') . ' FROM ' . $this->dbConnector->getSchema() . '.' . $this->dbConnector->getTable() . ' WHERE ' . $this->getModelName('identifier') . "='" . pg_escape_string($identifier) . "'");
                 if (!$products) {
                     pg_close($dbh);
                     throw new Exception('Database connection error', 500);
@@ -1590,7 +1604,20 @@ abstract class RestoController {
          */
         $this->response = 'Download';
         $this->responseStatus = 200;
-
+        
+        /*
+         * Store query
+         */
+        if (class_exists('QueryStorage')) {
+            $storage = new QueryStorage($this->R);
+            $storage->store(array(
+                'service' => 'download',
+                'collection' => $this->request['collection'],
+                'resource' => $identifier,
+                'url' => $product['archive']
+            ));
+        }
+        
         /*
          * Stream file in 1024*1024 chunk tiles
          */
