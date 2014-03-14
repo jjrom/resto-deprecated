@@ -334,7 +334,7 @@ class QueryAnalyzer {
          * At this stage remaining terms are 
          *  - numeric values
          *  - modifiers
-         *  - non excluded terms with 4 ore more characters in length that
+         *  - non excluded terms with 4 or more characters in length that
          */
         $this->extractModifiers($searchTerms, $params);
         

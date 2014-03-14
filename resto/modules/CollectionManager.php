@@ -104,10 +104,15 @@ class CollectionManager {
         /*
          * Case 2.
          *  POST parameters through key=value
+         *  where
+         *      - 'key' should be equal to 'json'
+         *      - 'value' should be an encoded JSON string
          */
         else {
             $request = $R->getRequest();
-            $this->request = $request['params'];
+            if ($request['params'] && $request['params']['json']) {
+                $this->request = json_decode(urldecode($request['params']['json']), true);
+            }
         }
         
         /*

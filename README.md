@@ -242,3 +242,12 @@ For [Mac OS X] (http://blog.andyhunt.info/2011/11/26/apache-ssl-on-max-osx-lion-
 
 (Warning http://stackoverflow.com/questions/18251128/why-am-i-suddenly-getting-a-blocked-loading-mixed-active-content-issue-in-fire)
 
+
+For security reasons i cannot POST file through PHP
+---------------------------------------------------
+
+You can POST collections descriptions using a "key=value" mechanism instead of file upload.
+
+To do so, you need to encode the json file (using javascript encodeURIComponent for instance) - see $RESTO_HOME/_examples/collections/Example.txt - and run the following command
+
+        curl -X POST -d @$RESTO_HOME/_examples/collections/Example.txt http://admin:nimda@localhost/resto/
