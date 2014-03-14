@@ -34,7 +34,8 @@ return array(
         'comprises',
         'couverture',
         'aire',
-        'zone'
+        'zone',
+        'ayant'
     ),
     /*
      * Modifiers
