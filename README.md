@@ -49,7 +49,7 @@ To install RESTo database, launch the following script
 
         $RESTO_HOME/_install/installDB.sh -F -d <PostGIS directory> -p <resto user password> -P <sresto user password>
 
-Note1 : <PostGIS directory> should be replaced by postgis installation directory (e.g. /usr/local/share/postgis/)
+Note1 : <PostGIS directory> should be replaced by the directory containing both postgis.sql and spatial_ref_sys.sql (e.g. /usr/local/share/postgis/)
 
 Note2 : installation script supposed that the PostgreSQL superuser name is 'postgres' (otherwise add '-s <superusername>' to the above command)
 and that it has access to psql on localhost without password.
@@ -172,6 +172,8 @@ Edit the PostgreSQL pg_hba.conf file and add the following rules :
         host   resto   resto,sresto            127.0.0.1/32            md5
         host   resto   resto,sresto            ::1/128                 md5
 
+Then restart postgresql (e.g. "pg_ctl restart")
+
 RESTo configuration
 -------------------
 
@@ -183,8 +185,8 @@ The configuration file is self explanatory. For a standard installation you shou
 * **admin.password**  changed to something more secure that the one set in the configuration file !
 * (optional) mapshup.url value is changed accordingly to your configuration.
 If you do not want to see products on map comment this line.
-* (optional) ResourceManager.iTag value is changed accordingly to your configuration. If you
-don't want to tag your products during ingestion comment this line.
+* (optional) ResourceManager.iTag value is changed accordingly to your configuration. If this line
+is commented, then iTag will not be used (i.e. products will not be tagged)
 
 masphup configuration
 ---------------------
