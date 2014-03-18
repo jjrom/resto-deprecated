@@ -662,11 +662,18 @@ abstract class RestoController {
          *  - geo:name
          *  - geo:box
          */
-        if ($filterName === 'geo:box' && ($requestParams['geo:lon'] || $requestParams['geo:name'])) {
-            return null;
+        if ($filterName === 'geo:box') {
+            if ($requestParams['geo:lon'] && (in_array($this->description['searchFiltersList'], 'geo:lon') || in_array($this->description['searchFiltersList'], 'geo:lon?'))) {
+                return null;
+            }
+            if ($requestParams['geo:name'] && (in_array($this->description['searchFiltersList'], 'geo:name') || in_array($this->description['searchFiltersList'], 'geo:name?'))) {
+                return null;
+            }
         }
-        if ($filterName === 'geo:name' && $requestParams['geo:lon']) {
-            return null;
+        if ($filterName === 'geo:name') {
+             if ($requestParams['geo:lon'] && (in_array($this->description['searchFiltersList'], 'geo:lon') || in_array($this->description['searchFiltersList'], 'geo:lon?'))) {
+                return null;
+            }
         }
         
         /*
