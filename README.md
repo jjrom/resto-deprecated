@@ -47,7 +47,7 @@ It is very important to specify strong passwords for these two users.
 
 To install RESTo database, launch the following script
 
-        $RESTO_HOME/_install/installDB.sh -F -d <PostGIS directory> -P <resto user password> -p <sresto user password>
+        $RESTO_HOME/_install/installDB.sh -F -d <PostGIS directory> -p <resto user password> -P <sresto user password>
 
 Note1 : <PostGIS directory> should be replaced by postgis installation directory (e.g. /usr/local/share/postgis/)
 
@@ -160,15 +160,27 @@ Note: a step by step guide for installing https on Mac OS X is provided in the F
         apachectl restart
 
 
+PostgreSQL configuration
+------------------------
+
+Note: the following configuration is optional but it is safer from a security point of view to do it like this.
+
+Edit the PostgreSQL pg_hba.conf file and add the following rules :
+
+        # Configuration for RESTo framework
+        local  all     resto,sresto                                    password
+        host   resto   resto,sresto            127.0.0.1/32            md5
+        host   resto   resto,sresto            ::1/128                 md5
+
 RESTo configuration
 -------------------
 
 All configuration parameters are defined within $RESTO_TARGET/resto/resto.ini file
 
 The configuration file is self explanatory. For a standard installation you should only check that :
-* db.password value is the same as the 'resto' user password set during database installation
-* db.spassword value is the same as the 'sresto' user password set during database installation
-* admin.password is changed to something more secure that the one set in the configuration file !
+* **db.password** value is **the same as the 'resto' user password set during database installation**
+* **db.spassword** value is **the same as the 'sresto' user password set during database installation**
+* **admin.password**  changed to something more secure that the one set in the configuration file !
 * (optional) mapshup.url value is changed accordingly to your configuration.
 If you do not want to see products on map comment this line.
 * (optional) ResourceManager.iTag value is changed accordingly to your configuration. If you

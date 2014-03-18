@@ -43,7 +43,7 @@ DB=resto
 USER=resto
 ADMIN=sresto
 SQL=`dirname $0`/resto.sql
-usage="## RESTo database installation\n\n  Usage $0 -d <PostGIS directory> -P <resto Read+Write database user password> -p <resto Read-Only database user password> [-s <database SUPERUSER> -F]\n\n  -d : absolute path to the directory containing postgis.sql\n  -s : dabase SUPERUSER (default "postgres")\n  -F : WARNING - suppress existing admin schema within resto database\n"
+usage="## RESTo database installation\n\n  Usage $0 -d <PostGIS directory> -P <sresto (Read+Write database) user password> -p <resto (Read-Only database) user password> [-s <database SUPERUSER> -F]\n\n  -d : absolute path to the directory containing postgis.sql\n  -s : dabase SUPERUSER (default "postgres")\n  -F : WARNING - suppress existing admin schema within resto database\n"
 while getopts "d:s:p:P:hF" options; do
     case $options in
         d ) ROOTDIR=`echo $OPTARG`;;
