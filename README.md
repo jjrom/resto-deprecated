@@ -19,9 +19,9 @@ If not already done, download RESTo to $RESTO_HOME
 Prerequesites
 -------------
 
-* Apache (v2.0+) with mod_rewrite support
-* PHP (v5.3+) with curl and XMLWriter extension
-* PostgreSQL (v9.0+) with hstore extension
+* Apache (v2.0+) with **mod_rewrite support**
+* PHP (v5.3+) with **curl and XMLWriter extension**
+* PostgreSQL (v9.0+) with **hstore extension**
 * PostGIS (v1.5.1+)
 
 Note: RESTo could work with lower version of the specified requirements.
