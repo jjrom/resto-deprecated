@@ -155,7 +155,7 @@
              */
             $("#resto-searchform").submit(function(e) {
                 e.preventDefault();
-                window.History.pushState(null, null, '?' + $(this).serialize());
+                window.History.pushState({randomize: window.Math.random()}, null, '?' + $(this).serialize());
             });
 
             // Set language actions
@@ -416,7 +416,7 @@
             $('.resto-ajaxified').each(function() {
                 $(this).click(function(e) {
                     e.preventDefault();
-                    window.History.pushState(null, null, $(this).attr('href'));
+                    window.History.pushState({randomize: window.Math.random()}, null, $(this).attr('href'));
                 });
             });
 
