@@ -692,8 +692,13 @@ class QueryAnalyzer {
         
         /*
          * Ultimate keywords treated as location or discarded
+         * 
+         * Note: remaining keywords for location detection are processed
+         * in reverse order assuming that grammatically, the location
+         * occurence has greater probability to be defined at the end
+         * of the sentence 
          */
-        for ($i = 0, $l = count($searchTerms); $i < $l; $i++) {
+        for ($i = count($searchTerms); $i--;) {
             
             /*
              * Check in Gazetteer except if a toponym was already found !
