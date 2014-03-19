@@ -663,15 +663,17 @@ abstract class RestoController {
          *  - geo:box
          */
         if ($filterName === 'geo:box') {
-            if ($requestParams['geo:lon'] && (in_array($this->description['searchFiltersList'], 'geo:lon') || in_array($this->description['searchFiltersList'], 'geo:lon?'))) {
+            if ($requestParams['geo:lon'] && (in_array('geo:lon', $this->description['searchFiltersList']) || in_array('geo:lon?', $this->description['searchFiltersList']))) {
+                unset($this->request['realParams']['geo:box']);
                 return null;
             }
-            if ($requestParams['geo:name'] && (in_array($this->description['searchFiltersList'], 'geo:name') || in_array($this->description['searchFiltersList'], 'geo:name?'))) {
+            if ($requestParams['geo:name'] && (in_array('geo:name', $this->description['searchFiltersList']) || in_array('geo:name?', $this->description['searchFiltersList']))) {
+                unset($this->request['realParams']['geo:box']);
                 return null;
             }
         }
         if ($filterName === 'geo:name') {
-             if ($requestParams['geo:lon'] && (in_array($this->description['searchFiltersList'], 'geo:lon') || in_array($this->description['searchFiltersList'], 'geo:lon?'))) {
+             if ($requestParams['geo:lon'] && (in_array('geo:lon', $this->description['searchFiltersList']) || in_array('geo:lon?', $this->description['searchFiltersList']))) {
                 return null;
             }
         }
@@ -771,7 +773,7 @@ abstract class RestoController {
              * Spatial operation ST_Intersects (Input bbox or polygon)
              */
             else if ($operation === 'intersects') {
-
+                
                 /*
                  * Default bounding box is the whole earth
                  */

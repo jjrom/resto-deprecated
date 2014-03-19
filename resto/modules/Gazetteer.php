@@ -368,7 +368,7 @@ class Gazetteer {
      */
 
     final public function locate($toponym, $lang = 'en', $countryName = null, $bbox = null) {
-
+        
         $result = array();
         $where = '';
 
@@ -401,6 +401,7 @@ class Gazetteer {
         /*
          * Constrain search on bbox
          */
+        $bboxConstraint = '';
         if ($bbox) {
             $lonmin = -180;
             $lonmax = 180;
@@ -413,13 +414,13 @@ class Gazetteer {
                 $lonmax = is_numeric($coords[2]) ? $coords[2] : $lonmax;
                 $latmax = is_numeric($coords[3]) ? $coords[3] : $latmax;
             }
-            $where .= " AND ST_intersects(geom, ST_GeomFromText('" . pg_escape_string('POLYGON((' . $lonmin . ' ' . $latmin . ',' . $lonmin . ' ' . $latmax . ',' . $lonmax . ' ' . $latmax . ',' . $lonmax . ' ' . $latmin . ',' . $lonmin . ' ' . $latmin . '))') . "', 4326))";
+            $bboxConstraint = " AND ST_intersects(geom, ST_GeomFromText('" . pg_escape_string('POLYGON((' . $lonmin . ' ' . $latmin . ',' . $lonmin . ' ' . $latmax . ',' . $lonmax . ' ' . $latmax . ',' . $lonmax . ' ' . $latmin . ',' . $lonmin . ' ' . $latmin . '))') . "', 4326))";
         }
 
         /*
          * First search in english
          */
-        $toponyms = pg_query($this->dbh, 'SELECT name, country as countrycode, latitude, longitude, population FROM ' . $this->schema . '.geoname WHERE searchname =\'' . pg_escape_string(str_replace(array('', '-'), array('', ''), $toponym)) . '\'' . $where . ' ORDER BY population DESC');
+        $toponyms = pg_query($this->dbh, 'SELECT name, country as countrycode, latitude, longitude, population FROM ' . $this->schema . '.geoname WHERE searchname =\'' . pg_escape_string(str_replace(array('', '-'), array('', ''), $toponym)) . '\'' . $where . $bboxConstraint . ' ORDER BY population DESC');
         
         if (!$toponyms) {
             return $result;
@@ -434,7 +435,16 @@ class Gazetteer {
                 return $result;
             }
         }
-
+        
+        /*
+         * No result - check without bbox
+         */
+        if (pg_num_rows($toponyms) === 0 && $bboxConstraint) {
+            $toponyms = pg_query($this->dbh, 'SELECT name, country as countrycode, latitude, longitude, population FROM ' . $this->schema . '.geoname WHERE searchname =\'' . pg_escape_string(str_replace(array('', '-'), array('', ''), $toponym)) . '\'' . $where . ' ORDER BY population DESC');
+            if (!$toponyms) {
+                return $result;
+            }
+        }
         /*
          * Retrieve first result
          */
