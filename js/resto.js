@@ -122,14 +122,7 @@
                 var url = window.History.getState().cleanUrl.replace('format=html', 'format=json');
                 
                 self.showMask();
-                
-                /*
-                 * Bound search to map view 
-                 */
-                if (window.M) {
-                    url += '&box=' + window.M.Map.Util.p2d(M.Map.map.getExtent()).toBBOX();
-                }
-                
+
                 $.ajax({
                     url: url, 
                     async: true,
@@ -145,6 +138,21 @@
                 });
             });
 
+            /*
+             * Update bbox parameter in href attributes of all element with 'resto-updatebbox' class
+             */
+            if (window.M) {
+                var uFct = setInterval(function() {
+                    if (window.M.Map.map && window.M.isLoaded) {
+                        window.M.Map.events.register("moveend", self, function(map, scope){
+                            scope.updateBBOX();
+                        });
+                        self.updateBBOX();
+                        clearInterval(uFct);
+                    }
+                }, 500);
+            }
+
             // Set About menu action
             $('#_about').click(function() {
                 alert("Work in progress. For more info contact jerome[dot]gasperi[at]gmail[dot]com");
@@ -155,7 +163,10 @@
              */
             $("#resto-searchform").submit(function(e) {
                 e.preventDefault();
-                window.History.pushState({randomize: window.Math.random()}, null, '?' + $(this).serialize());
+                /*
+                 * Bound search to map view
+                 */
+                window.History.pushState({randomize: window.Math.random()}, null, '?' + $(this).serialize() + (window.M ? '&box=' + window.M.Map.Util.p2d(M.Map.map.getExtent()).toBBOX() : ''));
             });
 
             // Set language actions
@@ -395,13 +406,16 @@
                 if (feature.properties.keywords) {
                     keywords = '';
                     for (key in feature.properties.keywords) {
-                        keywords += '<a href="' + this.updateURL(feature.properties.keywords[key]['url'], {format: 'html'}) + '" class="resto-link resto-ajaxified resto-keyword' + (feature.properties.keywords[key]['type'] ? ' resto-keyword-' + feature.properties.keywords[key]['type'].replace(' ', '') : '') + '">' + key + '</a> ';
+                        keywords += '<a href="' + this.updateURL(feature.properties.keywords[key]['url'], {format: 'html'}) + '" class="resto-link resto-ajaxified resto-updatebbox resto-keyword' + (feature.properties.keywords[key]['type'] ? ' resto-keyword-' + feature.properties.keywords[key]['type'].replace(' ', '') : '') + '">' + key + '</a> ';
                     }
                     $('.resto-keywords', $('#rid' + i)).html(keywords);
                 }
-
-
             }
+
+            /*
+             * Constraint search to map extent
+             */
+            self.updateBBOX();
 
             /*
              * Set fancybox for quicklooks
@@ -619,8 +633,18 @@
                 default:
                     return mimeType;
             }
+        },
+        /**
+         * Add map bounding box in EPSG:4326 to all element with a 'resto-updatebbox' class
+         */
+        updateBBOX: function() {
+            if (window.M && window.M.Map.map) {
+                $('.resto-updatebbox').each(function() {
+                    $(this).attr('href', M.Util.extendUrl($(this).attr('href'), {
+                        box:window.M.Map.Util.p2d(M.Map.map.getExtent()).toBBOX()
+                    }));
+                });
+            }
         }
-
     };
-
 })(window, navigator);
