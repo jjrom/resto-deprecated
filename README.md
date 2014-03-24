@@ -79,6 +79,17 @@ Next install the gazetteer within RESTo
 Note : gazetteer contains more than 9 000 000 of toponyms. Depending on your server performance, the above step can
 take a long time (about one hour)
 
+
+Install wikipedia data (Gazetteer module) - OPTIONAL
+----------------------------------------------------
+
+This step is optional and can only be performed if you have the geolocated wikipedia data (which probably you don't have :)
+In case of, these are the steps to follow in order to install this database within RESTo
+
+Put the geolocated wikipedia data in $GEONAMES_DIR/wikipedia directory, then run the command
+
+        $RESTO_HOME/_install/Gazetteer/installWikipediaDB.sh -D $GEONAMES_DIR/wikipedia
+
 Deploy application
 ------------------
 
