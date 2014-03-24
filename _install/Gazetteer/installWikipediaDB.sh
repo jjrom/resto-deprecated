@@ -70,9 +70,13 @@ psql -d $DB -U $SUPERUSER -f $DATADIR/wk.dmp
 
 ## Set indices and user rights
 psql -d $DB -U $SUPERUSER << EOF
+-- Add and Fill PostGIS geometry column to wikipedia table
+SELECT AddGeometryColumn ('gazetteer','wikipedia','geom',4326,'POINT',2);
+UPDATE gazetteer.wikipedia SET geom = ST_GeomFromText('POINT('|| longlat[0] || ' ' || longlat[1] || ')', 4326);
 -- Indexes
 CREATE INDEX idx_wk_lang ON gazetteer.wk (lang);
 CREATE INDEX idx_wk_id ON gazetteer.wk (id);
+CREATE INDEX idx_wikipedia_geom ON gazetteer.wikipedia USING GIST(geom);
 CREATE INDEX idx_geonames_ds_nameorid ON gazetteer.geoname_ds (nameorid);
 -- User rights
 GRANT SELECT ON gazetteer.geoname_ds TO $USER;
