@@ -49,7 +49,7 @@
  * @param {array} $mod
  */
 function updateUrl($url, $mod) {
-    
+
     $components = explode("?", $url);
     $query = array();
     if (isset($components[1])) {
@@ -58,7 +58,7 @@ function updateUrl($url, $mod) {
     else {
         $url .= '?';
     }
-    
+
     // modify/delete data
     foreach($query as $q){
         list($key, $value) = explode("=", $q);
@@ -140,23 +140,23 @@ function isISO8601($dateStr) {
      * The regex is constructed as a combination of all pattern       
      */
     $completePattern = '/^'
-            . $patternYear . '$|^'
-            . $patternMonthExtend . '$|^'
-            . $patternDateExtend . '$|^'
-            . $patternDateAndTimeExtend . '$|^'
-            . $patternDateAndTimeExtend . 'Z$|^'
-            . $patternDateAndTimeExtend . '' . $patternTimeZoneExtend . '$|^'
-            . $patternDateAndTimeExtend . '' . $patternFractionSeconds . '$|^'
-            . $patternDateAndTimeExtend . '' . $patternFractionSeconds . 'Z$|^'
-            . $patternDateAndTimeExtend . '' . $patternFractionSeconds . '' . $patternTimeZoneExtend . '$|^'
-            . $patternMonth . '$|^'
-            . $patternDate . '$|^'
-            . $patternDateAndTime . '$|^'
-            . $patternDateAndTime . 'Z$|^'
-            . $patternDateAndTime . '' . $patternTimeZone . '$|^'
-            . $patternDateAndTime . '' . $patternFractionSeconds . '$|^'
-            . $patternDateAndTime . '' . $patternFractionSeconds . 'Z$|^'
-            . $patternDateAndTime . '' . $patternFractionSeconds . '' . $patternTimeZone . '$/i';
+        . $patternYear . '$|^'
+        . $patternMonthExtend . '$|^'
+        . $patternDateExtend . '$|^'
+        . $patternDateAndTimeExtend . '$|^'
+        . $patternDateAndTimeExtend . 'Z$|^'
+        . $patternDateAndTimeExtend . '' . $patternTimeZoneExtend . '$|^'
+        . $patternDateAndTimeExtend . '' . $patternFractionSeconds . '$|^'
+        . $patternDateAndTimeExtend . '' . $patternFractionSeconds . 'Z$|^'
+        . $patternDateAndTimeExtend . '' . $patternFractionSeconds . '' . $patternTimeZoneExtend . '$|^'
+        . $patternMonth . '$|^'
+        . $patternDate . '$|^'
+        . $patternDateAndTime . '$|^'
+        . $patternDateAndTime . 'Z$|^'
+        . $patternDateAndTime . '' . $patternTimeZone . '$|^'
+        . $patternDateAndTime . '' . $patternFractionSeconds . '$|^'
+        . $patternDateAndTime . '' . $patternFractionSeconds . 'Z$|^'
+        . $patternDateAndTime . '' . $patternFractionSeconds . '' . $patternTimeZone . '$/i';
 
     return preg_match($completePattern, $dateStr);
 }
@@ -183,7 +183,7 @@ function toISO8601($dateStr) {
     else if (preg_match('/^\d{4}-\d{2}-\d{2}$/i', $dateStr)) {
         return $dateStr . 'T00:00:00';
     }
-    
+
     return $dateStr;
 }
 
@@ -218,14 +218,14 @@ function superImplode($glue, $arr) {
  * 
  */
 function replace($sentence, $args) {
-    
+
     /*
      * If args is a string convert to an array
      */
     if (is_string($args)) {
         $args = array($args);
     }
-    
+
     /*
      * Replace additional arguments
      */
@@ -236,7 +236,7 @@ function replace($sentence, $args) {
         }
         return strtr($sentence, $replace);
     }
-    
+
     return $sentence;
 }
 
@@ -287,7 +287,7 @@ function stripURN($str) {
  * @param {string} $charset
  */
 function asciify($text, $charset = 'UTF-8') {
-    
+
     /*
      * Includes combinations of characters that present as a single glyph
      */
@@ -295,12 +295,12 @@ function asciify($text, $charset = 'UTF-8') {
         $text = preg_replace_callback('/\X/u', __FUNCTION__, $text);
     }
     else if (is_array($text) && count($text) == 1 && is_string($text[0])) {
-        
+
         /*
          * IGNORE characters that can't be TRANSLITerated to ASCII
          */
         $text = iconv($charset, 'ASCII//IGNORE//TRANSLIT', $text[0]);
-        
+
         /*
          * The documentation says that iconv() returns false on failure but it returns ''
          */
@@ -320,9 +320,9 @@ function asciify($text, $charset = 'UTF-8') {
     else {
         $text = '';
     }
-    
+
     return $text;
-    
+
 }
 
 /**
@@ -338,7 +338,7 @@ function asciify($text, $charset = 'UTF-8') {
  * @param string $key - RESTo model key name
  */
 function getModelName($model, $key) {
-    
+
     if (!key || !$model[$key]) {
         return null;
     }
@@ -365,11 +365,11 @@ function getModelName($model, $key) {
  * @param array/string $value - Value returned by the database
  */
 function getModelValue($model, $key, $value) {
-   
+
     if (!key || !$model[$key]) {
         return !is_array($value) ? $value : null;
     }
- 
+
     /*
      * PostgreSQL returns date as YYYY-MM-DD HH:MM:SS => space should be replaced by 'T'
      * to make a valid ISO8601 date
@@ -377,7 +377,7 @@ function getModelValue($model, $key, $value) {
     if (is_string($value) && getModelType($model, $key) === 'date') {
         $value = str_replace(' ', 'T', $value);
     }
- 
+
     /*
      * Array case 
      *  - "column" entry should be the database column name (see getModelName($key) function)
@@ -432,7 +432,7 @@ function getModelType($model, $key) {
         'updated' => 'TIMESTAMP',
         'published' => 'TIMESTAMP',
         'geometry' => 'POLYGON',
-         // Add DEFAULT '' to avoid strange behavior in some versions of postgres
+        // Add DEFAULT '' to avoid strange behavior in some versions of postgres
         'keywords' => 'hstore DEFAULT \'\''
     );
 
@@ -445,7 +445,7 @@ function getModelType($model, $key) {
             return $model[$key]['type'];
         }
     }
-    
+
     return $sqlTypes[$key];
 }
 
@@ -455,21 +455,21 @@ function getModelType($model, $key) {
  * @param array $sqlType
  */
 function getRESToType($sqlType) {
-    
+
     if (!$sqlType) {
         return null;
     }
-    
+
     $sqlType = strtolower($sqlType);
-    
+
     if ($sqlType === 'integer' || $sqlType === 'float' || substr($sqlType, 0, 7) === 'numeric') {
         return 'numeric';
     }
-    
+
     if ($sqlType === 'timestamp' || $sqlType === 'date') {
         return 'date';
     }
-    
+
     return 'string';
 }
 
@@ -478,9 +478,9 @@ function getRESToType($sqlType) {
  * @param array $geometry - GeoJSON geometry
  */
 function geoJSONGeometryToWKT($geometry) {
-    
+
     $type = strtoupper($geometry['type']);
-    
+
     if ($type === 'POINT') {
         $wkt =  $type . '(' . join(' ', $geometry['coordinates']) . ')';
     }
@@ -502,9 +502,9 @@ function geoJSONGeometryToWKT($geometry) {
         }
         $wkt = $type . '(' . join(',', $rings) . ')';
     }
-    
+
     return $wkt;
-    
+
 }
 
 
@@ -588,7 +588,7 @@ function toAtom($response, $dictionary, $version = '1.0', $encoding = 'UTF-8') {
             $xml->endElement(); // link
         }
     }
-    
+
     /*
      * Total results, startIndex and itemsPerpage
      */
@@ -706,7 +706,7 @@ function toAtom($response, $dictionary, $version = '1.0', $encoding = 'UTF-8') {
                 $xml->endElement(); // link
             }
         }
-        
+
         /*
          * Element 'enclosure' - download product
          *  read from $product['properties']['archive']
@@ -777,7 +777,7 @@ function radiusInDegrees($radius, $lat) {
  * @return string Indented version of the original JSON string
  */
 function json_format($json, $pretty) {
-    
+
     /*
      * No pretty print - easy part
      */
@@ -787,7 +787,7 @@ function json_format($json, $pretty) {
         }
         return $json;
     }
-    
+
     if (!is_string($json)) {
         if (phpversion() && phpversion() >= 5.4) {
             return json_encode($json, JSON_PRETTY_PRINT);
@@ -855,69 +855,135 @@ function json_format($json, $pretty) {
  * @param string $str
  */
 function trueOrFalse($str) {
-    
+
     if (!$str) {
         return false;
     }
-    
+
     if (strtolower($str) === 'true' || strtolower($str) === 'yes') {
         return true;
     }
-    
+
     return false;
-    
+
 }
 
 /**
- * Return an array of POST files
+ * Return an array of POST files or POST parameters ('data') 
+ *
+ * Warning : If both POST file and POST parameters are used, the POST file is read and
+ * POST parameters are skipped.
  * 
- * @param boolean $isGeoJSON - true if input files are GeoJSON (default is true)
+ * @param array $options - contains mimeType of expected data, and delimiter character in
+ * case of texte data.
+ * 		$options['mimeType'] : represents the data mimeType
+ * 		$options['delimiter'] : represents the delimiter to use in php function explode
  * @throws Exception
  */
-function getFiles($isGeoJSON = true) {
-    
-    $arr = array();
-    
-   /*
-    * Nothing posted
-    */
-    if (count($_FILES) == 0 || !is_array($_FILES['file'])) {
-        return $arr;
+function getFiles($options) {
+
+    /*
+     * By default it is assumed that POST files/data is in JSON
+     */
+    if (!isset($options['mimeType'])) {
+        $options['mimeType'] = Resto::$contentTypes['json'];
     }
 
-   /*
-    * Read file assuming this is ascii file (i.e. plain text, GeoJSON, etc.)
-    */        
-    $tmpFiles = $_FILES['file']['tmp_name'];
-    if (!is_array($tmpFiles)) {
-        $tmpFiles = array($tmpFiles);
-    }
-    for ($i = 0, $l = count($tmpFiles); $i < $l; $i++) {
-        if (is_uploaded_file($tmpFiles[$i])) {
-            
-            /*
-             * This is GeoJSON
-             */
-            if ($isGeoJSON) {
-                try {
-                    $json = json_decode(join('', file($tmpFiles[$i])), true);
-                } catch (Exception $e) {
-                    throw new Exception('Invalid posted file(s)', 500);
-                }
-                if ($json['type'] === 'FeatureCollection' && is_array($json['features'])) {
-                    array_push($arr, $json);
-                }
-                else {
-                    throw new Exception('Invalid posted file(s)', 500);
-                }
+    $arr = array();
+    /*
+     * True by default, False if no file is posted but data posted through parameters
+     */
+    $isFile = true;
+
+    /*
+     * No file is posted
+     */
+    if (count($_FILES) == 0 || !is_array($_FILES['file'])) {
+        
+        /*
+         * Is data posted with key/value ?
+         */
+        if (isset($_POST['data'])) {
+            $isFile = false;
+            $tmpFiles = $_POST['data'];
+            if (!is_array($tmpFiles)) {
+                $tmpFiles = array($tmpFiles);
             }
-            else {
+        }
+        /*
+         * Nothing posted
+         */ else {
+            return $arr;
+        }
+    }
+    /*
+     * A file is posted
+     */
+    else {
+        
+        /*
+         * Read file assuming this is ascii file (i.e. plain text, GeoJSON, etc.)
+         */
+        $tmpFiles = $_FILES['file']['tmp_name'];
+        if (!is_array($tmpFiles)) {
+            $tmpFiles = array($tmpFiles);
+        }
+        
+    }
+
+    for ($i = 0, $l = count($tmpFiles); $i < $l; $i++) {
+
+        /*
+         * The data's format is GeoJSON
+         */
+        if ($options['mimeType'] === Resto::$contentTypes['json']) {
+            try {
+                /*
+                 * Decode json data
+                 */
+                if ($isFile) {
+                    $json = json_decode(join('', file($tmpFiles[$i])), true);
+                } else {
+                    $json = json_decode($tmpFiles[$i], true);
+                }
+            } catch (Exception $e) {
+                throw new Exception('Invalid posted file(s)', 500);
+            }
+            if ($json['type'] === 'FeatureCollection' && is_array($json['features'])) {
+                array_push($arr, $json);
+            } else {
+                throw new Exception('Invalid posted file(s)', 500);
+            }
+        }
+        /*
+         * The data's format is texte
+         */
+        else {
+            /*
+             * Push the file content in return array.
+             * The file content is transformed as array by file function
+             */
+            if ($isFile) {
                 array_push($arr, file($tmpFiles[$i]));
+            }
+            /*
+             * Explode the texte line by line to obtain an array 
+             * and push it to the final array
+             */
+            else if (isset($options['delimiter'])) {
+                array_push($arr, explode($options['delimiter'], $tmpFiles[$i]));
+            }
+            /*
+             * By default, the exploding character is "\n"
+             */
+            else {
+                array_push($arr, explode("\n", $tmpFiles[$i]));
             }
         }
     }
     
     return $arr;
+    
 }
 
 /**
@@ -934,45 +1000,45 @@ function getFiles($isGeoJSON = true) {
  * @link http://www.php.net/manual/en/function.uniqid.php#94959
  */
 function UUIDv5($namespace, $name) {
-    
-       if(!isValidUUID($namespace)) {
-           return false;
-       }
 
-       // Get hexadecimal components of namespace
-       $nhex = str_replace(array('-','{','}'), '', $namespace);
+    if(!isValidUUID($namespace)) {
+        return false;
+    }
 
-       // Binary Value
-       $nstr = '';
+    // Get hexadecimal components of namespace
+    $nhex = str_replace(array('-','{','}'), '', $namespace);
 
-       // Convert Namespace UUID to bits
-       for($i = 0; $i < strlen($nhex); $i+=2) {
-               $nstr .= chr(hexdec($nhex[$i].$nhex[$i+1]));
-       }
+    // Binary Value
+    $nstr = '';
 
-       // Calculate hash value
-       $hash = sha1($nstr . $name);
+    // Convert Namespace UUID to bits
+    for($i = 0; $i < strlen($nhex); $i+=2) {
+        $nstr .= chr(hexdec($nhex[$i].$nhex[$i+1]));
+    }
 
-       return sprintf('%08s-%04s-%04x-%04x-%12s',
+    // Calculate hash value
+    $hash = sha1($nstr . $name);
 
-       // 32 bits for "time_low"
-       substr($hash, 0, 8),
+    return sprintf('%08s-%04s-%04x-%04x-%12s',
 
-       // 16 bits for "time_mid"
-       substr($hash, 8, 4),
+                   // 32 bits for "time_low"
+                   substr($hash, 0, 8),
 
-       // 16 bits for "time_hi_and_version",
-       // four most significant bits holds version number 5
-       (hexdec(substr($hash, 12, 4)) & 0x0fff) | 0x5000,
+                   // 16 bits for "time_mid"
+                   substr($hash, 8, 4),
 
-       // 16 bits, 8 bits for "clk_seq_hi_res",
-       // 8 bits for "clk_seq_low",
-       // two most significant bits holds zero and one for variant DCE1.1
-       (hexdec(substr($hash, 16, 4)) & 0x3fff) | 0x8000,
+                   // 16 bits for "time_hi_and_version",
+                   // four most significant bits holds version number 5
+                   (hexdec(substr($hash, 12, 4)) & 0x0fff) | 0x5000,
 
-       // 48 bits for "node"
-       substr($hash, 20, 12)
-       );
+                   // 16 bits, 8 bits for "clk_seq_hi_res",
+                   // 8 bits for "clk_seq_low",
+                   // two most significant bits holds zero and one for variant DCE1.1
+                   (hexdec(substr($hash, 16, 4)) & 0x3fff) | 0x8000,
+
+                   // 48 bits for "node"
+                   substr($hash, 20, 12)
+                  );
 }
 
 /**

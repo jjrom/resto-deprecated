@@ -461,7 +461,7 @@ abstract class RestoController {
              * 
              * If it is not the case, you should superseed this function is the child Controller
              */
-            $this->response = $resourceManager->create(isset($array) ? $array : getFiles(true));
+            $this->response = $resourceManager->create(isset($array) ? $array : getFiles(array()));
             $this->responseStatus = 200;
         }
         
