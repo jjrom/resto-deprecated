@@ -83,6 +83,8 @@
  * | Update a resource from the collection        |     PUT     |   /collection/identifier
  * | Delete a resource from the collection        |     DELETE  |   /collection/identifier
  * | Download product linked to resource          |     GET     |   /collection/identifier/$download
+ * | List all tags from a resource                |     GET     |   /collection/identifier/$tags
+ * | Add tags to resource                         |     POST    |   /collection/identifier/$tags
  * 
  * 
  * Note: HTTP methods on relative URI that are not listed in the table

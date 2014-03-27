@@ -388,11 +388,14 @@ abstract class RestoController {
         }
 
         /*
-         * GET on /collection/identifier/download
+         * GET on /collection/identifier/modifier
          */
         if (isset($this->request['modifier'])) {
             if ($this->request['modifier'] === '$download') {
                 return $this->getResource($this->request['identifier']);
+            }
+            else if ($this->request['modifier'] === '$tags') {
+                return $this->getTags($this->request['identifier']);
             }
         }
 
@@ -411,36 +414,56 @@ abstract class RestoController {
      * 
      *      curl -F "file[]=@file1.json" -X POST http://localhost/resto/Collection
      * 
-     * @param array $featuresCollection an array of GeoJSON featureCollection 
+     * @param array $array an array of GeoJSON featureCollection or an array of tags
      * 
      */
-    public function defaultPost($featuresCollections) {
+    public function defaultPost($array) {
         
         /*
-         * POST is processed by ResourceManager module
+         * POST on /collection/identifier/$tags
+         * $array should be an array of tags
          */
-        if (!class_exists('ResourceManager')) {
-            throw new Exception('Forbidden', 403);
+        if ($this->request['identifier'] && $this->request['modifier'] === '$tags') {
+            
+            /*
+             * POST on /collection/identifier/$tags is processed by ResourceTagger module
+             */
+            if (!class_exists('ResourceTagger')) {
+                throw new Exception('Forbidden', 403);
+            }
+            
+            // TODO tags
         }
-        
         /*
-         * Identifier should not be set
+         * POST on /collection
+         * $array should be an array of GeoJSON featurCollections 
          */
-        if ($this->request['identifier']) {
-            throw new Exception('Forbidden', 403);
+        else {
+            
+            /*
+             * Identifier should not be set
+             */
+            if ($this->request['identifier']) {
+                throw new Exception('Forbidden', 403);
+            }
+
+            /*
+             * POST on /collection is processed by ResourceManager module
+             */
+            if (!class_exists('ResourceManager')) {
+                throw new Exception('Forbidden', 403);
+            }
+
+            $resourceManager = new ResourceManager($this);
+
+            /*
+             * Important : if $array is not set, then it is assume that POST data is GeoJSON (files or stream)
+             * 
+             * If it is not the case, you should superseed this function is the child Controller
+             */
+            $this->response = $resourceManager->create(isset($array) ? $array : getFiles(true));
+            $this->responseStatus = 200;
         }
-        
-        $resourceManager = new ResourceManager($this);
-        
-        /*
-         * Important : if $featureCollections is not set, then it is assume that
-         * POST files are GeoJSON files
-         * 
-         * If it is not the case, you should superseed this function is the child
-         * Controller
-         */
-        $this->response = $resourceManager->create(isset($featuresCollections) ? $featuresCollections : getFiles(true));
-        $this->responseStatus = 200;
         
     }
 
@@ -1637,6 +1660,16 @@ abstract class RestoController {
         readfile_chunked($product['archive'], 1024 * 1024);
     }
 
+    /**
+     * Get resource tags
+     * Tags are string starting with a dash (i.e. #) - e.g. #school
+     * 
+     * @param {string} $identifier - identifier of product to get tags from
+     */
+    protected function getTags($identifier) {
+        throw new Exception('Not Implemented', 501);
+    }
+    
     /**
      * Return the model parameter name equivalent to $inputName 
      *
