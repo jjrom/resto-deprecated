@@ -622,12 +622,12 @@ function toAtom($response, $dictionary, $version = '1.0', $encoding = 'UTF-8') {
 
         /*
          * Element 'id'
-         *  read from $product['properties']['identifier']
+         *  read from $product['id']
          * 
          * !! THIS SHOULD BE AN ABSOLUTE UNIQUE  AND PERMANENT IDENTIFIER !!
          * 
          */
-        $xml->writeElement('id', $product['properties']['identifier']);
+        $xml->writeElement('id', $product['id']);
 
         /*
          * Element 'title'
@@ -715,7 +715,7 @@ function toAtom($response, $dictionary, $version = '1.0', $encoding = 'UTF-8') {
         $xml->writeAttribute('rel', 'enclosure');
         $xml->writeAttribute('type', $product['properties']['services']['download']['mimeType']);
         //$xml->writeAttribute('length', 'TODO');
-        $xml->writeAttribute('title', 'File for ' . $product['properties']['identifier'] . ' product');
+        $xml->writeAttribute('title', 'File for ' . $product['id'] . ' product');
         $xml->writeAttribute('metalink:priority', 50);
         $xml->writeAttribute('href', $product['properties']['services']['download']['url']);
         $xml->endElement(); // link

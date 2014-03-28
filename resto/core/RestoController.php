@@ -1746,7 +1746,8 @@ abstract class RestoController {
                         'archive',
                         'wms',
                         'bbox3857',
-                        'totalcount'
+                        'totalcount',
+                        'identifier'
                     ))) {
                 continue;
             /*
@@ -1820,6 +1821,7 @@ abstract class RestoController {
 
         return array(
             'type' => 'Feature',
+            'id' => $product['identifier'],
             'geometry' => json_decode($product['geometry'], true),
             'properties' => $properties
         );

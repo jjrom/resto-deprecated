@@ -350,7 +350,7 @@
                  *  </div>
                  * 
                  */
-                $content.append('<div class="resto-entry" style="clear:both;" id="rid' + i + '"><span class="resto-thumbnail"><a href="' + thumbnail + '" class="resto-link resto-quicklook" title="' + feature.properties['identifier'] + '"><img class="resto-image" src="' + thumbnail + '"/></a></span><span class="resto-map" id="idmap' + i + '"></span><div class="resto-metadata"></div><div class="resto-keywords"></div></div>');
+                $content.append('<div class="resto-entry" style="clear:both;" id="rid' + i + '"><span class="resto-thumbnail"><a href="' + thumbnail + '" class="resto-link resto-quicklook" title="' + feature.id + '"><img class="resto-image" src="' + thumbnail + '"/></a></span><span class="resto-map" id="idmap' + i + '"></span><div class="resto-metadata"></div><div class="resto-keywords"></div></div>');
 
                 /*
                  * Preview map
@@ -361,7 +361,7 @@
                  * Metadata
                  */
                 $('.resto-metadata', $('#rid' + i)).html('<p><b>' + feature.properties['platform'] + (feature.properties['platform'] && feature.properties['instrument'] ? "/" + feature.properties['instrument'] : "") + '</b> ' + self.translate('_acquiredOn', [feature.properties['startDate']]) + '</p>');
-                metadata = '<p class="resto-tabbed-left resto-small"><b>' + self.translate('_identifier') + '</b> : <span title="' + feature.properties['identifier'] + '">' + self.stripOGCURN(feature.properties['identifier']) + '</span><br/>';
+                metadata = '<p class="resto-tabbed-left resto-small"><b>' + self.translate('_identifier') + '</b> : <span title="' + feature.id + '">' + self.stripOGCURN(feature.id) + '</span><br/>';
                 if (feature.properties['resolution']) {
                     metadata += '<b>' + self.translate('_resolution') + '</b> : ' + feature.properties['resolution'] + ' m<br/>';
                 }
@@ -386,7 +386,7 @@
                     if (feature.properties['services']['browse'] && feature.properties['services']['browse']['layer']) {
                         if (window.M) {
                             message = {
-                                title: feature.properties['identifier'],
+                                title: feature.id,
                                 type: feature.properties['services']['browse']['layer']['type'],
                                 layers: feature.properties['services']['browse']['layer']['layers'],
                                 url: feature.properties['services']['browse']['layer']['url'].replace('%5C', ''),

@@ -1,18 +1,16 @@
 (function(c) {
 
     /*
-     * Update configuration options
-     * 
-     * Should be changed to match target server
+     * !!! CHANGE THIS !!!
      */
     c["general"].rootUrl = 'http://localhost/resto/';
-    c["general"].serverRootUrl = null;
-    c["general"].proxyUrl = null;
-    c["general"].confirmDeletion = false;
     
     /*
      * !! DO NOT EDIT UNDER THIS LINE !!
      */
+    c["general"].serverRootUrl = null;
+    c["general"].proxyUrl = null;
+    c["general"].confirmDeletion = false;
     c["general"].themePath = "/js/mapshup/theme/default";
     c["general"].displayContextualMenu = true;
     c["general"].displayCoordinates = true;
