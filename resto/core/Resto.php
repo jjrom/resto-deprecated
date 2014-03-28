@@ -83,6 +83,7 @@
  * | Update a resource from the collection        |     PUT     |   /collection/identifier
  * | Delete a resource from the collection        |     DELETE  |   /collection/identifier
  * | Download product linked to resource          |     GET     |   /collection/identifier/$download
+ * | Add tags to a collection                     |     POST    |   /collection/$tags
  * | List all tags from a resource                |     GET     |   /collection/identifier/$tags
  * | Add tags to resource                         |     POST    |   /collection/identifier/$tags
  * 

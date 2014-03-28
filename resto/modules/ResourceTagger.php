@@ -84,4 +84,48 @@ class ResourceTagger {
         
     }
 
+    /**
+     *
+     * Tag resources
+     *
+     * @param array $options with the following structure
+     *
+     *              array(
+     *                  // This is optional to constrain resources to tag
+     *                  'query' => array(
+     *
+     *                  ),
+     *                  'tags' => array(
+     *                      'tag1',
+     *                      'tag2',
+     *                      etc.
+     *                  )
+     *              )
+     * @return type
+     * @throws Exception
+     */
+    public function tag($options) {
+
+        throw new Exception('Not implemented yet', 401);
+
+        if (!$this->dbh) {
+            throw new Exception('Database connection error', 500);
+        }
+
+        /*
+         * Only authenticated user can add tags
+         * TODO : anybody should post ?
+         */
+        if (!$this->Controller->getParent()->checkAuth()) {
+            throw new Exception('Unauthorized', 401);
+        }
+
+        /*
+         * This should not happens
+         */
+        if (!is_array($options)) {
+            throw new Exception('Nothing to tag', 500);
+        }
+    }
+
 }

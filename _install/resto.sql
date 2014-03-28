@@ -43,6 +43,9 @@ CREATE TABLE admin.collections (
 CREATE INDEX idx_status_collections ON admin.collections (status);
 CREATE INDEX idx_creationdate_collections ON admin.collections (creationdate);
 
+--
+-- osdescriptions table describe all RESTo collections
+--
 CREATE TABLE admin.osdescriptions (
     collection          VARCHAR(50),
     lang                VARCHAR(2),
@@ -59,3 +62,14 @@ ALTER TABLE ONLY admin.osdescriptions ADD CONSTRAINT fk_collection FOREIGN KEY (
 ALTER TABLE ONLY admin.osdescriptions ADD CONSTRAINT cl_collection UNIQUE(collection, lang);
 CREATE INDEX idx_collection_osdescriptions ON admin.osdescriptions (collection);
 CREATE INDEX idx_lang_osdescriptions ON admin.osdescriptions (lang);
+
+--
+-- tags table list all tags attached to data within collection
+--
+CREATE TABLE admin.tags (
+    tag                 VARCHAR(50) PRIMARY KEY,
+    creationdate        TIMESTAMP,
+    updateddate         TIMESTAMP,
+    occurence           INTEGER
+);
+CREATE INDEX idx_updated_tags ON admin.tags (updateddate);

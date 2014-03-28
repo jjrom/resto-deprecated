@@ -407,9 +407,7 @@ abstract class RestoController {
 
     /**
      * Default process of HTTP POST requests
-     * 
-     * Create a new resource in the Collection
-     * 
+     *
      * defaultPost() wait for one or more file containing JSON
      * 
      *      curl -F "file[]=@file1.json" -X POST http://localhost/resto/Collection
@@ -432,7 +430,14 @@ abstract class RestoController {
                 throw new Exception('Forbidden', 403);
             }
             
-            // TODO tags
+            /*
+             * Tag /collection/identifier resource
+             */
+            $resourceTagger = new ResourceTagger($this);
+            $this->response = $resourceTagger->tag(isset($array) ? $array : getFiles(array(
+                'permissive' => true
+            )));
+
         }
         /*
          * POST on /collection
@@ -441,30 +446,54 @@ abstract class RestoController {
         else {
             
             /*
-             * Identifier should not be set
+             * Identifier should not be set unless it is the special keyword $tags
              */
             if ($this->request['identifier']) {
-                throw new Exception('Forbidden', 403);
-            }
 
+                if ($this->request['identifier'] === '$tags') {
+
+                    /*
+                     * POST on /collection/identifier/$tags is processed by ResourceTagger module
+                     */
+                    if (!class_exists('ResourceTagger')) {
+                        throw new Exception('Forbidden', 403);
+                    }
+
+                    /*
+                     * Tag resources within /collection/
+                     */
+                    $resourceTagger = new ResourceTagger($this);
+                    $this->response = $resourceTagger->tag(isset($array) ? $array : getFiles(array(
+                        'permissive' => true
+                    )));
+
+                }
+                else {
+                    throw new Exception('Forbidden', 403);
+                }
+            }
             /*
              * POST on /collection is processed by ResourceManager module
              */
-            if (!class_exists('ResourceManager')) {
-                throw new Exception('Forbidden', 403);
+            else {
+
+                if (!class_exists('ResourceManager')) {
+                    throw new Exception('Forbidden', 403);
+                }
+
+                $resourceManager = new ResourceManager($this);
+
+                /*
+                 * Important : if $array is not set, then it is assume that POST data is GeoJSON (files or stream)
+                 *
+                 * If it is not the case, you should superseed this function is the child Controller
+                 */
+                $this->response = $resourceManager->create(isset($array) ? $array : getFiles(array()));
             }
-
-            $resourceManager = new ResourceManager($this);
-
-            /*
-             * Important : if $array is not set, then it is assume that POST data is GeoJSON (files or stream)
-             * 
-             * If it is not the case, you should superseed this function is the child Controller
-             */
-            $this->response = $resourceManager->create(isset($array) ? $array : getFiles(array()));
-            $this->responseStatus = 200;
         }
         
+        $this->responseStatus = 200;
+
     }
 
     /**

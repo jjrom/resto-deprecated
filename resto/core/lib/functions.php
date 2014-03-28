@@ -878,6 +878,8 @@ function trueOrFalse($str) {
  * case of texte data.
  * 		$options['mimeType'] : represents the data mimeType
  * 		$options['delimiter'] : represents the delimiter to use in php function explode
+ *      $options['permissive']: if set to 'true' and mimeType is json then non GeoJSON data is allowed
+ *                              otherwise an 'Invalid posted files' - HTTP 500 is sent (default false)
  * @throws Exception
  */
 function getFiles($options) {
@@ -889,7 +891,15 @@ function getFiles($options) {
         $options['mimeType'] = Resto::$contentTypes['json'];
     }
 
+    /*
+     * By default if mimeType is JSON, it is mandatory to be GeoJSON
+     */
+    if (!isset($options['permissive'])) {
+        $options['permissive'] = false;
+    }
+
     $arr = array();
+
     /*
      * True by default, False if no file is posted but data posted through parameters
      */
@@ -949,14 +959,14 @@ function getFiles($options) {
             } catch (Exception $e) {
                 throw new Exception('Invalid posted file(s)', 500);
             }
-            if ($json['type'] === 'FeatureCollection' && is_array($json['features'])) {
+            if ($options['permissive'] || ($json['type'] === 'FeatureCollection' && is_array($json['features']))) {
                 array_push($arr, $json);
             } else {
                 throw new Exception('Invalid posted file(s)', 500);
             }
         }
         /*
-         * The data's format is texte
+         * The data's format is text
          */
         else {
             /*
