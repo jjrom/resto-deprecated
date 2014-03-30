@@ -49,6 +49,7 @@ class ResourceTagger {
 
     protected $Controller;
     protected $description;
+    protected $request;
     protected $dbh;
     
     /**
@@ -80,6 +81,7 @@ class ResourceTagger {
          */
         $this->Controller = $Controller;
         $this->description = $Controller->getDescription();
+        $this->request = $Controller->getParent()->getRequest();
         $this->dbh = $this->Controller->getDbConnector()->getConnection(true);
         
     }
@@ -88,25 +90,26 @@ class ResourceTagger {
      *
      * Tag resources
      *
-     * @param array $options with the following structure
+     * @param array $arr with the following structure
      *
      *              array(
-     *                  // This is optional to constrain resources to tag
-     *                  'query' => array(
+     *                  array(
+     *                      // This is optional to constrain resources to tag
+     *                      'query' => array(
      *
+     *                      ),
+     *                      'tags' => array(
+     *                          'tag1',
+     *                          'tag2',
+     *                          etc.
+     *                      )
      *                  ),
-     *                  'tags' => array(
-     *                      'tag1',
-     *                      'tag2',
-     *                      etc.
-     *                  )
+     *                  etc.
      *              )
      * @return type
      * @throws Exception
      */
-    public function tag($options) {
-
-        throw new Exception('Not implemented yet', 401);
+    public function tag($arr) {
 
         if (!$this->dbh) {
             throw new Exception('Database connection error', 500);
@@ -121,11 +124,88 @@ class ResourceTagger {
         }
 
         /*
+         * Check if keywords column is set for the collection
+         */
+        $tagColumn = getModelName($this->description['model'], 'keywords');
+        if (!$tagColumn) {
+            throw new Exception('Collection does not support tagging', 500);
+        }
+
+        /*
          * This should not happens
          */
-        if (!is_array($options)) {
+        if (!is_array($arr) || count($arr) === 0) {
             throw new Exception('Nothing to tag', 500);
+        }
+
+        /*
+         * Roll over tags
+         */
+        for ($j = count($arr); $j--;) {
+
+            $options = $arr[$j];
+
+            /*
+             * Prepare tagging within products table keywords column
+             * Note : keywords column should be of type 'hstore'
+             *
+             * Note 1 : valid tags should start with hash '#' character
+             * Note 2 : spaces are removed from tags
+             */
+            $terms = array();
+            for ($i = 0, $l = count($options['tags']); $i < $l; $i++) {
+                if (substr($options['tags'][$i] , 0, 1) === '#') {
+                    array_push($terms, pg_escape_string(strtolower(str_replace(' ', '', $options['tags'][$i]))) . " => NULL");
+                }
+            }
+            $baseQuery = "UPDATE " . $this->Controller->getDbConnector()->getSchema() . '.' . $this->Controller->getDbConnector()->getTable() . " SET " . $tagColumn . " = " . $tagColumn . " || '" . join(',', $terms) . "'";
+            echo $baseQuery;
+            /*
+             * Two cases :
+             *
+             *   Only collection is set within request => tag collection resources using "query" constraint
+             *   Both collection and identifier are set within request => tag resource
+             *
+             */
+
+            /*
+             * Tag resource using 'tags' only
+             */
+            if ($this->request['identifier'] !== '$tags') {
+
+                /*
+                 * Check if resource exists in collection
+                 */
+                if (!$this->resourceExists($this->request['identifier'])) {
+                    throw new Exception('Error : resource ' . $this->request['identifier'] . ' does not exist in collection', 500);
+                }
+
+            }
+            /*
+             * Tag collection resources using 'tags' and constrain by 'query'
+             */
+            else {
+                throw new Exception('TODO : tag multiple resources', 500);
+            }
         }
     }
 
+    /**
+     * Check if resource $identifier exists within collection database
+     *
+     * @param string $identifier - resource unique identifier
+     */
+    protected function resourceExists($identifier) {
+
+        $results = pg_query($this->dbh, 'SELECT 1 FROM ' . $this->Controller->getDbConnector()->getSchema() . '.' . $this->Controller->getDbConnector()->getTable() . ' WHERE ' . getModelName($this->description['model'], 'identifier') . '=\'' . pg_escape_string($identifier) . '\'');
+
+        if (!$results) {
+            throw new Exception('Database connection error', 500);
+        }
+        while ($result = pg_fetch_assoc($results)) {
+            return true;
+        }
+
+        return false;
+    }
 }
