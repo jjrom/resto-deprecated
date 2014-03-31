@@ -31,12 +31,12 @@
         ],
         "type": "Polygon"
       },
+      "id": "DS_SPOT6_201211101947221_FR1_FR1_FR1_FR1_W152S17_01809",
       "properties": {
         "acquisitionDate": "2012-11-10T19:47:31Z",
         "archivingStation": "FR1",
         "cloudCoverPercentage": 2,
         "extendedData": null,
-        "identifier": "DS_SPOT6_201211101947221_FR1_FR1_FR1_FR1_W152S17_01809",
         "imageName": "",
         "imageUrl": "http:\/\/ql.astrium-geo.com\/catalog\/img\/getfeatureimage.aspx?ID=DS_SPOT6_201211101947221_FR1_FR1_FR1_FR1_W152S17_01809",
         "incidenceAngle": 24.209953308105,
