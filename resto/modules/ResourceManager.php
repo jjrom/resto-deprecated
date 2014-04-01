@@ -157,6 +157,14 @@ class ResourceManager {
                 $properties = $this->remap($feature['properties']);
                 
                 /*
+                 * identifier is a special property set at the feature level
+                 * and not at the feature.properties level as other properties
+                 */
+                if ($feature['id']) {
+                    $properties['identifier'] = $feature['id'];
+                }
+
+                /*
                  * Check that resource does not already exist in database
                  */
                 if ($this->resourceExists($feature['id'])) {
