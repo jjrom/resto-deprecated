@@ -139,8 +139,9 @@ class ResourceTagger {
         }
 
         /*
-         * Roll over tags
+         * Roll over input array
          */
+        $count = 0;
         for ($j = count($arr); $j--;) {
 
             $options = $arr[$j];
@@ -155,21 +156,16 @@ class ResourceTagger {
             $terms = array();
             for ($i = 0, $l = count($options['tags']); $i < $l; $i++) {
                 if (substr($options['tags'][$i] , 0, 1) === '#') {
-                    array_push($terms, pg_escape_string(strtolower(str_replace(' ', '', $options['tags'][$i]))) . " => NULL");
+                    array_push($terms, pg_escape_string(strtolower(str_replace(' ', '', $options['tags'][$i]))) . ' => NULL');
                 }
             }
-            $baseQuery = "UPDATE " . $this->Controller->getDbConnector()->getSchema() . '.' . $this->Controller->getDbConnector()->getTable() . " SET " . $tagColumn . " = " . $tagColumn . " || '" . join(',', $terms) . "'";
-            echo $baseQuery;
+            $baseQuery = 'UPDATE ' . $this->Controller->getDbConnector()->getSchema(). '.' . $this->Controller->getDbConnector()->getTable() . ' SET ' . $tagColumn . ' = ' . $tagColumn . ' || \'' . join(',', $terms) . '\'';
+            $where = '';
+            
             /*
-             * Two cases :
-             *
-             *   Only collection is set within request => tag collection resources using "query" constraint
+             * Case 1 :
+             * 
              *   Both collection and identifier are set within request => tag resource
-             *
-             */
-
-            /*
-             * Tag resource using 'tags' only
              */
             if ($this->request['identifier'] !== '$tags') {
 
@@ -179,15 +175,59 @@ class ResourceTagger {
                 if (!$this->resourceExists($this->request['identifier'])) {
                     throw new Exception('Error : resource ' . $this->request['identifier'] . ' does not exist in collection', 500);
                 }
-
+                
+                $where = ' WHERE ' . getModelName($this->description['model'], 'identifier') . ' = \'' . pg_escape_string($this->request['identifier']) . '\'';
+                
             }
             /*
-             * Tag collection resources using 'tags' and constrain by 'query'
+             * Case 2 :
+             * 
+             *   Only collection is set within request => tag collection resources using "query" filters
+             *   
              */
             else {
-                throw new Exception('TODO : tag multiple resources', 500);
+                
+                /*
+                 * Check for tag filters
+                 */
+                if ($options['query']) {
+                    
+                    $whereFilters = array();
+                    
+                    /*
+                     * Spatial filter
+                     */
+                    if ($options['query']['geometry']) {
+                        array_push($whereFilters, 'ST_intersects(' . getModelName($this->description['model'], 'geometry') . ', ST_GeomFromText(\'' . geoJSONGeometryToWKT($options['query']['geometry']) . '\', 4326))');
+                    }
+                    
+                    /*
+                     * Temporal filter
+                     */
+                    
+                    $where = ' WHERE ' . join(' AND ', $whereFilters);
+                    
+                }
+                
             }
+            
+            /*
+             * Update database
+             */
+            try {
+                $query = pg_query($this->dbh, $baseQuery . $where);
+                //echo $baseQuery . $where;
+                if (!$query) {
+                    throw new Exception();
+                }
+                $count = $count + pg_affected_rows($query);
+            } catch (Exception $e) {
+                throw new Exception('Error : cannot update collection', 500);
+            }
+
         }
+        
+        return array('Status' => 'Success', 'Message' => $count . ' resource(s) tagged');
     }
 
     /**

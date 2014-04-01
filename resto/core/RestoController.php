@@ -1834,7 +1834,7 @@ abstract class RestoController {
      *      array(
      *          "type" => // Keyword type
      *          "value" => // Keyword value if it make sense
-     *          "url" => // RESTo search url to get keyword
+     *          "href" => // RESTo search url to get keyword
      *      )
      * 
      * @param array $product
@@ -1855,15 +1855,15 @@ abstract class RestoController {
                 $day = substr($product[$this->description['searchFiltersDescription']['time:start']['key']], 8, 2);
                 $keywords[$year] = array(
                     'type' => 'date',
-                    'url' => updateUrl($baseUrl, array('format' => $this->request['format'], $this->outputName('searchTerms') => $year))
+                    'href' => updateUrl($baseUrl, array('format' => $this->request['format'], $this->outputName('searchTerms') => $year))
                 );
                 $keywords[$year . '-' . $month] = array(
                     'type' => 'date',
-                    'url' => updateUrl($baseUrl, array('format' => $this->request['format'], $this->outputName('searchTerms') => $year . '-' . $month))
+                    'href' => updateUrl($baseUrl, array('format' => $this->request['format'], $this->outputName('searchTerms') => $year . '-' . $month))
                 );
                 $keywords[$year . '-' . $month . '-' . $day] = array(
                     'type' => 'date',
-                    'url' => updateUrl($baseUrl, array('format' => $this->request['format'], $this->outputName('searchTerms') => $year . '-' . $month . '-' . $day))
+                    'href' => updateUrl($baseUrl, array('format' => $this->request['format'], $this->outputName('searchTerms') => $year . '-' . $month . '-' . $day))
                 );
             }
         }
@@ -1875,7 +1875,7 @@ abstract class RestoController {
                 $v = replace($this->description['searchFiltersDescription'][$key]['keyword']['value'], array($product[$this->description['searchFiltersDescription'][$key]['key']]));
                 $keywords[$v] = array(
                     'type' => $this->description['searchFiltersDescription'][$key]['keyword']['type'],
-                    'url' => updateUrl($baseUrl, array('format' => $this->request['format'], $this->outputName('searchTerms') => $v))
+                    'href' => updateUrl($baseUrl, array('format' => $this->request['format'], $this->outputName('searchTerms') => $v))
                 );
             }
         }
@@ -1883,10 +1883,10 @@ abstract class RestoController {
         /*
          * Add keywords read from database
          * 
-         * Keywords are produced from PostgreSQL which returns a string "type:name" => "value" e.g.
+         * Keywords are produced from PostgreSQL which returns a string "#name" => "value" or "type:name" => "value" e.g.
          * 
          *      "disaster:flood"=>NULL, "country:canada"=>"23.5", "continent:north america"=>NULL
-         * 
+         *
          * Note: hstore_to_array() is only available in PostgreSQL >= 9.3
          */
         $json = json_decode('{' . str_replace('"=>"', '":"', str_replace('NULL', '""', $product[$this->description['searchFiltersDescription']['searchTerms']['key']])) . '}', true);
@@ -1898,7 +1898,7 @@ abstract class RestoController {
             $type = null;
             $name = $key;
             $splitted = explode(':', $key);
-            if ($splitted > 1) {
+            if (count($splitted) > 1) {
 
                 $type = $splitted[0];
 
@@ -1912,6 +1912,7 @@ abstract class RestoController {
                 $name = substr($key, strlen($splitted[0]) + 1);
             }
             $translated = $this->description['dictionary']->translate($name);
+            
             $keywords[$translated] = array();
             if ($type !== null) {
                 $keywords[$translated]['type'] = $type;
@@ -1919,7 +1920,7 @@ abstract class RestoController {
             if ($value !== null) {
                 $keywords[$translated]['value'] = $value;
             }
-            $keywords[$translated]['url'] = updateUrl($baseUrl, array('format' => $this->request['format'], $this->outputName('searchTerms') => trim(str_replace(' ', '-', $translated))));
+            $keywords[$translated]['href'] = updateUrl($baseUrl, array('format' => $this->request['format'], $this->outputName('searchTerms') => trim(str_replace(' ', '-', $translated))));
         }
 
         return $keywords;

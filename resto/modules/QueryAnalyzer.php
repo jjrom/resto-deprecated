@@ -296,8 +296,7 @@ class QueryAnalyzer {
         $searchTerms = preg_split('/ /', str_replace(array('!', '?'), '', asciify($params['searchTerms'])));
         
         /*
-         * First step
-         *  - Extract explicit mapping (i.e. words with '=' delimiter)
+         * First extract explicit mapping i.e. words with '=' delimiter 
          */
         $toRemove = array();
         for ($i = 0, $l = count($searchTerms); $i < $l; $i++) {
@@ -660,26 +659,36 @@ class QueryAnalyzer {
                 $s = substr($s, 1);
             }
             $s = str_replace('-', ' ', $s);
-            $keyword = $this->dictionary->getKeyword($s);
-            if ($keyword) {
-                array_push($keywords, $sign . $keyword['type'] . ':' . str_replace(' ', '-', $keyword['keyword']));
-                if ($keyword['type'] === 'country') {
-                    $countryName = $keyword['keyword'];
-                }
+            
+            /*
+             * Tags start with '#'
+             */
+            if (substr($s , 0, 1) === '#') {
+                array_push($keywords, $sign . $s);
                 array_push($toRemove, $searchTerms[$i]);
             }
             else {
-                
-                /*
-                 * Check similarity
-                 */
-                $similar = $this->getSimilar($s);
-                if ($similar) {
-                    array_push($keywords, $sign . $similar['type'] . ':' . str_replace(' ', '-', $similar['keyword']));
+                $keyword = $this->dictionary->getKeyword($s);
+                if ($keyword) {
+                    array_push($keywords, $sign . $keyword['type'] . ':' . str_replace(' ', '-', $keyword['keyword']));
                     if ($keyword['type'] === 'country') {
                         $countryName = $keyword['keyword'];
                     }
                     array_push($toRemove, $searchTerms[$i]);
+                }
+                else {
+
+                    /*
+                     * Check similarity
+                     */
+                    $similar = $this->getSimilar($s);
+                    if ($similar) {
+                        array_push($keywords, $sign . $similar['type'] . ':' . str_replace(' ', '-', $similar['keyword']));
+                        if ($keyword['type'] === 'country') {
+                            $countryName = $keyword['keyword'];
+                        }
+                        array_push($toRemove, $searchTerms[$i]);
+                    }
                 }
             }
         }

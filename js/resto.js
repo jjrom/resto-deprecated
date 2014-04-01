@@ -406,7 +406,7 @@
                 if (feature.properties.keywords) {
                     keywords = '';
                     for (key in feature.properties.keywords) {
-                        keywords += '<a href="' + this.updateURL(feature.properties.keywords[key]['url'], {format: 'html'}) + '" class="resto-link resto-ajaxified resto-updatebbox resto-keyword' + (feature.properties.keywords[key]['type'] ? ' resto-keyword-' + feature.properties.keywords[key]['type'].replace(' ', '') : '') + '">' + key + '</a> ';
+                        keywords += '<a href="' + this.updateURL(feature.properties.keywords[key]['href'], {format: 'html'}) + '" class="resto-link resto-ajaxified resto-updatebbox resto-keyword' + (feature.properties.keywords[key]['type'] ? ' resto-keyword-' + feature.properties.keywords[key]['type'].replace(' ', '') : '') + '">' + key + '</a> ';
                     }
                     $('.resto-keywords', $('#rid' + i)).html(keywords);
                 }

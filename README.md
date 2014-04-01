@@ -257,6 +257,19 @@ Only works on an existing resource (so insert resource first !)
         curl "http://localhost/resto/Example/DS_SPOT6_201211101947221_FR1_FR1_FR1_FR1_W152S17_01809/?&format=json"
 
 
+Tag a resource
+--------------
+Only works for an existing resource
+
+        $RESTO_HOME/_scripts/tagResource.sh -c Example -f $RESTO_HOME/_examples/tags/tagging_Example.json -i DS_SPOT6_201211101947221_FR1_FR1_FR1_FR1_W152S17_01809 -u admin:nimda
+
+Tag a collection
+----------------
+Only works for an existing collection
+
+        $RESTO_HOME/_scripts/tagCollection.sh -c Example -f $RESTO_HOME/_examples/tags/tagging_Example.json -u admin:nimda
+
+
 Frequently Asked Questions
 ==========================
 

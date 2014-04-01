@@ -64,17 +64,17 @@ function updateUrl($url, $mod) {
         list($key, $value) = explode("=", $q);
         if(array_key_exists($key, $mod)) {
             if($mod[$key]) {
-                $url = preg_replace('/'.$key.'='.$value.'/', $key.'='.$mod[$key], $url);
+                $url = preg_replace('/' . urlencode($key) . '=' . urlencode($value) . '/', urlencode($key) . '=' . urlencode($mod[$key]), $url);
             }
             else {
-                $url = preg_replace('/&?'.$key.'='.$value.'/', '', $url);
+                $url = preg_replace('/&?' . urlencode($key) . '=' . urlencode($value) . '/', '', $url);
             }
         }
     }
     // add new data
     foreach($mod as $key => $value) {
         if($value && !preg_match('/'.$key.'=/', $url)) {
-            $url .= '&'.$key.'='.$value;
+            $url .= '&' . urlencode($key) . '=' . urlencode($value);
         }
     }
     return $url;
