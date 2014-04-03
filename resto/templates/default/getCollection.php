@@ -12,7 +12,7 @@
         <link rel="stylesheet" type="text/css" href="<?php echo $this->request['restoUrl'] ?>/js/mjquery/mjquery.css" />
         <link rel="stylesheet" type="text/css" href="<?php echo $this->request['restoUrl'] ?>/js/mapshup/theme/default/mapshup.css" />
         <!-- mapshup : end -->
-        <link rel="stylesheet" href="<?php echo $this->request['restoUrl'] ?>/css/<?php echo $templateName ?>/style.css" type="text/css" />
+        <link rel="stylesheet" href="<?php echo $this->request['restoUrl'] ?>/themes/<?php echo $templateName ?>/style.css" type="text/css" />
         <link rel="stylesheet" href="<?php echo $this->request['restoUrl'] ?>/js/_addons/jquery.fancybox.css" type="text/css" />
         <link rel="stylesheet" href="<?php echo $this->request['restoUrl'] ?>/js/_addons/leaflet.css" type="text/css"/>
         <link rel="search" type="application/opensearchdescription+xml" href="<?php echo $collectionUrl ?>$describe" hreflang="<?php echo $this->request['language'] ?>" title="<?php echo $this->description['name']; ?>" />
@@ -78,11 +78,12 @@
         <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/_addons/jquery.history.js"></script>
         <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/_addons/leaflet.js"></script>
         <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/resto.js"></script>
+        <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/themes/<?php echo $templateName ?>/theme.js"></script>
         <!-- mapshup : start -->
         <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/mol/OpenLayers.js"></script>
         <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/mapshup/mapshup.js"></script>
         <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/mapshup/config/default.js"></script>
-        <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/config/<?php echo $templateName ?>/config.js"></script>
+        <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/themes/<?php echo $templateName ?>/config.js"></script>
         <!-- mapshup : end -->
         <script type="text/javascript">
             $(document).ready(function() {

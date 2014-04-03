@@ -202,7 +202,7 @@ is commented, then iTag will not be used (i.e. products will not be tagged)
 masphup configuration
 ---------------------
 
-Edit $RESTO_TARGET/js/config/default/config.js and set c["general"].rootUrl value to $RESTO_TARGET url  
+Edit $RESTO_TARGET/themes/default/config.js and set c["general"].rootUrl value to $RESTO_TARGET url  
 
 Quick Start
 ===========

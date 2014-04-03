@@ -56,7 +56,6 @@ echo -e " -> Copy jquery javascript to $RESTO_HOME/js directory"
 cp -Rf $BUILDDIR/js/mjquery $RESTO_HOME/js
 echo -e " -> Copy OpenLayers javascript to $RESTO_HOME/js directory"
 cp -Rf $BUILDDIR/js/mol $RESTO_HOME/js
-echo -e " -> Copy mapshup javascript configuration file to $RESTO_HOME/js/config/default directory"
-mkdir -p $RESTO_HOME/js/config/default
-cp -f mapshup/config.js $RESTO_HOME/js/config/default/config.js
+echo -e " -> Copy mapshup javascript configuration file to $RESTO_HOME/theme/default directory"
+cp -f mapshup/config.js $RESTO_HOME/theme/default/config.js
 echo -e " -> done!\n"

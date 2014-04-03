@@ -67,6 +67,6 @@ if [ -d "$TARGETDIR" ]; then
 fi
 
 mkdir $TARGETDIR
-cp -Rf $SRCDIR/.htaccess $SRCDIR/favicon.ico $SRCDIR/index.php $SRCDIR/css $SRCDIR/js $SRCDIR/resto $TARGETDIR
+cp -Rf $SRCDIR/.htaccess $SRCDIR/favicon.ico $SRCDIR/index.php $SRCDIR/themes $SRCDIR/js $SRCDIR/resto $TARGETDIR
 echo ' ==> Successfully install RESTo to $TARGETDIR directory'
 echo ' ==> Now, do not forget to check $TARGETDIR/resto/resto.ini configuration !'
