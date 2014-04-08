@@ -3,7 +3,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>RESTo framework</title>
         <link rel="shortcut icon" href="<?php echo $this->request['restoUrl'] ?>/favicon.ico" />
-        <link rel="stylesheet" href="<?php echo $this->request['restoUrl'] ?>/css/default/style.css" type="text/css" />
+        <link rel="stylesheet" href="<?php echo $this->request['restoUrl'] ?>/themes/default/style.css" type="text/css" />
         <link rel="stylesheet" href="<?php echo $this->request['restoUrl'] ?>/js/_addons/jquery.fancybox.css" type="text/css" />
         <!--<link rel="search" type="application/opensearchdescription+xml" href="<?php echo $this->request['restoUrl'] ?>_describe" title="Search" />-->
         <!-- IE Fallbacks -->
