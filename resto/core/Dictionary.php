@@ -324,12 +324,14 @@ class Dictionary {
      * 
      * 
      * @param string $name
+     * @param boolean $capitalize // true to capitalize first letter of each word
+     *                               if $name is not found in the dictionary
      * @param string any number of optional arguments
      */
-    final public function translate($sentence) {
+    final public function translate($sentence, $capitalize) {
         
         if (!isset($this->dictionary['translation'])) {
-            return $sentence;
+            return $capitalize ? ucwords($sentence) : $sentence;
         }
         
         /*
@@ -345,7 +347,7 @@ class Dictionary {
             return strtr($this->dictionary['translation'][$sentence], $replace);
         }
         
-        return isset($this->dictionary['translation'][$sentence]) ? $this->dictionary['translation'][$sentence] : $sentence;
+        return isset($this->dictionary['translation'][$sentence]) ? $this->dictionary['translation'][$sentence] : $capitalize ? ucwords($sentence) : $sentence;
     }
 
 }
