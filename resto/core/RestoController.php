@@ -1832,6 +1832,7 @@ abstract class RestoController {
      * Return array of keywords
      * Structure of output is 
      *      array(
+     *          "id" => // Keyword id (optional)
      *          "type" => // Keyword type
      *          "value" => // Keyword value if it make sense
      *          "href" => // RESTo search url to get keyword
@@ -1887,9 +1888,15 @@ abstract class RestoController {
          * 
          *      "disaster:flood"=>NULL, "country:canada"=>"23.5", "continent:north america"=>NULL
          *
-         * Note: hstore_to_array() is only available in PostgreSQL >= 9.3
+         * Note : hstore_to_array() is only available in PostgreSQL >= 9.3
          */
         $json = json_decode('{' . str_replace('"=>"', '":"', str_replace('NULL', '""', $product[$this->description['searchFiltersDescription']['searchTerms']['key']])) . '}', true);
+        
+        /* 
+         * Sort results by value (highest to lowest)
+         */
+        arsort($json);
+        
         foreach ($json as $key => $value) {
 
             /*
@@ -1911,9 +1918,10 @@ abstract class RestoController {
 
                 $name = substr($key, strlen($splitted[0]) + 1);
             }
-            $translated = $this->description['dictionary']->translate($name);
+            $translated = $this->description['dictionary']->translate($name, true);
             
             $keywords[$translated] = array();
+            $keywords[$translated]['id'] = $name;
             if ($type !== null) {
                 $keywords[$translated]['type'] = $type;
             }
