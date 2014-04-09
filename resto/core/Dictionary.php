@@ -347,7 +347,7 @@ class Dictionary {
             return strtr($this->dictionary['translation'][$sentence], $replace);
         }
         
-        return isset($this->dictionary['translation'][$sentence]) ? $this->dictionary['translation'][$sentence] : $capitalize ? ucwords($sentence) : $sentence;
+        return isset($this->dictionary['translation'][$sentence]) ? $this->dictionary['translation'][$sentence] : ($capitalize ? ucwords($sentence) : $sentence);
     }
 
 }
