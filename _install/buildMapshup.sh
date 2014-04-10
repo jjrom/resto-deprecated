@@ -50,12 +50,12 @@ then
 fi
 
 echo -e " -> Copy mapshup javascript to $RESTO_HOME/js directory"
-cp -Rf $BUILDDIR/js/mapshup $RESTO_HOME/js
-rm -Rf $RESTO_HOME/js/mapshup/theme/blacker
+cp -Rf $BUILDDIR/js/mapshup $RESTO_HOME/js/externals
+rm -Rf $RESTO_HOME/js/externals/mapshup/theme/blacker
 echo -e " -> Copy jquery javascript to $RESTO_HOME/js directory"
-cp -Rf $BUILDDIR/js/mjquery $RESTO_HOME/js
+cp -Rf $BUILDDIR/js/mjquery $RESTO_HOME/js/externals
 echo -e " -> Copy OpenLayers javascript to $RESTO_HOME/js directory"
-cp -Rf $BUILDDIR/js/mol $RESTO_HOME/js
-echo -e " -> Copy mapshup javascript configuration file to $RESTO_HOME/theme/default directory"
-cp -f mapshup/config.js $RESTO_HOME/theme/default/config.js
+cp -Rf $BUILDDIR/js/mol $RESTO_HOME/js/externals
+echo -e " -> Copy mapshup javascript configuration file to $RESTO_HOME/themes/default directory"
+cp -f mapshup/config.js $RESTO_HOME/themes/default/config.js
 echo -e " -> done!\n"
