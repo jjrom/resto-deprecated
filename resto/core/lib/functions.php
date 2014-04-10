@@ -728,11 +728,10 @@ function toAtom($response, $dictionary, $version = '1.0', $encoding = 'UTF-8') {
         if ($product['properties']['keywords']) {
             $keywords = array();
             foreach ($product['properties']['keywords'] as $keyword => $value) {
-                array_push($keywords, '<a href="' . updateURL($value['url'], array('format' => 'atom')) . '">' . $keyword . '</a>');
+                array_push($keywords, '<a href="' . updateURL($value['href'], array('format' => 'atom')) . '">' . $keyword . '</a>');
             }
             $content .= '<p>' . $dictionary->translate('Keywords') . ' ' . join(' | ', $keywords) . '</p>';
         }
-        $content .= '<p>' . $dictionary->translate('_viewMetadata', '<a href="' . updateURL($product['properties']['self'], array('format' => 'html')) . '">HTML</a>&nbsp;|&nbsp;<a href="' . updateURL($product['properties']['self'], array('format' => 'atom')) . '">ATOM</a>&nbsp;|&nbsp;<a href="' . updateURL($product['properties']['self'], array('format' => 'json')) . '">GeoJSON</a>') . '</p>';
         $xml->startElement('content');
         $xml->writeAttribute('type', 'html');
         $xml->text($content);
