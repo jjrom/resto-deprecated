@@ -281,12 +281,23 @@ function stripURN($str) {
 
 /**
  * Transform input string to 7bits ascii equivalent (i.e. remove accent on letters and so on)
+ * 
+ * @param {string} $text
+ */
+function asciify($text) {
+    return strtr(utf8_decode($text), utf8_decode('ŠŒŽšœžŸ¥µÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýÿ'), 'SOZsozYYuAAAAAAACEEEEIIIIDNOOOOOOUUUUYsaaaaaaaceeeeiiiionoooooouuuuyy');
+}
+
+/**
+ * Transform input string to 7bits ascii equivalent (i.e. remove accent on letters and so on)
  * (see http://www.php.net/manual/fr/function.iconv.php)
  * 
+ * Note : apparently this function does not work on mapshup.info server
+ *  
  * @param {string} $text
  * @param {string} $charset
  */
-function asciify($text, $charset = 'UTF-8') {
+function asciify2($text, $charset = 'UTF-8') {
 
     /*
      * Includes combinations of characters that present as a single glyph

@@ -31,8 +31,7 @@ return array(
         'images',
         'cover',
         'area',
-        'zone',
-        'resolution'
+        'zone'
     ),
     /*
      * Modifiers
@@ -58,6 +57,7 @@ return array(
         'without' => 'without',
         'less' => 'lesser',
         'lesser' => 'lesser',
+        'lower' => 'lesser',
         'greater' => 'greater',
         'equal' => 'equal',
         'and' => 'and',
