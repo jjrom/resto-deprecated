@@ -204,7 +204,12 @@
              * Initialize page with no mapshup refresh
              */
             self.updatePage(options.data, false);
-
+            
+            /*
+             * Force focus on search input form
+             */
+            $('#search').focus();
+            
         },
         
         /**
