@@ -2,99 +2,66 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>RESTo framework</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
         <link rel="shortcut icon" href="<?php echo $this->request['restoUrl'] ?>/favicon.ico" />
-        <link rel="stylesheet" href="<?php echo $this->request['restoUrl'] ?>/themes/default/style.css" type="text/css" />
-        <link rel="stylesheet" href="<?php echo $this->request['restoUrl'] ?>/js/_addons/jquery.fancybox.css" type="text/css" />
-        <!--<link rel="search" type="application/opensearchdescription+xml" href="<?php echo $this->request['restoUrl'] ?>_describe" title="Search" />-->
-        <!-- IE Fallbacks -->
+        <link rel="stylesheet" href="<?php echo $this->request['restoUrl'] ?>/js/externals/foundation/foundation.min.css" type="text/css" />
+        <link rel="stylesheet" href="<?php echo $this->request['restoUrl'] ?>/js/externals/fontawesome/css/font-awesome.min.css" type="text/css" />
+        <style>
+            .fullWidth {
+                width: 100%;
+                margin-left: auto;
+                margin-right: auto;
+                max-width: initial;
+            }
+            .resto-title, .resto-collection {
+                padding:5% 10%;
+            }
+            .resto-title a {
+                color: #fff;
+            }
+            .resto-title {
+                background:url('themes/default/img/halfearth.png') no-repeat scroll 0px 0px #000;
+                -webkit-background-size:contain;
+                -moz-background-size:contain;
+                -o-background-size:contain;
+                background-size:contain;
+                color:lightgray;
+            }
+            .resto-title p, .resto-collection p {
+                font-style: italic;
+            }
+            .resto-collection {
+                cursor:pointer;
+            }
+            .left {
+                text-align:left;
+            }
+            .right {
+                text-align:right;
+            }
+        </style>
         <!--[if lt IE 9]>
-        <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+        <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/externals/modernizr/modernizr.min.js"></script>
         <![endif]-->   
     </head>
     <body>
-        <div id="resto-home">
-
-            <?php 
-                $inNorth = ceil(count($this->R->getCollectionsDescription()) / 2.0);
-                $inSouth = count($this->R->getCollectionsDescription()) - $inNorth;
-                if ($inNorth > 0) {
-                    $northWidth = 100 / $inNorth;
-                }
-                if ($inSouth > 0) {
-                    $southWidth = 100 / $inSouth;
-                }
-            ?>
-            <div class="resto-north">
-                <div class="resto-tabled">
-                    <?php
-                    $count = 0;
-                    foreach($this->R->getCollectionsDescription() as $key => $collection) {
-                        if ($count < $inNorth) { ?>
-                    <div search="<?php echo $this->request['restoUrl'] . $key . '/?q=' . urlencode($collection['os']['Query']); ;  ?>" class="resto-collection resto-bg-<?php echo $count;?>" style="width:<?php echo $northWidth ?>%;">
-                        <div class="resto-medium resto-ellipsis">
-                            <h2><?php echo $collection['os']['ShortName']; ?></h2>
-                            <p><?php echo $collection['os']['Description']; ?></p>
-                        </div>
-                    </div>
-                    <?php
-                        }
-                        $count++;
-                    }
-                    ?>
-                </div>
+        <div class="row fullWidth resto-title">
+            <div class="large-12 columns">
+                <h1><a href="http://jjrom.github.io/resto/"><?php echo $this->R->getTitle(); ?></a></h1>
+                <p><?php echo $this->R->getDescription(); ?></p>
             </div>
-            <div class="resto-middle resto-white">
-                <div class="resto-tabled resto-large">
-                    <div class="resto-title">
-                        <h2><?php echo $this->R->getTitle();?></h2>
-                    </div>
-                    <div class="resto-description">
-                        <?php echo $this->R->getDescription();?>
-                    </div>
-                </div>
-                <div id="resto-homemenu" class="resto-white">
-                    <div class="resto-right resto-uppercase">
-                        <ul>
-                            <!--<li id="_connect">Connect</li>-->
-                            <li id="_about">About</li>
-                            <!--<li id="_help">Help</li>-->
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="resto-south">
-                <div class="resto-tabled">
-                    <?php
-                    $count = 0;
-                    foreach($this->R->getCollectionsDescription() as $key => $collection) {
-                        if ($count >= $inNorth) { ?>
-                    <div search="<?php echo $this->request['restoUrl'] . $key . '/?q=' . urlencode($collection['os']['Query']); ;  ?>" class="resto-collection resto-bg-<?php echo $count;?>" style="width:<?php echo $southWidth ?>%;">
-                        <div class="resto-medium resto-ellipsis">
-                            <h2><?php echo $collection['os']['ShortName']; ?></h2>
-                            <p><?php echo $collection['os']['Description']; ?></p>
-                        </div>
-                    </div>
-                    <?php
-                        }
-                        $count++;
-                    }
-                    ?>
-                </div>
-            </div>
-            
         </div>
-        <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/mjquery/mjquery.js"></script>
-        <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/_addons/jquery.fancybox.js"></script>
-        <script type="text/javascript">
-            $(document).ready(function() {
-                $('a.resto-quicklook').fancybox();
-                $('.resto-collection').click(function(){
-                   window.location = $(this).attr('search'); 
-                });
-                $('#_about').click(function(){
-                    alert("Work in progress. For more info contact jerome[dot]gasperi[at]gmail[dot]com");
-                });
-            });
-        </script>
+        <?php
+            $left = false;
+            foreach ($this->R->getCollectionsDescription() as $key => $collection) {
+                $left = !$left;
+        ?>
+            <div class="row fullWidth resto-collection">
+                <div class="large-12 columns <?php echo $left ? 'left' : 'right' ?>">
+                    <h1><a class="fa fa-search" href="<?php echo $this->request['restoUrl'] . $key . '/?q=' . urlencode($collection['os']['Query']);?>">  <?php echo $collection['os']['ShortName']; ?></a></h1>
+                    <p><?php echo $collection['os']['Description']; ?></p>
+                </div>
+            </div>
+        <?php } ?>
     </body>
 </html>

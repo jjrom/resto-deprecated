@@ -35,21 +35,19 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  * 
  */
-(function(window, navigator) {
-    
+(function(window) {
+
     window.R = window.R || {};
-    
+
     /**
      * Create RESTo javascript object
      */
     window.R = {
         
         VERSION_NUMBER: 'RESTo 1.0',
-        
         /*
          * Translation array
          */
-        
         translation: {},
         
         /*
@@ -68,18 +66,19 @@
 
             options = options || {};
 
-            this.translation = options.translation || {};
-            this.restoUrl = options.restoUrl;
-
-            if (options.language) {
-                $('#language-' + options.language).addClass('resto-red');
-            }
+            self.translation = options.translation || {};
+            self.restoUrl = options.restoUrl;
 
             /*
              * mapshup is defined
              */
             if (window.M) {
-
+                
+                /*
+                 * Set mapshup-tools
+                 */
+                self.updateMapshupToolbar();
+                
                 /*
                  * mapshup bug ?
                  * Force map size refresh when user scroll RESTo page
@@ -106,10 +105,10 @@
                                 data: options.data,
                                 zoomOnNew: true,
                                 MID: '__resto__',
-                                color:'#FFF1FB',
-                                featureInfo:{
-                                    noMenu:true,
-                                    onSelect:function(f) {
+                                color: '#FFF1FB',
+                                featureInfo: {
+                                    noMenu: true,
+                                    onSelect: function(f) {
                                         //console.log(f);
                                     }
                                 }
@@ -124,14 +123,14 @@
              * State change - Ajax call to RESTo backend server
              */
             window.History.Adapter.bind(window, 'statechange', function() {
-                
+
                 // Be sure that json is called !
                 var url = window.History.getState().cleanUrl.replace('format=html', 'format=json');
-                
+
                 self.showMask();
 
                 $.ajax({
-                    url: url, 
+                    url: url,
                     async: true,
                     dataType: 'json',
                     success: function(json) {
@@ -151,7 +150,7 @@
             if (window.M) {
                 var uFct = setInterval(function() {
                     if (window.M.Map.map && window.M.isLoaded) {
-                        window.M.Map.events.register("moveend", self, function(map, scope){
+                        window.M.Map.events.register("moveend", self, function(map, scope) {
                             scope.updateBBOX();
                         });
                         self.updateBBOX();
@@ -159,11 +158,6 @@
                     }
                 }, 500);
             }
-
-            // Set About menu action
-            $('#_about').click(function() {
-                alert("Work in progress. For more info contact jerome[dot]gasperi[at]gmail[dot]com");
-            });
 
             /*
              * Update searchForm input
@@ -176,9 +170,34 @@
                 window.History.pushState({randomize: window.Math.random()}, null, '?' + $(this).serialize() + (window.M ? '&box=' + window.M.Map.Util.p2d(M.Map.map.getExtent()).toBBOX() : ''));
             });
 
-            // Set language actions
-            $('.language').click(function() {
-                window.location = $(this).attr('href');
+            /*
+             * Responsive toolbar
+             */
+            $(function() {
+                var pull = $('#pull'),
+                        menu = $('nav ul');
+
+                $(pull).on('click', function(e) {
+                    e.preventDefault();
+                    menu.slideToggle();
+                });
+
+                $(window).resize(function() {
+                    if ($(window).width() > 320 && menu.is(':hidden')) {
+                        menu.removeAttr('style');
+                    }
+                });
+            });
+
+            /*
+             * Clear button on search bar
+             */
+            $(document).on('input', '.clearable', function() {
+                $(this)[this.value ? 'addClass' : 'removeClass']('x');
+            }).on('mousemove', '.x', function(e) {
+                $(this)[this.offsetWidth - 18 < e.clientX - this.getBoundingClientRect().left ? 'addClass' : 'removeClass']('onX');
+            }).on('click', '.onX', function() {
+                $(this).removeClass('x onX').val('');
             });
 
             /*
@@ -187,22 +206,24 @@
             self.updatePage(options.data, false);
 
         },
-          
+        
         /**
          * Show mask overlay (during loading)
          */
         showMask: function() {
-            $('<div id="resto-mask-overlay"></div>').appendTo($('body')).css({
+            $('<div id="resto-mask-overlay"><span class="fa fa-3x fa-refresh fa-spin"></span></div>').appendTo($('body')).css({
                 'position': 'absolute',
                 'z-index': '1000',
                 'top': '0px',
                 'left': '0px',
                 'background-color': '#777',
                 'opacity': 0.7,
-                'width': $(document).width(),
-                'height': $(document).height()
+                'color':'white',
+                'text-align':'center',
+                'width': $(window).width(),
+                'height': $(window).height(),
+                'line-height':$(window).height() + 'px'
             }).show();
-            $.fancybox.showActivity();
         },
                 
         /**
@@ -210,64 +231,8 @@
          */
         hideMask: function() {
             $('#resto-mask-overlay').remove();
-            $.fancybox.hideActivity();
         },
                 
-        /**
-         * Create a preview Leaflet map
-         * 
-         * @param {string} divId div identifier
-         * @param {object} geometry GeoJSON geometry to plot
-         */
-        createPreviewMap: function(divId, geometry) {
-
-            var json, map = L.map(divId, {
-                zoomControl: false,
-                attributionControl: false
-            });
-
-            map.addLayer(new L.TileLayer('http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png'));
-
-            var feature = {
-                type: "Feature",
-                properties: {},
-                geometry: geometry
-            };
-
-            if (geometry.type === "Point" || geometry.type === "MultiPoint") {
-
-                var pointStyle = {
-                    radius: 8,
-                    fillColor: "#ff7800",
-                    color: "#000",
-                    weight: 1,
-                    opacity: 1,
-                    fillOpacity: 0.8
-                };
-
-                json = L.geoJson(feature, {
-                    pointToLayer: function(feature, latlng) {
-                        return L.circleMarker(latlng, pointStyle);
-                    }
-                }).addTo(map);
-
-                map.setView(json.getBounds().getCenter(), 6);
-            }
-            else {
-
-                var polygonStyle = {
-                    color: "#ff7800",
-                    weight: 5,
-                    opacity: 0.65
-                };
-
-                json = L.geoJson(feature, {style: polygonStyle}).addTo(map);
-                map.fitBounds(json.getBounds(), {padding: new L.Point(40, 40)});
-
-            }
-
-        },
-        
         /**
          * Replace {a:1}, {a:2}, etc within str by array values
          * 
@@ -330,19 +295,7 @@
 
             return sourceBase + "?" + newParamsString;
         },
-                
-        /**
-         * Remove OGC URN prefix
-         * 
-         * @param {string} str
-         */
-        stripOGCURN: function(str) {
-            if (!str) {
-                return str;
-            }
-            return str.replace('urn:ogc:def:EOP:', '');
-        },
-                
+           
         /**
          * Post to mapshup
          * 
@@ -372,16 +325,16 @@
          * @param {string} mimeType
          */
         mimeToType: function(mimeType) {
-            switch(mimeType) {
+            switch (mimeType) {
                 case 'application/json':
-                  return 'GeoJSON';
-                  break;
+                    return 'GeoJSON';
+                    break;
                 case 'application/atom+xml':
-                  return 'ATOM';
-                  break;
+                    return 'ATOM';
+                    break;
                 case 'text/html':
-                  return 'HTML';
-                  break;
+                    return 'HTML';
+                    break;
                 default:
                     return mimeType;
             }
@@ -391,25 +344,129 @@
          * Add map bounding box in EPSG:4326 to all element with a 'resto-updatebbox' class
          */
         updateBBOX: function() {
+            var box;
             if (window.M && window.M.Map.map) {
+                box = window.M.Map.Util.p2d(window.M.Map.map.getExtent()).toBBOX();
                 $('.resto-updatebbox').each(function() {
-                    $(this).attr('href', M.Util.extendUrl($(this).attr('href'), {
-                        box:window.M.Map.Util.p2d(M.Map.map.getExtent()).toBBOX()
+                    $(this).attr('href', window.M.Util.extendUrl($(this).attr('href'), {
+                        box: box
                     }));
                 });
             }
         },
-        
-       /**
-        * Update getCollection page
-        * 
-        * @param {array} json
-        * @param {boolean} updateMapshup - true to update mapshup
-        * 
-        */
+                
+        /**
+         * Return textual resolution from value in meters
+         * 
+         * @param {integer} value
+         */
+        getResolution: function(value) {
+
+            if (!$.isNumeric(value)) {
+                return null;
+            }
+
+            if (value <= 2.5) {
+                return 'THR';
+            }
+
+            if (value > 2.5 && value <= 30) {
+                return 'HR';
+            }
+
+            if (value > 30 && value <= 500) {
+                return 'MR';
+            }
+
+            return 'LR';
+
+        },
+                
+        /**
+         * Update getCollection page
+         * 
+         * @param {array} json
+         * @param {boolean} updateMapshup - true to update mapshup
+         * 
+         */
         updatePage: function(json, updateMapshup) {
             alert('updatePage function must be declared within theme.js');
+        },
+                
+        /**
+         * Set mapshup toolbar
+         */
+        updateMapshupToolbar: function() {
+            
+            var self = this, $tools = $('#mapshup-tools');
+            
+            $('ul', $tools.html('<ul></ul>'))
+                    .append('<li class="zoom fa fa-search-plus" title="' + self.translate('_zoom') + '"></li>')
+                    .append('<li class="unZoom fa fa-search-minus" title="' + self.translate('_unZoom') + '"></li>')
+                    .append('<li class="centerOnLayer fa fa-bullseye" title="' + self.translate('_centerOnLayer') + '"></li>')
+                    .append('<li class="globalView fa fa-globe" title="' + self.translate('_globalMapView') + '"></li>')
+                    .append('<li class="hideLayer fa fa-eye" title="' + self.translate('_hideLayer') + '"></li>');
+                    
+            /*
+             * Zoom
+             */
+            $('.zoom', $tools).click(function(e) {
+                e.preventDefault();
+                window.M.Map.map.setCenter(window.M.Map.map.getCenter(), window.M.Map.map.getZoom() + 1);
+            });
+            
+            /*
+             * unZoom
+             */
+            $('.unZoom', $tools).click(function(e) {
+                e.preventDefault();
+                window.M.Map.map.setCenter(window.M.Map.map.getCenter(), Math.max(window.M.Map.map.getZoom() - 1, window.M.Map.lowestZoomLevel));
+            });
+            
+            /*
+             * Center on layer
+             */
+            $('.centerOnLayer', $tools).click(function(e) {
+                e.preventDefault();
+                var layer = window.M.Map.Util.getLayerByMID('__resto__');
+                if (layer && layer.features && layer.features.length > 0) {
+                    window.M.Map.zoomTo(layer.getDataExtent(), false);
+                }
+                else {
+                    window.M.Map.setCenter(window.M.Map.Util.d2p(new OpenLayers.LonLat(0, 40)), 1, true);
+                }
+            });
+            
+            /*
+             * Map global view
+             */
+            $('.globalView', $tools).click(function(e) {
+                e.preventDefault();
+                window.M.Map.setCenter(window.M.Map.Util.d2p(new OpenLayers.LonLat(0, 40)), 1, true);
+            });
+            
+            /*
+             * Hide / Show layer
+             */
+            $('.hideLayer', $tools).click(function(e) {
+                e.preventDefault();
+                var layer = window.M.Map.Util.getLayerByMID('__resto__');
+                if (layer) {
+                    if (layer.getVisibility()) {
+                        window.M.Map.Util.setVisibility(layer, false);
+                        $('.hideLayer', $tools)
+                                .attr('title', self.translate('_showLayer'))
+                                .addClass('black');
+                    }
+                    else {
+                        window.M.Map.Util.setVisibility(layer, true);
+                        $('.hideLayer', $tools)
+                                .attr('title', self.translate('_hideLayer'))
+                                .removeClass('black');
+                    }
+                }
+            });
         }
-        
+
     };
-})(window, navigator);
+})(window);

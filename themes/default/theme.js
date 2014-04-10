@@ -35,7 +35,7 @@
  * knowledge of the CeCILL-B license and that you accept its terms.
  * 
  */
-(function(window, navigator) {
+(function(window) {
 
     window.R = window.R || {};
 
@@ -48,7 +48,7 @@
      */
     window.R.updatePage = function(json, updateMapshup) {
 
-        var i, l, j, k, alternates, thumbnail, quicklook, feature, metadata, keywords, $content, key, foundFilters = [], self = this;
+        var i, l, j, k, alternates, thumbnail, quicklook, feature, metadata, keyword, keywords, type, foundFilters, $content, key, value, title, addClass, platform, results, resolution, self = this;
 
         json = json || {};
 
@@ -102,19 +102,20 @@
          * Update query analysis result
          */
         if (json.query && json.query.real) {
+            foundFilters = "";
             for (key in json.query.real) {
                 if (json.query.real[key]) {
                     if (key !== 'language') {
-                        foundFilters.push('<b>' + key + '</b> ' + json.query.real[key]);
+                        foundFilters += '<b>' + key + '</b> ' + json.query.real[key] + '</br>';
                     }
                 }
             }
 
-            if (foundFilters.length > 0) {
-                $('.resto-queryanalyze').html('<div class="resto-query">' + this.translate('_query', [foundFilters.concat()]) + '</div>');
+            if (foundFilters) {
+                $('.resto-queryanalyze').html('<div class="resto-query">' + foundFilters + '</div>');
             }
             else {
-                $('.resto-queryanalyze').html('<div class="resto-query"><span class="resto-warning">' + this.translate('_notUnderstood') + '</span></div>');
+                $('.resto-queryanalyze').html('<div class="resto-query"><span class="resto-warning">' + self.translate('_notUnderstood') + '</span></div>');
             }
         }
         else if (json.missing) {
@@ -124,42 +125,44 @@
         /*
          * Update pagination
          */
-        var first = '', previous = '', next = '', last = '', pagination = '';
+        var first = '', previous = '', next = '', last = '', pagination = '', selfUrl = '#';
 
         if (json.missing) {
             pagination = '';
         }
         else if (json.totalResults === 0) {
-            pagination = this.translate('_noResult');
+            pagination = self.translate('_noResult');
         }
         else {
 
             if ($.isArray(json.links)) {
                 for (i = 0, l = json.links.length; i < l; i++) {
                     if (json.links[i]['rel'] === 'first') {
-                        first = ' <a class="resto-link resto-ajaxified" href="' + this.updateURL(json.links[i]['href'], {format: 'html'}) + '">' + this.translate('_firstPage') + '</a> ';
+                        first = ' <a class="resto-ajaxified" href="' + self.updateURL(json.links[i]['href'], {format: 'html'}) + '">' + self.translate('_firstPage') + '</a> ';
                     }
                     if (json.links[i]['rel'] === 'previous') {
-                        previous = ' <a class="resto-link resto-ajaxified" href="' + this.updateURL(json.links[i]['href'], {format: 'html'}) + '">' + this.translate('_previousPage') + '</a> ';
+                        previous = ' <a class="resto-ajaxified" href="' + self.updateURL(json.links[i]['href'], {format: 'html'}) + '">' + self.translate('_previousPage') + '</a> ';
                     }
                     if (json.links[i]['rel'] === 'next') {
-                        next = ' <a class="resto-link resto-ajaxified" href="' + this.updateURL(json.links[i]['href'], {format: 'html'}) + '">' + this.translate('_nextPage') + '</a> ';
+                        next = ' <a class="resto-ajaxified" href="' + self.updateURL(json.links[i]['href'], {format: 'html'}) + '">' + self.translate('_nextPage') + '</a> ';
                     }
                     if (json.links[i]['rel'] === 'last') {
-                        last = ' <a class="resto-link resto-ajaxified" href="' + this.updateURL(json.links[i]['href'], {format: 'html'}) + '">' + this.translate('_lastPage') + '</a> ';
+                        last = ' <a class="resto-ajaxified" href="' + self.updateURL(json.links[i]['href'], {format: 'html'}) + '">' + self.translate('_lastPage') + '</a> ';
                     }
-
+                    if (json.links[i]['rel'] === 'self') {
+                        selfUrl = json.links[i]['href'];
+                    }
                 }
             }
 
             if (json.totalResults === 1) {
-                pagination += this.translate('_oneResult', [json.totalResults]);
+                pagination += self.translate('_oneResult', [json.totalResults]);
             }
             else if (json.totalResults > 1) {
-                pagination += this.translate('_multipleResult', [json.totalResults]);
+                pagination += self.translate('_multipleResult', [json.totalResults]);
             }
 
-            pagination += json.startIndex ? '&nbsp;|&nbsp;' + first + previous + this.translate('_pagination', [json.startIndex, json.lastIndex]) + next + last : '';
+            pagination += json.startIndex ? '&nbsp;|&nbsp;' + first + previous + self.translate('_pagination', [json.startIndex, json.lastIndex]) + next + last : '';
 
         }
 
@@ -173,7 +176,7 @@
         /*
          * Iterate on features and update result container
          */
-        $content = $('.resto-result .resto-content').empty();
+        $content = $('.resto-content').empty();
         for (i = 0, l = json.features.length; i < l; i++) {
 
             feature = json.features[i];
@@ -197,51 +200,66 @@
             /*
              * Display structure
              *  
-             *  <div class="entry" id="">
+             *  <div class="resto-entry" id="">
+             *      <div class="padded-bottom">
+             *         Platform / startDate
+             *      </div>
              *      <span class="thumbnail/>
-             *      <span class="map"/>
-             *      <div class="metadata">
+             *      <div class="resto-actions">
              *          ...
              *      </div>
-             *      <div class="keywords">
+             *      <div class="resto-keywords">
              *          ...
-             *      </div>
+             *      </div> 
              *  </div>
              * 
              */
-            $content.append('<div class="resto-entry" style="clear:both;" id="rid' + i + '"><span class="resto-thumbnail"><a href="' + thumbnail + '" class="resto-link resto-quicklook" title="' + feature.id + '"><img class="resto-image" src="' + thumbnail + '"/></a></span><span class="resto-map" id="idmap' + i + '"></span><div class="resto-metadata"></div><div class="resto-keywords"></div></div>');
 
             /*
-             * Preview map
+             * Satellite
              */
-            self.createPreviewMap('idmap' + i, feature['geometry']);
+            platform = feature.properties['platform'];
+            if (feature.properties.keywords && feature.properties.keywords[feature.properties['platform']]) {
+                platform = '<a href="' + self.updateURL(feature.properties.keywords[feature.properties['platform']]['href'], {format: 'html'}) + '" class="resto-ajaxified resto-updatebbox resto-keyword resto-keyword-platform" title="' + self.translate('_thisResourceWasAcquiredBy', [feature.properties['platform']]) + '">' + feature.properties['platform'] + '</a> ';
+            }
+            $content.append('<li><div class="resto-entry" id="rid' + i + '"><div class="padded-bottom"><span class="platform">' + platform + (platform && feature.properties['instrument'] ? "/" + feature.properties['instrument'] : "") + '</span> | <span class="timestamp">' + feature.properties['startDate'] + '</span></div><span class="resto-thumbnail"><a href="' + quicklook + '" class="resto-quicklook" title="' + feature.id + '"><img class="resto-image" src="' + thumbnail + '"/></a></span><div class="resto-actions"></div><div class="resto-keywords"></div></div></li>');
 
+            /*
+             * Actions
+             */
+            var actions = [];
+
+            /*
+             * Zoom on map - TODO
+             */
+            //actions.push('<a class="fontawesome-file-alt" href="' + feature.properties['links'][j]['href'] + '" title="' + self.translate('_viewMetadata') + ' "></a>');
+            
             /*
              * Metadata
              */
-            $('.resto-metadata', $('#rid' + i)).html('<p><b>' + feature.properties['platform'] + (feature.properties['platform'] && feature.properties['instrument'] ? "/" + feature.properties['instrument'] : "") + '</b> ' + self.translate('_acquiredOn', [feature.properties['startDate']]) + '</p>');
-            metadata = '<p class="resto-tabbed-left resto-small"><b>' + self.translate('_identifier') + '</b> : <span title="' + feature.id + '">' + self.stripOGCURN(feature.id) + '</span><br/>';
-            if (feature.properties['resolution']) {
-                metadata += '<b>' + self.translate('_resolution') + '</b> : ' + feature.properties['resolution'] + ' m<br/>';
-            }
-            if (feature.properties['startDate']) {
-                metadata += '<b>' + self.translate('_startDate') + '</b> : ' + feature.properties['startDate'] + '<br/>';
-            }
-            if (feature.properties['completionDate']) {
-                metadata += '<b>' + self.translate('_completionDate') + '</b> : ' + feature.properties['completionDate'] + '<br/>';
-            }
-            alternates = [];
             if ($.isArray(feature.properties['links'])) {
                 for (j = 0, k = feature.properties['links'].length; j < k; j++) {
-                    alternates.push('<a class="resto-link" href="' + feature.properties['links'][j]['href'] + '" title="' + feature.properties['links'][j]['title'] + ' ">' + self.mimeToType(feature.properties['links'][j]['type']) + '</a>');
+                    if (feature.properties['links'][j]['type'] === 'text/html') {
+                        actions.push('<a class="fa fa-file-o" href="' + feature.properties['links'][j]['href'] + '" title="' + self.translate('_viewMetadata') + ' "></a>');
+                    }
                 }
             }
-            metadata += self.translate('_viewMetadata', [alternates.join(' | ') + '</li></p><p>']);
 
+            /*
+             * Services
+             */
             if (feature.properties['services']) {
+
+                /*
+                 * Download
+                 */
                 if (feature.properties['services']['download'] && feature.properties['services']['download']['url']) {
-                    metadata += '&nbsp;&nbsp;<a class="resto-link" href="' + feature.properties['services']['download']['url'] + '"' + (feature.properties['services']['download']['mimeType'] === 'text/html' ? ' target="_blank"' : '') + '>' + self.translate('_download') + '</a>';
+                    actions.push('<a class="fa fa-cloud-download" href="' + feature.properties['services']['download']['url'] + '"' + (feature.properties['services']['download']['mimeType'] === 'text/html' ? ' target="_blank"' : '') + ' title="' + self.translate('_download') + '"></a>');
                 }
+
+                /*
+                 * View
+                 */
                 if (feature.properties['services']['browse'] && feature.properties['services']['browse']['layer']) {
                     if (window.M) {
                         message = {
@@ -249,26 +267,101 @@
                             type: feature.properties['services']['browse']['layer']['type'],
                             layers: feature.properties['services']['browse']['layer']['layers'],
                             url: feature.properties['services']['browse']['layer']['url'].replace('%5C', ''),
-                            zoomOnNew: true
+                            zoomOnNew:'always'
                         };
-                        metadata += '&nbsp;&nbsp;<a class="resto-link resto-addLayer" data="' + encodeURI(JSON.stringify(message)) + '" href="#">' + self.translate('_viewMapshupFullResolution') + '</a>';
+                        actions.push('<a class="fa fa-eye resto-addLayer" data="' + encodeURI(JSON.stringify(message)) + '" href="#" title="' + self.translate('_viewMapshupFullResolution') + '"></a>');
                     }
                 }
             }
 
-            metadata += '</p></p>'; // End of metatada
-            $('.resto-metadata', $('#rid' + i)).append(metadata);
+            $('.resto-actions', $('#rid' + i)).append(actions.join(''));
 
             /*
-             * Keywords
+             * Keywords are splitted in different types 
+             * 
+             *  - type = landuse (forest, water, etc.)
+             *  - type = country/continent/city
+             *  - type = platform/instrument
+             *  - type = date
+             *  - type = null and keyword start with a '#' = tags
+             *  
              */
             if (feature.properties.keywords) {
-                keywords = '';
+                results = [];
+                keywords = {
+                    landuse: {
+                        title: '_landUse',
+                        keywords: []
+                    },
+                    location: {
+                        title: '_location',
+                        keywords: []
+                    },
+                    tag: {
+                        title: '_tags',
+                        keywords: []
+                    },
+                    resolution: {
+                        title: '_resolution',
+                        keywords: []
+                    },
+                    other: {
+                        title: '_other',
+                        keywords: []
+                    }
+                };
                 for (key in feature.properties.keywords) {
-                    keywords += '<a href="' + this.updateURL(feature.properties.keywords[key]['href'], {format: 'html'}) + '" class="resto-link resto-ajaxified resto-updatebbox resto-keyword' + (feature.properties.keywords[key]['type'] ? ' resto-keyword-' + feature.properties.keywords[key]['type'].replace(' ', '') : '') + '">' + key + '</a> ';
+
+                    keyword = feature.properties.keywords[key];
+                    value = key;
+                    title = "";
+                    addClass = null;
+                    if (keyword.type === 'landuse') {
+                        type = 'landuse';
+                        value = value + ' (' + Math.round(keyword.value) + '%)';
+                        addClass = keyword.id;
+                        title = self.translate('_thisResourceContainsLanduse', [keyword.value, key]);
+                    }
+                    else if (keyword.type === 'country' || keyword.type === 'continent') {
+                        type = 'location';
+                        title = self.translate('_thisResourceIsLocated', [key]);
+                    }
+                    else if (keyword.type === 'city') {
+                        type = 'location';
+                        title = self.translate('_thisResourceContainsCity', [key]);
+                    }
+                    else if (keyword.type === 'platform' || keyword.type === 'instrument') {
+                        continue;
+                    }
+                    else if (keyword.type === 'date') {
+                        continue;
+                    }
+                    else if (key.indexOf("#") === 0) {
+                        type = 'tag';
+                    }
+                    else {
+                        type = 'other';
+                    }
+                    keywords[type]['keywords'].push('<a href="' + self.updateURL(feature.properties.keywords[key]['href'], {format: 'html'}) + '" class="resto-ajaxified resto-updatebbox resto-keyword' + (feature.properties.keywords[key]['type'] ? ' resto-keyword-' + feature.properties.keywords[key]['type'].replace(' ', '') : '') + (addClass ? ' resto-keyword-' + addClass : '') + '" title="' + title + '">' + value + '</a> ');
                 }
-                $('.resto-keywords', $('#rid' + i)).html(keywords);
+
+                /*
+                 * Resolution
+                 */
+                if (feature.properties['resolution']) {
+                    resolution = self.getResolution(feature.properties['resolution']);
+                    keywords['resolution']['keywords'].push(feature.properties['resolution'] + 'm - <a href="' + self.updateURL(selfUrl, {q: self.translate(resolution), format: 'html'}) + '" class="resto-ajaxified resto-updatebbox resto-keyword resto-keyword-resolution" title="' + self.translate(resolution) + '">' + resolution + '</a>');
+                }
+
+                for (key in keywords) {
+                    if (keywords[key]['keywords'].length > 0) {
+                        results.push('<td class="title">' + self.translate(keywords[key]['title']) + '</td><td>&nbsp;</td><td class="values">' + keywords[key]['keywords'].join(', ') + '</td>');
+                    }
+                }
+
+                $('.resto-keywords', $('#rid' + i)).html('<table>' + results.join('</tr>') + '</table>');
             }
+
         }
 
         /*
@@ -277,11 +370,9 @@
         self.updateBBOX();
 
         /*
-         * Set fancybox for quicklooks
+         * Set swipebox for quicklooks
          */
-        $('a.resto-quicklook').fancybox({
-            type: "image"
-        });
+        $('a.resto-quicklook').swipebox();
 
         /*
          * Click on ajaxified element call href url through Ajax
@@ -303,4 +394,4 @@
 
     };
 
-})(window, navigator);
+})(window);

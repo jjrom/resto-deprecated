@@ -31,7 +31,8 @@ return array(
         'images',
         'cover',
         'area',
-        'zone'
+        'zone',
+        'resolution'
     ),
     /*
      * Modifiers
@@ -403,7 +404,7 @@ return array(
         '_resolution' => 'Resolution',
         '_startDate' => 'Start of acquisition',
         '_completionDate' => 'End of acquisition',
-        '_viewMetadata' => 'View metadata in {a:1}',
+        '_viewMetadata' => 'View metadata',
         '_viewMapshup' => 'View on map',
         '_viewMapshupFullResolution' => 'View on map',
         '_download' => 'Download',
@@ -411,12 +412,36 @@ return array(
         '_atomLink' => 'ATOM link for {a:1}',
         '_htmlLink' => 'HTML link for {a:1}',
         '_jsonLink' => 'GeoJSON link for {a:1}',
-        '_inLang' => 'You are in {a:1} language',
-        '_switchLang' => 'Switch to {a:1} language',
-        '_en' => 'english',
-        '_fr' => 'french',
-        '_it' => 'italian',
-        '_de' => 'german'
+        '_thisResourceContainsLanduse' => 'This image contains {a:1}% of {a:2}',
+        '_thisResourceIsLocated' => 'This image is located in {a:1}',
+        '_thisResourceContainsCity' => 'This image contains the city of {a:1}',
+        '_thisResourceWasAcquiredBy' => 'This image was aquired by {a:1} satellite',
+        '_landUse' => 'Land cover',
+        '_location' => 'Location',
+        '_platform' => 'Satellite',
+        '_tags' => 'Tags',
+        '_other' => 'Other',
+        // landuse
+        'urban' => 'Urban area',
+        'cultivated' => 'Cultivated area',
+        'flooded' => 'Flooded area',
+        'herbaceous' => 'Herbaceous area',
+        'desert' => 'Desert',
+        'water' => 'Water',
+        'forest' => 'Forest',
+        'THR' => 'Resolution lower than 2.5 m',
+        'HR' => 'Resolution between 2.5 and 30 m',
+        'MR' => 'Resolution between 30 and 500 m',
+        'LR' => 'Resolution greater than 500 m',
+        '_home' => 'Home',
+        '_viewAtomFeed' => 'View Atom feed for this search result',
+        '_shareOn' => 'Share on {a:1}',
+        '_zoom' => 'Zoom map',
+        '_unZoom' => 'Unzoom map',
+        '_centerOnLayer' => 'Center view on search result',
+        '_globalMapView' => 'Center on whole earth',
+        '_hideLayer' => 'Hide search result layer',
+        '_showLayer' => 'Show search result layer'
     )
     
 );

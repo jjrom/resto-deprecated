@@ -194,7 +194,7 @@ class Resto {
              */
             $this->collections = array();
             $dbh = $this->getDatabaseConnectorInstance()->getConnection(true);
-            $results = pg_query($dbh, 'SELECT * FROM admin.collections WHERE status <> \'deleted\' ORDER BY creationdate DESC');
+            $results = pg_query($dbh, 'SELECT * FROM admin.collections WHERE status <> \'deleted\' ORDER BY creationdate ASC');
             while ($collection = pg_fetch_assoc($results)) {
                 $this->collections[$collection['collection']] = array(
                     'controller' => $collection['controller'],
