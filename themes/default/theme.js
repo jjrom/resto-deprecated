@@ -48,7 +48,7 @@
      */
     window.R.updatePage = function(json, updateMapshup) {
 
-        var i, l, j, k, alternates, thumbnail, quicklook, feature, metadata, keyword, keywords, type, foundFilters, $content, key, value, title, addClass, platform, results, resolution, self = this;
+        var i, l, j, k, thumbnail, quicklook, feature, keyword, keywords, type, foundFilters, $content, $actions, key, value, title, addClass, platform, results, resolution, self = this;
 
         json = json || {};
 
@@ -180,7 +180,7 @@
         for (i = 0, l = json.features.length; i < l; i++) {
 
             feature = json.features[i];
-
+            
             /*
              * Quicklook and thumbnail
              */
@@ -195,7 +195,6 @@
             if (!quicklook) {
                 quicklook = thumbnail;
             }
-
 
             /*
              * Display structure
@@ -222,17 +221,13 @@
             if (feature.properties.keywords && feature.properties.keywords[feature.properties['platform']]) {
                 platform = '<a href="' + self.updateURL(feature.properties.keywords[feature.properties['platform']]['href'], {format: 'html'}) + '" class="resto-ajaxified resto-updatebbox resto-keyword resto-keyword-platform" title="' + self.translate('_thisResourceWasAcquiredBy', [feature.properties['platform']]) + '">' + feature.properties['platform'] + '</a> ';
             }
-            $content.append('<li><div class="resto-entry" id="rid' + i + '"><div class="padded-bottom"><span class="platform">' + platform + (platform && feature.properties['instrument'] ? "/" + feature.properties['instrument'] : "") + '</span> | <span class="timestamp">' + feature.properties['startDate'] + '</span></div><span class="resto-thumbnail"><a href="' + quicklook + '" class="resto-quicklook" title="' + feature.id + '"><img class="resto-image" src="' + thumbnail + '"/></a></span><div class="resto-actions"></div><div class="resto-keywords"></div></div></li>');
-
+            $content.append('<li><div class="resto-entry" id="rid' + i + '" fid="' + feature.id + '"><div class="padded-bottom"><span class="platform">' + platform + (platform && feature.properties['instrument'] ? "/" + feature.properties['instrument'] : "") + '</span> | <span class="timestamp">' + feature.properties['startDate'] + '</span></div><span class="resto-thumbnail"><a href="' + quicklook + '" class="resto-quicklook" title="' + feature.id + '"><img class="resto-image" src="' + thumbnail + '"/></a></span><div class="resto-actions"></div><div class="resto-keywords"></div></div></li>');
+            $actions = $('.resto-actions', $('#rid' + i));
+            
             /*
-             * Actions
+             * Zoom on feature
              */
-            var actions = [];
-
-            /*
-             * Zoom on map - TODO
-             */
-            //actions.push('<a class="fontawesome-file-alt" href="' + feature.properties['links'][j]['href'] + '" title="' + self.translate('_viewMetadata') + ' "></a>');
+            $actions.append('<a class="fa fa-bullseye centerOnFeature" href="#" title="' + self.translate('_centerOnFeature') + ' "></a>');
             
             /*
              * Metadata
@@ -240,7 +235,7 @@
             if ($.isArray(feature.properties['links'])) {
                 for (j = 0, k = feature.properties['links'].length; j < k; j++) {
                     if (feature.properties['links'][j]['type'] === 'text/html') {
-                        actions.push('<a class="fa fa-file-o" href="' + feature.properties['links'][j]['href'] + '" title="' + self.translate('_viewMetadata') + ' "></a>');
+                        $actions.append('<a class="fa fa-file-o" href="' + feature.properties['links'][j]['href'] + '" title="' + self.translate('_viewMetadata') + ' "></a>');
                     }
                 }
             }
@@ -254,7 +249,7 @@
                  * Download
                  */
                 if (feature.properties['services']['download'] && feature.properties['services']['download']['url']) {
-                    actions.push('<a class="fa fa-cloud-download" href="' + feature.properties['services']['download']['url'] + '"' + (feature.properties['services']['download']['mimeType'] === 'text/html' ? ' target="_blank"' : '') + ' title="' + self.translate('_download') + '"></a>');
+                    $actions.append('<a class="fa fa-cloud-download" href="' + feature.properties['services']['download']['url'] + '"' + (feature.properties['services']['download']['mimeType'] === 'text/html' ? ' target="_blank"' : '') + ' title="' + self.translate('_download') + '"></a>');
                 }
 
                 /*
@@ -269,13 +264,29 @@
                             url: feature.properties['services']['browse']['layer']['url'].replace('%5C', ''),
                             zoomOnNew:'always'
                         };
-                        actions.push('<a class="fa fa-eye resto-addLayer" data="' + encodeURI(JSON.stringify(message)) + '" href="#" title="' + self.translate('_viewMapshupFullResolution') + '"></a>');
+                        $actions.append('<a class="fa fa-eye resto-addLayer" data="' + encodeURI(JSON.stringify(message)) + '" href="#" title="' + self.translate('_viewMapshupFullResolution') + '"></a>');
                     }
                 }
             }
-
-            $('.resto-actions', $('#rid' + i)).append(actions.join(''));
-
+            
+            /*
+             * Center on feature
+             */
+            (function($div) {
+                $('.centerOnFeature', $div).click(function(e) {
+                    e.preventDefault();
+                    var f = window.M.Map.Util.getFeature(window.M.Map.Util.getLayerByMID('__resto__'), $div.attr('fid'));
+                    if (f) {
+                        window.M.Map.zoomTo(f.geometry.getBounds(), false);
+                        window.M.Map.featureInfo.hilite(f);
+                        $('.resto-entry').each(function(){
+                            $(this).removeClass('selected');
+                        });
+                        $div.addClass('selected');
+                    }
+                });    
+            })($('#rid' + i));
+            
             /*
              * Keywords are splitted in different types 
              * 
@@ -391,7 +402,7 @@
             e.preventDefault();
             self.addLayer($(this).attr('data'));
         });
-
+        
     };
 
 })(window);

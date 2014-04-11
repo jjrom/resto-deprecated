@@ -109,7 +109,44 @@
                                 featureInfo: {
                                     noMenu: true,
                                     onSelect: function(f) {
-                                        //console.log(f);
+                                        if (f && f.fid) {
+                                            
+                                           /*
+                                            * Unhilite all features before scrolling
+                                            * to the right one 
+                                            */     
+                                            window.M.Map.featureInfo.unhilite(window.M.Map.featureInfo.hilited);
+                                                
+                                            /*
+                                             * Remove the height of the map to scroll
+                                             * to the element
+                                             */
+                                            var delta = 0;
+                                            if ($('#mapshup-tools').length > 0) {
+                                                delta = $('#mapshup-tools').position().top + $('#mapshup-tools').height();
+                                            }
+                                            
+                                            /*
+                                             * Search for feature in result entries
+                                             */
+                                            $('.resto-entry').each(function() {
+                                               
+                                                if ($(this).attr('fid') === f.fid) {
+                                                    $(this).addClass('selected');
+                                                    $('html, body').animate({
+                                                        scrollTop: ($(this).offset().top - delta)
+                                                    }, 500);
+                                                    return false;
+                                                }
+                                                
+                                            });
+
+                                        }
+                                    },
+                                    onUnselect: function(f) {
+                                        $('.resto-entry').each(function() {
+                                            $(this).removeClass('selected');
+                                        });
                                     }
                                 }
                             });

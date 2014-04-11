@@ -167,7 +167,7 @@ nav a#pull {
     /*
      * Hide mapshup for small screens
      */
-    .resto-queryanalyze, .mapshup-block-fixed, .resto-addLayer {
+    .resto-queryanalyze, .mapshup-block-fixed, .resto-addLayer, .centerOnFeature {
         display:none;
     }
     #mapshup.fixed, #mapshup-tools.fixed {
@@ -203,7 +203,9 @@ nav a#pull {
 .resto-entry {
     text-align:center;
     border-bottom:1px solid lightgrey;
-
+}
+.resto-entry.selected {
+    background-color:lightgray;
 }
 .resto-entry .platform {
     font-weight: bold;
@@ -213,7 +215,6 @@ nav a#pull {
     height:200px;
     box-shadow:#000 1px 1px 4px; 
 }
-
 .resto-keywords {
     font-size: 14px;
 }
