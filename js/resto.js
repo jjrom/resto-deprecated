@@ -254,7 +254,7 @@
          */
         showMask: function() {
             $('<div id="resto-mask-overlay"><span class="fa fa-3x fa-refresh fa-spin"></span></div>').appendTo($('body')).css({
-                'position': 'absolute',
+                'position': 'fixed',
                 'z-index': '1000',
                 'top': '0px',
                 'left': '0px',
