@@ -76,6 +76,7 @@
  * |______________________________________________|_____________|______________________________
  * | Create a new collection                      |     POST    |   /
  * | List all collections                         |     GET     |   /
+ * | Analyze search query (standalone service)    |     GET     |   /$analyzeQuery?q=....
  * | List all resources within collection         |     GET     |   /collection
  * | Describe collection (OpenSearch.xml)         |     GET     |   /collection/$describe
  * | Delete a collection                          |     DELETE  |   /collection
