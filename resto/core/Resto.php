@@ -83,6 +83,7 @@
  * | Update a collection                          |     PUT     |   /collection
  * | Get resource within the collection           |     GET     |   /collection/identifier
  * | Insert a new resource within the collection  |     POST    |   /collection
+ * | Add/update for this collection               |     POST    |   /collection/$rights
  * | Update a resource from the collection        |     PUT     |   /collection/identifier
  * | Delete a resource from the collection        |     DELETE  |   /collection/identifier
  * | Download product linked to resource          |     GET     |   /collection/identifier/$download
@@ -94,7 +95,7 @@
  * (i.e. 'Method Not Allowed')
  *
  * Note 2 : Collections and resources names should not start with character '$'. Names starting by a
- * '$' have special meanings (see $describe, $download and $tags special meanings in previous table)
+ * '$' have special meanings (see $describe, $download, $tags, etc. special meanings in previous table)
  *
  * 
  * Query parameters

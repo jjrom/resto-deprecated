@@ -73,3 +73,24 @@ CREATE TABLE admin.tags (
     occurence           INTEGER
 );
 CREATE INDEX idx_updated_tags ON admin.tags (updateddate);
+
+--
+-- users table list user informations
+--
+CREATE TABLE admin.users (
+    userid              VARCHAR(255) PRIMARY KEY,  -- should be an email adress
+    groups              TEXT, -- group names are comma separated
+    username            VARCHAR(50) NOT NULL,
+    password            VARCHAR(50) NOT NULL, -- stored as md5
+    registrationdate    TIMESTAMP NOT NULL,
+    lastsessionid       VARCHAR(255)
+);
+
+--
+-- rights table list user rights on collection
+--
+CREATE TABLE admin.rights (
+    groupid              VARCHAR(255),  -- group name as stored in admin.users groups column
+    collection          VARCHAR(50) NOT NULL, -- same as collection in admin.collections
+    rights              TEXT -- serialized json representation of services rights
+);

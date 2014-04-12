@@ -412,14 +412,14 @@ abstract class RestoController {
      * 
      *      curl -F "file[]=@file1.json" -X POST http://localhost/resto/Collection
      * 
-     * @param array $array an array of GeoJSON featureCollection or an array of tags
+     * @param array $array an array of GeoJSON featureCollection or an array of JSON
      * 
      */
     public function defaultPost($array) {
         
         /*
          * POST on /collection/identifier/$tags
-         * $array should be an array of tags
+         * See ResourceTagger module
          */
         if ($this->request['identifier'] && $this->request['modifier'] === '$tags') {
             
@@ -441,7 +441,7 @@ abstract class RestoController {
         }
         /*
          * POST on /collection
-         * $array should be an array of GeoJSON featurCollections 
+         * $array should be an array of GeoJSON featureCollections
          */
         else {
             
@@ -453,7 +453,7 @@ abstract class RestoController {
                 if ($this->request['identifier'] === '$tags') {
 
                     /*
-                     * POST on /collection/identifier/$tags is processed by ResourceTagger module
+                     * POST on /collection/$tags is processed by ResourceTagger module
                      */
                     if (!class_exists('ResourceTagger')) {
                         throw new Exception('Forbidden', 403);
@@ -464,6 +464,28 @@ abstract class RestoController {
                      */
                     $resourceTagger = new ResourceTagger($this);
                     $this->response = $resourceTagger->tag(isset($array) ? $array : getFiles(array(
+                        'permissive' => true
+                    )));
+
+                }
+                /*
+                 * POST on /collection/$rights
+                 * See RightsManager module
+                 */
+                else if ($this->request['identifier'] === '$rights') {
+
+                    /*
+                     * POST on /collection/$rights is processed by RightsManager module
+                     */
+                    if (!class_exists('RightsManager')) {
+                        throw new Exception('Forbidden', 403);
+                    }
+
+                    /*
+                     * Set rights for collection
+                     */
+                    $rightsManager = new RightsManager($this);
+                    $this->response = $rightsManager->add(isset($array) ? $array : getFiles(array(
                         'permissive' => true
                     )));
 
