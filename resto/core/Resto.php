@@ -693,7 +693,7 @@ class Resto {
         /*
          * No collection set => renders home page
          */
-        $templatesPath = realpath(dirname(__FILE__)) . '/../../themes/' . $this->responseDescription['template'] . '/templates/';
+        $templatesPath = realpath(dirname(__FILE__)) . '/../../themes/' . $this->responseDescription['theme'] . '/templates/';
 
         if (!$this->request['collection']) {
             $template = new Template($templatesPath . 'home.php', $this);
