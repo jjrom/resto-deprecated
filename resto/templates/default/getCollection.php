@@ -64,7 +64,9 @@ $templateName = 'default';
         </div>
         
         <!-- query analyze result -->
+        <?php if ($this->request['special']['_showQuery']) { ?>
         <div class="resto-queryanalyze fixed"></div>
+        <?php } ?>
         
         <!-- Collection title and description -->
         <!--

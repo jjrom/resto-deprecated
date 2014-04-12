@@ -191,7 +191,8 @@ abstract class RestoController {
      * 
      *  dictionary =>               ==  dictionary reference
      * 
-     *  model =>                ==  list of database columns
+     *  model =>                    ==  list of database columns
+     *
      *  searchFiltersList =>        ==  list of available searchFiltersList
      * 
      *  searchFiltersDescription    ==  see below
@@ -265,7 +266,6 @@ abstract class RestoController {
         $this->request = $R->getRequest();
         $collectionDescription = $R->getCollectionDescription($this->request['collection']);
         $controller = get_class($this);
-        
         /*
          * Initialize $this->description array
          */

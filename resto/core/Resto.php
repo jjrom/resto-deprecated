@@ -56,9 +56,9 @@
  * 
  * Assuming the url general model below : 
  * 
- *      http(s)://host/resto/collection/identifier/modifier
- *      \__________________/\____________________________/
- *             resto URL                relative URI    
+ *      http(s)://host/resto/collection/identifier/modifier?key1=value1&key2=value2&...
+ *      \__________________/\_____________________________/\__________________________/
+ *             resto URL                relative URI             query parameters
  * 
  * Where :
  *      
@@ -66,9 +66,11 @@
  *      A collection contains a list of resources.
  *      
  *      A 'resource' is a metadata file describing a product identified by 'identifier'.
- *      The product itself (e.g. an image) can be access through resource 'modifier' (when set to '$download')
  * 
- * Resto handles the following actions
+ *      The 'modifier' allows special action on the resource (e.g. $download to download
+ *      the product related to resource)
+ *
+ * One URI = one action as follow
  * 
  * |        Action                                | HTTP method | Relative URI
  * |______________________________________________|_____________|______________________________
@@ -87,9 +89,25 @@
  * | List all tags from a resource                |     GET     |   /collection/identifier/$tags
  * | Add tags to resource                         |     POST    |   /collection/identifier/$tags
  * 
+ * Note 1 : HTTP methods on relative URI that are not listed in the table returns an HTTP error 405
+ * (i.e. 'Method Not Allowed')
+ *
+ * Note 2 : Collections and resources names should not start with character '$'. Names starting by a
+ * '$' have special meanings (see $describe, $download and $tags special meanings in previous table)
+ *
  * 
- * Note: HTTP methods on relative URI that are not listed in the table
- * returns an HTTP error 405 (i.e. 'Method Not Allowed')
+ * Query parameters
+ * ----------------
+ * Query parameters are described within OpenSearch description file (accessible through a GET request
+ * to /collection/$describe URI)
+ *
+ * Special query parameters can be used to modify the query. These parameters are not specified
+ * within the OpenSearch description file (see list below)
+ *
+ * | Query parameter    |      Type      | Description
+ * |______________________________________________________________________________________________
+ * | _pretty            |     boolean    | (For JSON output only) true to return pretty print JSON
+ * | _showQuery         |     boolean    | (For HTML output only) true to display query analysis result
  * 
  */
 class Resto {
@@ -98,11 +116,6 @@ class Resto {
      * Config object
      */
     private $config = array();
-
-    /*
-     * Boolean for pretty print JSON output
-     */
-    private $pretty = false;
 
     /*
      * List of collections
@@ -259,16 +272,23 @@ class Resto {
         $this->request['format'] = isset($_GET['format']) && array_key_exists(trim($_GET['format']), self::$contentTypes) ? trim($_GET['format']) : ($this->request['method'] === 'get' ? self::DEFAULT_GET_RESPONSE_FORMAT : self::DEFAULT_RESPONSE_FORMAT);
 
         /*
-         * Set pretty print JSON boolean
+         * Set special parameters
          */
-        if (isset($_GET['_pretty'])) {
-           $this->pretty = trueOrFalse($_GET['_pretty']); 
+        $this->request['special'] = array();
+        foreach (array('_pretty', '_showQuery') as $key) {
+            if (isset($_GET[$key])) {
+                $this->request['special'][$key] = trueOrFalse($_GET[$key]);
+                unset($_GET[$key]);
+            }
+            else {
+                $this->request['special'][$key] = false;
+            }
         }
         
         /*
          * Query parameters
          */
-        unset($_GET['RESToURL'], $_GET['format'], $_GET['_pretty']);
+        unset($_GET['RESToURL'], $_GET['format']);
         switch ($this->request['method']) {
             case 'get':
                 $this->request['params'] = $_GET;
@@ -653,7 +673,7 @@ class Resto {
      * Converts response array to json.
      */
     private function jsonResponse() {
-        return json_format($this->response, $this->pretty);
+        return json_format($this->response, $this->request['_pretty']);
     }
 
     /**
