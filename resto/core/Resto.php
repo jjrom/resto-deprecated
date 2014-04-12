@@ -693,18 +693,22 @@ class Resto {
         /*
          * No collection set => renders home page
          */
+        $templatePath = realpath(dirname(__FILE__)) . '/../../themes/' . $this->responseDescription['template'] . '/templates/';
+
         if (!$this->request['collection']) {
-            $template = new Template(realpath(dirname(__FILE__)) . '/../templates/home.php', $this);
+            $template = new Template($templatePath . 'home.php', $this);
         }
         /*
          * Identifier set => renders resource page
-         */ else if ($this->request['identifier']) {
-            $template = new Template(realpath(dirname(__FILE__)) . '/../templates/' . $this->responseDescription['template'] . '/' . $this->request['method'] . 'Resource' . '.php', $this, $this->response, $this->responseDescription);
+         */
+        else if ($this->request['identifier']) {
+            $template = new Template($templatePath . $this->request['method'] . 'Resource' . '.php', $this, $this->response, $this->responseDescription);
         }
         /*
          * Renders collection
-         */ else {
-            $template = new Template(realpath(dirname(__FILE__)) . '/../templates/' . $this->responseDescription['template'] . '/' . $this->request['method'] . 'Collection' . '.php', $this, $this->response, $this->responseDescription);
+         */
+        else {
+            $template = new Template($templatePath . $this->request['method'] . 'Collection' . '.php', $this, $this->response, $this->responseDescription);
         }
 
         return $template->render();

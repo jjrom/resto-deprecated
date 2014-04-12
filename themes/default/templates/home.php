@@ -42,7 +42,7 @@
         </style>
         <!--[if lt IE 9]>
         <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/externals/modernizr/modernizr.min.js"></script>
-        <![endif]-->   
+        <![endif]-->
     </head>
     <body>
         <div class="row fullWidth resto-title">

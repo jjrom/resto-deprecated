@@ -2,6 +2,7 @@
 <?php
 $collectionUrl = $this->request['restoUrl'] . $this->request['collection'] . '/';
 $templateName = 'default';
+echo 'toto';
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
     <head>
@@ -20,10 +21,10 @@ $templateName = 'default';
         <link rel="search" type="application/opensearchdescription+xml" href="<?php echo $collectionUrl ?>$describe" hreflang="<?php echo $this->request['language'] ?>" title="<?php echo $this->description['name']; ?>" />
         <!--[if lt IE 9]>
         <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/externals/modernizr/modernizr.min.js"></script>
-        <![endif]--> 
+        <![endif]-->
     </head>
     <body>
-        
+
         <header>
             <span id="logo"><a title="<?php echo $this->description['dictionary']->translate('_home'); ?>" href="<?php echo $this->request['restoUrl'] ?>">RESTo</a> | <?php echo $this->description['os']['ShortName']; ?></span>
             <nav>
@@ -39,7 +40,7 @@ $templateName = 'default';
                 -->
             </nav>
 	</header>
-        
+
         <!-- mapshup display -->
         <div id="mapshup" class="noResizeHeight fixed"></div>
         <div id="mapshup-tools" class="fixed"></div>
@@ -49,7 +50,7 @@ $templateName = 'default';
         <div class="row mobile-block-fixed">
             <div class="large-12 columns"></div>
         </div>
-        
+
         <!-- Search bar -->
         <div class="resto-search fixed">
             <form id="resto-searchform" action="<?php echo $collectionUrl ?>">
@@ -62,12 +63,12 @@ $templateName = 'default';
                 <input type="text" class="clearable" id="search" name="<?php echo $this->description['searchFiltersDescription']['searchTerms']['osKey'] ?>" value="<?php echo str_replace('"', '&quot;', stripslashes($this->request['params'][$this->description['searchFiltersDescription']['searchTerms']['osKey']])); ?>" placeholder="<?php echo $this->description['dictionary']->translate('_placeHolder', $this->description['os']['Query']); ?>"/>
             </form>
         </div>
-        
+
         <!-- query analyze result -->
         <?php if ($this->request['special']['_showQuery']) { ?>
         <div class="resto-queryanalyze fixed"></div>
         <?php } ?>
-        
+
         <!-- Collection title and description -->
         <!--
         <div class="row">
@@ -79,13 +80,13 @@ $templateName = 'default';
             </div>
         </div>
         -->
-        
+
 
         <!-- Search result -->
         <div class="row">
             <div class="large-12 columns">
                 <ul class="small-block-grid-1 medium-block-grid-3 large-block-grid-4 resto-content center"></ul>
-            </div>  
+            </div>
         </div>
 
         <!-- Footer -->
@@ -96,7 +97,7 @@ $templateName = 'default';
                 </div>
             </div>
         </div>
-        
+
         <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/externals/mjquery/mjquery.js"></script>
         <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/externals/mjquery/mjquery.ui.js"></script>
         <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/externals/swipebox/js/jquery.swipebox.min.js"></script>
@@ -119,7 +120,7 @@ $templateName = 'default';
                 if (M) {
                     M.load();
                 }
-                
+
                 /*
                  * Initialize RESTo
                  */
