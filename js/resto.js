@@ -45,6 +45,7 @@
     window.R = {
         
         VERSION_NUMBER: 'RESTo 1.0',
+
         /*
          * Translation array
          */
@@ -55,6 +56,11 @@
          */
         restoUrl: null,
         
+        /*
+         * Result layer
+         */
+        layer: null,
+
         /*
          * Initialize RESTo
          * 
@@ -99,57 +105,7 @@
                 if (options.data) {
                     var fct = setInterval(function() {
                         if (window.M.Map.map && window.M.isLoaded) {
-                            self.addLayer({
-                                type: 'GeoJSON',
-                                clusterized: false,
-                                data: options.data,
-                                zoomOnNew: true,
-                                MID: '__resto__',
-                                color: '#FFF1FB',
-                                featureInfo: {
-                                    noMenu: true,
-                                    onSelect: function(f) {
-                                        if (f && f.fid) {
-                                            
-                                           /*
-                                            * Unhilite all features before scrolling
-                                            * to the right one 
-                                            */     
-                                            window.M.Map.featureInfo.unhilite(window.M.Map.featureInfo.hilited);
-                                                
-                                            /*
-                                             * Remove the height of the map to scroll
-                                             * to the element
-                                             */
-                                            var delta = 0;
-                                            if ($('#mapshup-tools').length > 0) {
-                                                delta = $('#mapshup-tools').position().top + $('#mapshup-tools').height();
-                                            }
-                                            
-                                            /*
-                                             * Search for feature in result entries
-                                             */
-                                            $('.resto-entry').each(function() {
-                                               
-                                                if ($(this).attr('fid') === f.fid) {
-                                                    $(this).addClass('selected');
-                                                    $('html, body').animate({
-                                                        scrollTop: ($(this).offset().top - delta)
-                                                    }, 500);
-                                                    return false;
-                                                }
-                                                
-                                            });
-
-                                        }
-                                    },
-                                    onUnselect: function(f) {
-                                        $('.resto-entry').each(function() {
-                                            $(this).removeClass('selected');
-                                        });
-                                    }
-                                }
-                            });
+                            self.initSearchLayer(options.data);
                             clearInterval(fct);
                         }
                     }, 500);
@@ -346,21 +302,77 @@
         addLayer: function(json) {
 
             if (!window.M) {
-                return false;
+                return null;
             }
 
             if (typeof json === 'string') {
                 json = JSON.parse(decodeURI(json));
             }
 
-            window.M.Map.addLayer(json, {
+            return window.M.Map.addLayer(json, {
                 noDeletionCheck: true
             });
 
-            return true;
+        },
+
+        /**
+         * Initialize search result layer
+         */
+        initSearchLayer: function(json) {
+            this.layer = this.addLayer({
+                type: 'GeoJSON',
+                clusterized: false,
+                data: json,
+                zoomOnNew: true,
+                MID: '__resto__',
+                color: '#FFF1FB',
+                featureInfo: {
+                    noMenu: true,
+                    onSelect: function(f) {
+                        if (f && f.fid) {
+
+                           /*
+                            * Unhilite all features before scrolling
+                            * to the right one
+                            */
+                            window.M.Map.featureInfo.unhilite(window.M.Map.featureInfo.hilited);
+
+                            /*
+                             * Remove the height of the map to scroll
+                             * to the element
+                             */
+                            var delta = 0;
+                            if ($('#mapshup-tools').length > 0) {
+                                delta = $('#mapshup-tools').position().top + $('#mapshup-tools').height();
+                            }
+
+                            /*
+                             * Search for feature in result entries
+                             */
+                            $('.resto-entry').each(function() {
+
+                                if ($(this).attr('fid') === f.fid) {
+                                    $(this).addClass('selected');
+                                    $('html, body').animate({
+                                        scrollTop: ($(this).offset().top - delta)
+                                    }, 500);
+                                    return false;
+                                }
+
+                            });
+
+                        }
+                    },
+                    onUnselect: function(f) {
+                        $('.resto-entry').each(function() {
+                            $(this).removeClass('selected');
+                        });
+                    }
+                }
+            });
 
         },
-                
+
         /**
          * Return type from mimeType
          * 
@@ -432,7 +444,98 @@
          * 
          */
         updatePage: function(json, updateMapshup) {
-            alert('updatePage function must be declared within theme.js');
+
+            var foundFilters, key, self = this;
+
+            json = json || {};
+
+            /*
+             * Update mapshup view
+             */
+            if (window.M && updateMapshup) {
+
+                /*
+                 * Layer already exist => reload content
+                 * i.e. remove old features and insert new ones
+                 */
+                if (self.layer) {
+                    self.layer.destroyFeatures();
+                    window.M.Map.layerTypes['GeoJSON'].load({
+                        data: json,
+                        layerDescription: self.layer['_M'].layerDescription,
+                        layer: self.layer,
+                        zoomOnNew: true
+                    });
+                }
+                /*
+                 * Layer does not exist => create it
+                 */
+                else {
+                    self.initSearchLayer(json);
+                }
+            }
+
+            /*
+             * Update search input form
+             */
+            $('#search').val(json.query ? json.query.original.searchTerms : '');
+
+            /*
+             * Update query analysis result
+             */
+            if (json.query && json.query.real) {
+                foundFilters = "";
+                for (key in json.query.real) {
+                    if (json.query.real[key]) {
+                        if (key !== 'language') {
+                            foundFilters += '<b>' + key + '</b> ' + json.query.real[key] + '</br>';
+                        }
+                    }
+                }
+                if (foundFilters) {
+                    $('.resto-queryanalyze').html('<div class="resto-query">' + foundFilters + '</div>');
+                }
+                else {
+                    $('.resto-queryanalyze').html('<div class="resto-query"><span class="resto-warning">' + self.translate('_notUnderstood') + '</span></div>');
+                }
+            }
+            else if (json.missing) {
+                $('.resto-queryanalyze').html('<div class="resto-query"><span class="resto-warning">Missing mandatory search filters - ' + json.missing.concat() + '</span></div>');
+            }
+
+            /*
+             * Update result
+             */
+            self.updateResultEntries(json);
+
+            /*
+             * Constraint search to map extent
+             */
+            self.updateBBOX();
+
+            /*
+             * Set swipebox for quicklooks
+             */
+            $('a.resto-quicklook').swipebox();
+
+            /*
+             * Click on ajaxified element call href url through Ajax
+             */
+            $('.resto-ajaxified').each(function() {
+                $(this).click(function(e) {
+                    e.preventDefault();
+                    window.History.pushState({randomize: window.Math.random()}, null, $(this).attr('href'));
+                });
+            });
+
+            /*
+             * Click on postToMapshup element send request to mapshup
+             */
+            $('.resto-addLayer').click(function(e) {
+                e.preventDefault();
+                self.addLayer($(this).attr('data'));
+            });
+
         },
                 
         /**
@@ -470,9 +573,8 @@
              */
             $('.centerOnLayer', $tools).click(function(e) {
                 e.preventDefault();
-                var layer = window.M.Map.Util.getLayerByMID('__resto__');
-                if (layer && layer.features && layer.features.length > 0) {
-                    window.M.Map.zoomTo(layer.getDataExtent(), false);
+                if (self.layer && self.layer.features && self.layer.features.length > 0) {
+                    window.M.Map.zoomTo(self.layer.getDataExtent(), false);
                 }
                 else {
                     window.M.Map.setCenter(window.M.Map.Util.d2p(new OpenLayers.LonLat(0, 40)), 1, true);
@@ -492,23 +594,25 @@
              */
             $('.hideLayer', $tools).click(function(e) {
                 e.preventDefault();
-                var layer = window.M.Map.Util.getLayerByMID('__resto__');
-                if (layer) {
-                    if (layer.getVisibility()) {
-                        window.M.Map.Util.setVisibility(layer, false);
+                if (self.layer) {
+                    if (self.layer.getVisibility()) {
+                        window.M.Map.Util.setVisibility(self.layer, false);
                         $('.hideLayer', $tools)
                                 .attr('title', self.translate('_showLayer'))
                                 .addClass('black');
                     }
                     else {
-                        window.M.Map.Util.setVisibility(layer, true);
+                        window.M.Map.Util.setVisibility(self.layer, true);
                         $('.hideLayer', $tools)
                                 .attr('title', self.translate('_hideLayer'))
                                 .removeClass('black');
                     }
                 }
             });
-        }
+        },
 
+        updateResultEntries: function(json) {
+            alert('ERROR : missing mandatory theme.js updateResultEntries(json) function');
+        }
     };
 })(window);

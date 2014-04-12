@@ -40,87 +40,17 @@
     window.R = window.R || {};
 
     /**
-     * Update getCollection page
+     * Update result entries after a search
      * 
      * @param {array} json
      * @param {boolean} updateMapshup - true to update mapshup
      * 
      */
-    window.R.updatePage = function(json, updateMapshup) {
+    window.R.updateResultEntries = function(json, updateMapshup) {
 
-        var i, l, j, k, thumbnail, quicklook, feature, keyword, keywords, type, foundFilters, $content, $actions, key, value, title, addClass, platform, results, resolution, self = this;
+        var i, l, j, k, thumbnail, quicklook, feature, key, keyword, keywords, type, $content, $actions, value, title, addClass, platform, results, resolution, self = this;
 
         json = json || {};
-
-        /*
-         * Update mapshup view
-         */
-        if (window.M && updateMapshup) {
-
-            /*
-             * Layer already exist => reload content
-             */
-            var layer = window.M.Map.Util.getLayerByMID('__resto__');
-            if (layer) {
-
-                // Remove old features
-                layer.destroyFeatures();
-
-                // Load new features
-                window.M.Map.layerTypes['GeoJSON'].load({
-                    data: json,
-                    layerDescription: layer['_M'].layerDescription,
-                    layer: layer,
-                    zoomOnNew: true
-                });
-
-            }
-            else {
-                self.addLayer({
-                    type: 'GeoJSON',
-                    clusterized: false,
-                    data: json,
-                    zoomOnNew: true,
-                    MID: '__resto__',
-                    color: '#FFF1FB',
-                    featureInfo: {
-                        noMenu: true,
-                        onSelect: function(f) {
-                            //console.log(f);
-                        }
-                    }
-                });
-            }
-        }
-
-        /*
-         * Update search input form
-         */
-        $('#search').val(json.query ? json.query.original.searchTerms : '');
-
-        /*
-         * Update query analysis result
-         */
-        if (json.query && json.query.real) {
-            foundFilters = "";
-            for (key in json.query.real) {
-                if (json.query.real[key]) {
-                    if (key !== 'language') {
-                        foundFilters += '<b>' + key + '</b> ' + json.query.real[key] + '</br>';
-                    }
-                }
-            }
-
-            if (foundFilters) {
-                $('.resto-queryanalyze').html('<div class="resto-query">' + foundFilters + '</div>');
-            }
-            else {
-                $('.resto-queryanalyze').html('<div class="resto-query"><span class="resto-warning">' + self.translate('_notUnderstood') + '</span></div>');
-            }
-        }
-        else if (json.missing) {
-            $('.resto-queryanalyze').html('<div class="resto-query"><span class="resto-warning">Missing mandatory search filters - ' + json.missing.concat() + '</span></div>');
-        }
 
         /*
          * Update pagination
@@ -374,34 +304,6 @@
             }
 
         }
-
-        /*
-         * Constraint search to map extent
-         */
-        self.updateBBOX();
-
-        /*
-         * Set swipebox for quicklooks
-         */
-        $('a.resto-quicklook').swipebox();
-
-        /*
-         * Click on ajaxified element call href url through Ajax
-         */
-        $('.resto-ajaxified').each(function() {
-            $(this).click(function(e) {
-                e.preventDefault();
-                window.History.pushState({randomize: window.Math.random()}, null, $(this).attr('href'));
-            });
-        });
-
-        /*
-         * Click on postToMapshup element send request to mapshup
-         */
-        $('.resto-addLayer').click(function(e) {
-            e.preventDefault();
-            self.addLayer($(this).attr('data'));
-        });
         
     };
 
