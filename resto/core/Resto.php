@@ -211,7 +211,7 @@ class Resto {
             while ($collection = pg_fetch_assoc($results)) {
                 $this->collections[$collection['collection']] = array(
                     'controller' => $collection['controller'],
-                    'template' => $collection['template'],
+                    'theme' => $collection['theme'],
                     'creationDate' => $collection['creationdate'],
                     'status' => $collection['status'],
                     'os' => $this->getOpenSearchDescription($dbh, $collection['collection']),
@@ -566,10 +566,10 @@ class Resto {
     }
 
     /**
-     * Return template name
+     * Return theme name
      */
-    public function getTemplateName() {
-        return isset($this->config['general']['template']) ? $this->config['general']['template'] : 'default';
+    public function getThemeName() {
+        return isset($this->config['general']['theme']) ? $this->config['general']['theme'] : 'default';
     }
 
     /**
@@ -693,22 +693,22 @@ class Resto {
         /*
          * No collection set => renders home page
          */
-        $templatePath = realpath(dirname(__FILE__)) . '/../../themes/' . $this->responseDescription['template'] . '/templates/';
+        $templatesPath = realpath(dirname(__FILE__)) . '/../../themes/' . $this->responseDescription['template'] . '/templates/';
 
         if (!$this->request['collection']) {
-            $template = new Template($templatePath . 'home.php', $this);
+            $template = new Template($templatesPath . 'home.php', $this);
         }
         /*
          * Identifier set => renders resource page
          */
         else if ($this->request['identifier']) {
-            $template = new Template($templatePath . $this->request['method'] . 'Resource' . '.php', $this, $this->response, $this->responseDescription);
+            $template = new Template($templatesPath . $this->request['method'] . 'Resource' . '.php', $this, $this->response, $this->responseDescription);
         }
         /*
          * Renders collection
          */
         else {
-            $template = new Template($templatePath . $this->request['method'] . 'Collection' . '.php', $this, $this->response, $this->responseDescription);
+            $template = new Template($templatesPath . $this->request['method'] . 'Collection' . '.php', $this, $this->response, $this->responseDescription);
         }
 
         return $template->render();

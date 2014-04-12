@@ -31,7 +31,7 @@ CREATE TABLE admin.collections (
     collection          VARCHAR(50) PRIMARY KEY,
     creationdate        TIMESTAMP,
     controller          VARCHAR(50) DEFAULT 'DefaultController',
-    template            VARCHAR(50),
+    theme               VARCHAR(50),
     status              VARCHAR(10) DEFAULT 'public',
     dbname              VARCHAR(10) DEFAULT 'resto',
     hostname            VARCHAR(50) DEFAULT 'localhost',

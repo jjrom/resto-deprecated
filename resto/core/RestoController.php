@@ -179,7 +179,7 @@ abstract class RestoController {
      * 
      *  name =>                     ==  Collection name (same as request['collection']
      * 
-     *  template =>                 ==  Template ('default' if not set)
+     *  theme =>                    ==  Theme ('default' if not set)
      * 
      *  acceptedLangs =>            ==  Array of acceptedLangs (i.e. ['en', 'fr', ...])
      * 
@@ -271,7 +271,7 @@ abstract class RestoController {
          */
         $this->description = array(
             'name' => $this->request['collection'],
-            'template' => isset($collectionDescription['template']) ? $collectionDescription['template'] : $R->getTemplateName(),
+            'theme' => isset($collectionDescription['theme']) ? $collectionDescription['theme'] : $R->getThemeName(),
             'acceptedLangs' => $R->getAcceptedLangs(),
             'dictionary' => $R->getDictionary(),
             'os' => $collectionDescription['os'],

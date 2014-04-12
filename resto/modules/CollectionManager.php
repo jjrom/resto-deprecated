@@ -381,7 +381,7 @@ class CollectionManager {
          *  collection          VARCHAR(50) PRIMARY KEY,
          *  creationdate        TIMESTAMP,
          *  controller          VARCHAR(50) DEFAULT 'DefaultController',
-         *  template            VARCHAR(50),
+         *  theme               VARCHAR(50),
          *  status              VARCHAR(10) DEFAULT 'public',
          *  dbname              VARCHAR(10) DEFAULT 'resto',
          *  hostname            VARCHAR(50) DEFAULT 'localhost',
@@ -396,7 +396,7 @@ class CollectionManager {
             '\'' . pg_escape_string($this->request['name']) . '\'',
             'now()',
             '\'' . pg_escape_string($controller) . '\'',
-            '\'' . (isset($this->request['template']) ? pg_escape_string($this->request['template']) : 'default') . '\'',
+            '\'' . (isset($this->request['theme']) ? pg_escape_string($this->request['theme']) : 'default') . '\'',
             '\'' . (isset($this->request['status']) ? pg_escape_string($this->request['status']) : 'public') . '\'',
             '\'' . pg_escape_string($this->request['dbDescription']['dbname']) . '\'',
             '\'' . pg_escape_string($this->request['dbDescription']['host']) . '\'',
@@ -407,7 +407,7 @@ class CollectionManager {
         );
 
         pg_query($this->dbh, 'BEGIN');
-        pg_query($this->dbh, 'INSERT INTO admin.collections (collection, creationdate, controller, template, status, dbname, hostname, port, schemaname, tablename, configuration) VALUES(' . join(',', $collectionFields) . ')');
+        pg_query($this->dbh, 'INSERT INTO admin.collections (collection, creationdate, controller, theme, status, dbname, hostname, port, schemaname, tablename, configuration) VALUES(' . join(',', $collectionFields) . ')');
         $this->insertOpenSearchDescription();
         pg_query($this->dbh, 'COMMIT');
 
