@@ -290,7 +290,7 @@ class Dictionary {
      * Return true if $name value is present in
      * keywords array
      * 
-     * @param string $name
+     * @param string $value
      */
     final public function isKeywordsValue($value) {
         return in_array($value, $this->dictionary['keywords']);

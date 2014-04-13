@@ -136,7 +136,7 @@ class DatabaseConnector {
     /**
      * Return config parameters (except passwords and suser name)
      * 
-     * @param string $name
+     * @param string $param
      */
     public function get($param) {
         if ($param === 'suser' || $param === 'password' || $param === 'spassword') {

@@ -76,8 +76,8 @@ class Wikipedia {
      * within a given bbox order by relevance
      *
      * @param String $bbox bbox to constraint search
-     * @param String $countryName limit search to country name
-     * @param String $bbox limit search to bbox
+     * @param String $lang lang
+     * @param String $nbOfResults number of results
      *
      * @return array
      *
@@ -86,7 +86,6 @@ class Wikipedia {
     final public function getEntries($bbox = '-180,-90,180,90', $lang = 'en', $nbOfResults = 10) {
 
         $result = array();
-        $where = '';
 
         if (!$this->dbh) {
             return $result;
