@@ -83,8 +83,10 @@ class IniParser {
 
         $buf = get_defined_constants(true);
         $consts = array();
-        foreach ($buf['user'] as $key => $val) {
-            $consts['{' . $key . '}'] = $val;
+        if (isset($buf['user'])) {
+            foreach ($buf['user'] as $key => $val) {
+                $consts['{' . $key . '}'] = $val;
+            }
         }
         array_walk_recursive($ini, array('IniParser', 'replace_consts'), $consts);
         return $ini;

@@ -52,9 +52,8 @@
 class RightsManager {
 
     private $dbh;
-    private $entries;
-    private $collection;
     private $Controller;
+    private $request;
 
     /**
      * Constructor
@@ -69,8 +68,7 @@ class RightsManager {
          */
         $config = $Controller->getParent()->getModuleConfig('RightsManager');
         $this->Controller = $Controller;
-        $r = $Controller->getParent()->getRequest();
-        $this->collection = $r['collection'];
+        $this->request = $Controller->getParent()->getRequest();
 
         /*
          * If secure option is set, only HTTPS requests are processed
@@ -118,7 +116,7 @@ class RightsManager {
             $entry = $arr[$j];
             if ($entry['groupid'] && $entry['rights']) {
                 $values= array(
-                    '\'' . pg_escape_string($this->collection) . '\'',
+                    '\'' . pg_escape_string($this->request['collection']) . '\'',
                     '\'' . pg_escape_string($entry['groupid']) . '\'',
                     '\'' . pg_escape_string(json_encode($entry['rights'])) . '\''
                 );
@@ -130,8 +128,8 @@ class RightsManager {
                     /*
                      * Delete existing entry
                      */
-                    if ($this->entryExists($this->collection, $entry['groupid'])) {
-                        pg_query($this->dbh, 'DELETE FROM admin.rights WHERE collection=\'' . pg_escape_string($this->collection) . '\' AND groupid=\'' . pg_escape_string($entry['groupid']) . '\'');
+                    if ($this->entryExists($this->request['collection'], $entry['groupid'])) {
+                        pg_query($this->dbh, 'DELETE FROM admin.rights WHERE collection=\'' . pg_escape_string($this->request['collection']) . '\' AND groupid=\'' . pg_escape_string($entry['groupid']) . '\'');
                     }
                     $query = pg_query($this->dbh, 'INSERT INTO admin.rights (collection, groupid, rights) VALUES(' . join(',', $values) . ')');
                     if (!$query) {
@@ -145,7 +143,7 @@ class RightsManager {
 
         }
 
-        return array('Status' => 'success', 'Message' => $count . ' rights updated for collection ' . $this->collection);
+        return array('Status' => 'success', 'Message' => $count . ' rights updated for collection ' . $this->request['collection']);
 
     }
 
@@ -161,22 +159,22 @@ class RightsManager {
         /*
          * Collection must be defined
          */
-        if (!$this->collection) {
+        if (!$this->request['collection']) {
             throw new Exception('Method Not Allowed', 405);
         }
 
         /*
          * groupid must be defined
          */
-        if (!$this->groupid) {
-            throw new Exception('TODO: groupid', 405);
+        if (!$this->request['params']['groupid']) {
+            throw new Exception('Forbidden', 403);
         }
 
         /*
          * Delete entry
          */
         try {
-            $query = pg_query($this->dbh, 'DELETE FROM admin.rights WHERE collection=\'' . pg_escape_string($this->collection) . '\' AND groupid=\'' . pg_escape_string($groupid) . '\'');
+            $query = pg_query($this->dbh, 'DELETE FROM admin.rights WHERE collection=\'' . pg_escape_string($this->request['collection']) . '\' AND groupid=\'' . pg_escape_string($this->request['params']['groupid']) . '\'');
             if (!$query) {
                 throw new Exception();
             }
@@ -184,7 +182,7 @@ class RightsManager {
             throw new Exception('Error : cannot update rights', 500);
         }
 
-        return array('Status' => 'success', 'Message' => 'Rights deleted for collection "' . $this->request['name'] . '" and group "' . $this->request['groupid'] . '"');
+        return array('Status' => 'success', 'Message' => 'Rights deleted for collection "' . $this->request['collection'] . '" and group "' . $this->request['params']['groupid'] . '"');
 
     }
 

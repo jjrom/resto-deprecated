@@ -769,7 +769,7 @@ function toAtom($response, $dictionary, $version = '1.0', $encoding = 'UTF-8') {
  * Return radius length in degrees for a radius in meters
  * at a given latitude
  * 
- * @param float $r
+ * @param float $radius
  * @param float $lat
  */
 function radiusInDegrees($radius, $lat) {
@@ -1069,4 +1069,16 @@ function UUIDv5($namespace, $name) {
  */
 function isValidUUID($uuid) {
     return preg_match('/^\{?[0-9a-f]{8}\-?[0-9a-f]{4}\-?[0-9a-f]{4}\-?[0-9a-f]{4}\-?[0-9a-f]{12}\}?$/i', $uuid) === 1;
+}
+
+/**
+ * Return true if $identifier is not null and not start with $
+ * 
+ * @param String $identifier identifier as in URI /collection/identifier/modifier
+ */
+function isValidIdentifier($identifier) {
+    if (!$identifier || substr($identifier, 0, 1) === '$') {
+        return false;
+    }
+    return true;
 }

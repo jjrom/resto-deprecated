@@ -72,24 +72,24 @@
  *
  * One URI = one action as follow
  * 
- * |        Action                                | HTTP method | Relative URI
- * |______________________________________________|_____________|______________________________
- * | Create a new collection                      |     POST    |   /
- * | List all collections                         |     GET     |   /
- * | Analyze search query (standalone service)    |     GET     |   /$analyzeQuery?q=....
- * | List all resources within collection         |     GET     |   /collection
- * | Describe collection (OpenSearch.xml)         |     GET     |   /collection/$describe
- * | Delete a collection                          |     DELETE  |   /collection
- * | Update a collection                          |     PUT     |   /collection
- * | Get resource within the collection           |     GET     |   /collection/identifier
- * | Insert a new resource within the collection  |     POST    |   /collection
- * | Add/update for this collection               |     POST    |   /collection/$rights
- * | Update a resource from the collection        |     PUT     |   /collection/identifier
- * | Delete a resource from the collection        |     DELETE  |   /collection/identifier
- * | Download product linked to resource          |     GET     |   /collection/identifier/$download
- * | Add tags to a collection                     |     POST    |   /collection/$tags
- * | List all tags from a resource                |     GET     |   /collection/identifier/$tags
- * | Add tags to resource                         |     POST    |   /collection/identifier/$tags
+ *      |        Action                                | HTTP method | Relative URI
+ *      |______________________________________________|_____________|______________________________
+ *      | Create a new collection                      |     POST    |   /
+ *      | List all collections                         |     GET     |   /
+ *      | Analyze search query (standalone service)    |     GET     |   /$analyzeQuery?q=....
+ *      | List all resources within collection         |     GET     |   /collection
+ *      | Describe collection (OpenSearch.xml)         |     GET     |   /collection/$describe
+ *      | Delete a collection                          |     DELETE  |   /collection
+ *      | Update a collection                          |     PUT     |   /collection
+ *      | Get resource within the collection           |     GET     |   /collection/identifier
+ *      | Insert a new resource within the collection  |     POST    |   /collection
+ *      | Add/update for this collection               |     POST    |   /collection/$rights
+ *      | Update a resource from the collection        |     PUT     |   /collection/identifier
+ *      | Delete a resource from the collection        |     DELETE  |   /collection/identifier
+ *      | Download product linked to resource          |     GET     |   /collection/identifier/$download
+ *      | Add tags to a collection                     |     POST    |   /collection/$tags
+ *      | List all tags from a resource                |     GET     |   /collection/identifier/$tags
+ *      | Add tags to resource                         |     POST    |   /collection/identifier/$tags
  * 
  * Note 1 : HTTP methods on relative URI that are not listed in the table returns an HTTP error 405
  * (i.e. 'Method Not Allowed')
@@ -106,10 +106,10 @@
  * Special query parameters can be used to modify the query. These parameters are not specified
  * within the OpenSearch description file (see list below)
  *
- * | Query parameter    |      Type      | Description
- * |______________________________________________________________________________________________
- * | _pretty            |     boolean    | (For JSON output only) true to return pretty print JSON
- * | _showQuery         |     boolean    | (For HTML output only) true to display query analysis result
+ *      | Query parameter    |      Type      | Description
+ *      |______________________________________________________________________________________________
+ *      | _pretty            |     boolean    | (For JSON output only) true to return pretty print JSON
+ *      | _showQuery         |     boolean    | (For HTML output only) true to display query analysis result
  * 
  */
 class Resto {
@@ -245,13 +245,13 @@ class Resto {
         if ($RESToURL) {
             $RESToURL = substr($RESToURL, -1) === '/' ? substr($RESToURL, 0, strlen($RESToURL) - 1) : $RESToURL;
             $splitted = explode('/', $RESToURL);
-            if ($splitted[0]) {
+            if (isset($splitted[0])) {
                 $this->request['collection'] = $splitted[0];
             }
-            if ($splitted[1]) {
+            if (isset($splitted[1])) {
                 $this->request['identifier'] = urldecode($splitted[1]);
             }
-            if ($splitted[2]) {
+            if (isset($splitted[2])) {
                 $this->request['modifier'] = urldecode($splitted[2]);
             }
         }
@@ -421,8 +421,8 @@ class Resto {
                         throw new Exception('Forbidden', 403);
                     }
                 }
-                else if ($this->request['method'] === 'delete' && !$this->request['identifier']) {
-                    if (class_exists('CollectionManager')) {
+                else if ($this->request['method'] === 'delete' && $this->request['identifier'] !== '$rights') {
+                    if (!$this->request['identifier'] && class_exists('CollectionManager')) {
                         $collectionManager = new CollectionManager($this);
                         $this->response = $collectionManager->delete();
                     }
@@ -643,8 +643,9 @@ class Resto {
 
                 // set default to 1 for any without q factor
                 foreach ($langs as $lang => $val) {
-                    if ($val === '')
+                    if ($val === '') {
                         $langs[$lang] = 1;
+                    }
                 }
 
                 // sort list based on value	
@@ -736,7 +737,7 @@ class Resto {
      * Retrieve OpenSearch description for collection $name
      * 
      * @param object $dbh
-     * @param name $collection
+     * @param object $name
      */
     private function getOpenSearchDescription($dbh, $name) {
 

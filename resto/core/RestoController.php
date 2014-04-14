@@ -544,14 +544,27 @@ abstract class RestoController {
     public function defaultDelete() {
         
         /*
+         * DELETE rights for groupid on collection
+         */
+        if ($this->request['identifier'] === '$rights') {
+            if (class_exists('RightsManager')) {
+                $rightsManager = new RightsManager($this);
+                $this->response = $rightsManager->delete();
+            }
+            else {
+                throw new Exception('Forbidden', 403);
+            }
+        }
+        /*
          * Identifier should be set
          */
-        if (!$this->request['identifier']) {
+        else if (!$this->request['identifier']) {
             throw new Exception('Forbidden', 403);
         }
-        
-        $this->response = array('DELETE' => 'Forbidden');
-        $this->responseStatus = 403;
+        else {
+            $this->response = array('DELETE' => 'Forbidden');
+            $this->responseStatus = 403;
+        }
     }
     
     /**
