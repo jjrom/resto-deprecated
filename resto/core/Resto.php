@@ -396,7 +396,7 @@ class Resto {
                 /*
                  * Collection does not exist
                  */
-                if (!$this->collections[$this->request['collection']]) {
+                if (!isset($this->collections[$this->request['collection']])) {
                     throw new Exception('Not Found', 404);
                 }
                 

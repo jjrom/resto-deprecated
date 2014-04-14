@@ -605,10 +605,16 @@ function toAtom($response, $dictionary, $version = '1.0', $encoding = 'UTF-8') {
     /*
      * Total results, startIndex and itemsPerpage
      */
-    $xml->writeElement('os:totalResults', $response['totalResults']);
-    $xml->writeElement('os:startIndex', $response['startIndex']);
-    $xml->writeElement('os:itemsPerPage', $response['lastIndex'] - $response['startIndex'] + 1);
-
+    if (isset($response['totalResults'])) {
+        $xml->writeElement('os:totalResults', $response['totalResults']);
+    }
+    if (isset($response['startIndex'])) {
+        $xml->writeElement('os:startIndex', $response['startIndex']);
+    }
+    if (isset($response['startIndex']) && isset($response['lastIndex'])) {
+        $xml->writeElement('os:itemsPerPage', $response['lastIndex'] - $response['startIndex'] + 1);
+    }
+    
     /*
      * Query is made from request parameters
      */
