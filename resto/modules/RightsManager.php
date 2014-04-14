@@ -92,7 +92,7 @@ class RightsManager {
         /*
          * Get DatabaseConnector instance
          */
-        $this->dbh = $this->Controller->getDbConnector()->getConnection(true);
+        $this->dbh = $this->Controller->getParent()->getDatabaseConnectorInstance()->getConnection(true);
 
     }
 

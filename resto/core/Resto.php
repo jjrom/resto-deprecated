@@ -140,6 +140,11 @@ class Resto {
     private $response;
 
     /*
+     * Reference to RestoAuth instance for rights management
+     */
+    private $user;
+    
+    /*
      * If set to true, each query include returns a real count
      * of the total number of resources relative to the query
      * using PostgreSQL count(*) over()
@@ -150,7 +155,6 @@ class Resto {
      * Default response format is HTML for nominal GET requests
      * and JSON for other requests (including GET request in error)
      */
-
     const DEFAULT_RESPONSE_FORMAT = 'json';
     const DEFAULT_GET_RESPONSE_FORMAT = 'html';
     
@@ -322,11 +326,32 @@ class Resto {
         }
         array_walk_recursive($this->request, 'trim_value');
         
-        /**
+        /*
          * Set TimeZone
          */
         date_default_timezone_set(isset($this->config['general']['timezone']) ? $this->config['general']['timezone'] : 'Europe/Paris');
-
+        
+        /*
+         * Initialize rights object 
+         */
+        $this->user = new RestoUser($this, null);
+        
+        /*
+        try {
+            $authenticator = new ReflectionClass('LocalAuth');
+            if (!$authenticator->isInstantiable()) {
+                throw new Exception('Invalid authenticator', 500);
+            }
+            $this->restoAuth = $authenticator->newInstance($this); 
+        }
+        catch (Exception $e) {
+            $this->request['format'] = self::DEFAULT_RESPONSE_FORMAT;
+            $this->response = array('ErrorCode' => $e->getCode(), 'ErrorMessage' => $e->getMessage());
+            $this->responseStatus = $e->getCode();
+            $this->response()->send();
+            exit();
+        }*/
+        
         /*
          * Store output for performance
          */
@@ -612,6 +637,13 @@ class Resto {
         return false;
     }
 
+    /**
+     * Get User information 
+     */
+    public function getUser() {
+        return $this->user;
+    }
+    
     /**
      * Get url with no parameters
      * 

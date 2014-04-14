@@ -62,5 +62,13 @@ function autoload($className) {
 }
 spl_autoload_register('autoload');
 
+/*
+ * Start a session for user management
+ */
+session_start();
+
+/*
+ * Create RESTo instance
+ */
 $resto = new Resto();
 $resto->process();

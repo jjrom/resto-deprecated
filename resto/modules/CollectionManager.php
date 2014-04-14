@@ -418,7 +418,61 @@ class CollectionManager {
             pg_query($this->dbh, 'ROLLBACK');
             throw new Exception('Cannot insert collection ' . $this->request['name'] . ' in resto collections table', 500);
         }
+        
+        /*
+         * Insert rights for collection
+         * 
+         * Default rights are :
+         *   - 'search' service is enabled without restriction
+         *   - 'visualize' service is disabled
+         *   - 'download' service is disabled
+         *   - PUT, POST and DELETE services are disabled
+         */
+        $rights = array(
+            'get' => array(
+                'search' => array(
+                    'enabled' => true
+                ),
+                'visualize' => array(
+                    'enabled' => false
+                ),
+                'download' => array(
+                    'enabled' => false
+                )
+            ),
+            'post' => array(
+                'enabled' => false
+            ),
+            'put' => array(
+                'enabled' => false
+            ),
+            'delete' => array(
+                'enabled' => false
+            )
+        );
+        
+        if (isset($this->request['rights'])) {
+            $rights = $this->request['rights'];
+        }
+        $values= array(
+            '\'' . pg_escape_string($this->request['name']) . '\'',
+            '\'' . pg_escape_string('default') . '\'',
+            '\'' . pg_escape_string(json_encode($rights)) . '\''
+        );
 
+        /*
+         * Update database
+         */
+        try {
+            pg_query($this->dbh, 'DELETE FROM admin.rights WHERE collection=\'' . pg_escape_string($this->request['name']) . '\' AND groupid=\'default\'');
+            $query = pg_query($this->dbh, 'INSERT INTO admin.rights (collection, groupid, rights) VALUES(' . join(',', $values) . ')');
+            if (!$query) {
+                throw new Exception();
+            }
+        } catch (Exception $e) {
+            throw new Exception('Error : cannot update rights', 500);
+        }
+        
         return array('Status' => 'success', 'Message' => 'Collection ' . $this->request['name'] . ' created');
     }
 

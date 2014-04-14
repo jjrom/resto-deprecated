@@ -713,9 +713,10 @@ abstract class RestoController {
      * 
      * @param {Array} $requestParams (with model keys)
      * @param {String} $filterName
+     * @param {boolean} $exclusion - if true, exclude instead of include filter (WARNING ! only works for geometry and keywords)
      * 
      */
-    final protected function prepareFilterQuery($requestParams, $filterName) {
+    final protected function prepareFilterQuery($requestParams, $filterName, $exclusion = false) {
 
         if (!$filterName) {
             return null;
@@ -953,7 +954,7 @@ abstract class RestoController {
                      * If term as a '-' prefix then performs a "NOT hstore"
                      * If keyword contain a + then transform it into a ' '
                      */
-                    $s = $splitted[$i];
+                    $s = ($exclusion ? '-' : '') . $splitted[$i];
                     $not = '';
                     if (substr($s, 0, 1) === '-') {
                         $not = ' NOT ';
@@ -1085,7 +1086,44 @@ abstract class RestoController {
                 array_push($filters, $this->prepareFilterQuery($this->request['realParams'], $this->description['searchFiltersList'][$i]));
             }
         }
-
+        
+        /**
+         * Add filters depending on user rights
+         */
+        $rights = $this->R->getUser()->getRights($this->description['name'], 'get', 'search');
+        foreach(array('include', 'exclude') as $modifier) {
+            if (isset($rights[$modifier])) {
+                foreach ($rights[$modifier] as $key => $value) {
+                    $modelKey = $this->modelNameFromRestoKey($key);
+                    $arr = null;
+                    if ($key === 'keywords') {
+                        $arr = array(
+                            $modelKey => join(' ', $value)
+                        );
+                    }
+                    /*
+                     * TODO for geometry !
+                     */
+                    else if ($key === 'geometry') {
+                        
+                    }
+                    else {
+                        /*
+                         * Currently only exclusion of 'keywords' is supported
+                         */
+                        if ($rights['modifier'] === 'include') {
+                            $arr = array(
+                                $modelKey => $value
+                            );
+                        }
+                    }
+                    if (isset($arr)) {
+                        array_push($filters, $this->prepareFilterQuery($arr, $modelKey, $modifier === 'exclude' ? true : false));
+                    }        
+                }
+            }
+        }
+        
         /**
          * Default order is acquisition startDate
          */
@@ -1220,7 +1258,15 @@ abstract class RestoController {
      * @param {array} $fields - list of fields to retrieve
      */
     final protected function getCollection($fields) {
-
+        
+        /*
+         * Check authorization
+         */
+        $rights = $this->R->getUser()->getRights($this->description['name'], 'get', 'search');
+        if (!$rights['enabled']) {
+            return $this->error('Forbidden', 403);
+        }
+        
         /*
          * Number of returned results
          */
@@ -1643,7 +1689,15 @@ abstract class RestoController {
      * @param {string} $identifier - identifier of product to download
      */
     protected function getResource($identifier) {
-
+        
+        /*
+         * Check authorization
+         */
+        $rights = $this->R->getUser()->getRights($this->description['name'], 'get', 'download');
+        if (!$rights['enabled']) {
+            return $this->error('Forbidden', 403);
+        }
+        
         $product = null;
 
         /*
@@ -1752,6 +1806,22 @@ abstract class RestoController {
         return null;
     }
 
+    /**
+     * Return the model parameter name equivalent to $inputName 
+     *
+     * @param string $inputName
+     */
+    final private function modelNameFromRestoKey($inputName) {
+
+        foreach ($this->description['searchFiltersDescription'] as $searchFiltersDescriptionName => $properties) {
+            if ($properties['key'] === $inputName) {
+                return $searchFiltersDescriptionName;
+            }
+        }
+
+        return null;
+    }
+    
     /**
      * Return the output parameter name equivalent to $searchFiltersDescriptionName 
      *
