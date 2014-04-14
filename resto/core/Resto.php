@@ -177,7 +177,9 @@ class Resto {
              * (http://stackoverflow.com/questions/3663520/php-auth-user-not-set)
              */
             if (isset($_SERVER['HTTP_AUTHORIZATION']) || isset($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
-                list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = explode(':', base64_decode(substr(isset($_SERVER['HTTP_AUTHORIZATION']) ? $_SERVER['HTTP_AUTHORIZATION'] : $_SERVER['REDIRECT_HTTP_AUTHORIZATION'], 6)));
+                $tmp = explode(':', base64_decode(substr(isset($_SERVER['HTTP_AUTHORIZATION']) ? $_SERVER['HTTP_AUTHORIZATION'] : $_SERVER['REDIRECT_HTTP_AUTHORIZATION'], 6)));
+                $_SERVER['PHP_AUTH_USER'] = isset($tmp[0]) ? $tmp[0] : null;
+                $_SERVER['PHP_AUTH_PW'] = isset($tmp[1]) ? $tmp[1] : null;
             }
 
             /*
@@ -319,7 +321,17 @@ class Resto {
 
         }
         array_walk_recursive($this->request, 'trim_value');
+        
+        /**
+         * Set TimeZone
+         */
+        date_default_timezone_set(isset($this->config['general']['timezone']) ? $this->config['general']['timezone'] : 'Europe/Paris');
 
+        /*
+         * Store output for performance
+         */
+        ob_start();
+        
         return $this;
     }
 
@@ -342,7 +354,7 @@ class Resto {
              * Collections with a name starting with '$' character are not collection
              * but reserved actions 
              */
-            if ($this->request['collection'] && substr($this->request['collection'], 0 , 1) === '$') {
+            if (isset($this->request['collection']) && substr($this->request['collection'], 0 , 1) === '$') {
                 
                 /*
                  * Action always returns JSON
@@ -379,7 +391,7 @@ class Resto {
             /*
              * Collection is requested
              */
-            else if ($this->request['collection']) {
+            else if (isset($this->request['collection'])) {
                 
                 /*
                  * Collection does not exist
@@ -495,7 +507,7 @@ class Resto {
         /*
          * Special case for stream !
          */
-        if ($controllerInstance && $this->responseDescription['forceStream']) {
+        if (isset($controllerInstance) && isset($this->responseDescription['forceStream']) && $this->responseDescription['forceStream']) {
             return;
         }
 
@@ -676,7 +688,7 @@ class Resto {
      * Converts response array to json.
      */
     private function jsonResponse() {
-        return json_format($this->response, $this->request['_pretty']);
+        return json_format($this->response, isset($this->request['_pretty']) ? $this->request['_pretty'] : false);
     }
 
     /**
@@ -688,7 +700,7 @@ class Resto {
         /*
          * In case of error, return json
          */
-        if (is_array($this->response) && $this->response['ErrorCode'] === 500) {
+        if (is_array($this->response) && isset($this->response['ErrorCode']) && $this->response['ErrorCode'] === 500) {
             $this->request['content-type'] = self::DEFAULT_RESPONSE_FORMAT;
             return $this->jsonResponse();
         }
@@ -696,15 +708,15 @@ class Resto {
         /*
          * No collection set => renders home page
          */
-        $templatesPath = realpath(dirname(__FILE__)) . '/../../themes/' . $this->responseDescription['theme'] . '/templates/';
+        $templatesPath = realpath(dirname(__FILE__)) . '/../../themes/' . (isset($this->responseDescription['theme']) ? $this->responseDescription['theme'] : $this->getThemeName()) . '/templates/';
 
-        if (!$this->request['collection']) {
-            $template = new Template($templatesPath . 'home.php', $this);
+        if (!isset($this->request['collection']) || !$this->request['collection']) {
+            $template = new Template($templatesPath . 'home.php', $this, null, null);
         }
         /*
          * Identifier set => renders resource page
          */
-        else if ($this->request['identifier']) {
+        else if (isset($this->request['identifier'])) {
             $template = new Template($templatesPath . $this->request['method'] . 'Resource' . '.php', $this, $this->response, $this->responseDescription);
         }
         /*
@@ -786,11 +798,6 @@ class Resto {
      */
 
     private function send() {
-
-        /*
-         * Store output for performance
-         */
-        ob_start();
 
         /*
          * Set headers from $this->request['content-type'] and $this->response['status']

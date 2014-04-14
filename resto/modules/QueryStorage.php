@@ -58,7 +58,7 @@ class QueryStorage {
         $config = $R->getModuleConfig('QueryStorage');
         if ($config && $config['activate']) {
             $dbConnector = $R->getDatabaseConnectorInstance();
-            if (is_array($config['db'])) {
+            if (isset($config['db']) && is_array($config['db'])) {
                 $dbConnector->update($config['db']);
             }
             $this->dbh = $dbConnector->getConnection(true);

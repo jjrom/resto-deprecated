@@ -272,7 +272,7 @@ class QueryAnalyzer {
         /*
          * queryAnalyzer only apply on searchTerms filter
          */
-        if (!$params['searchTerms']) {
+        if (!isset($params['searchTerms']) || !$params['searchTerms']) {
             $params['searchTerms'] = "";
             return array('query' => '', 'analyze' => $params, 'queryAnalyzeProcessingTime' => microtime(true) - $startTime);
         }
@@ -280,7 +280,7 @@ class QueryAnalyzer {
         /*
          * Set analyze language
          */
-        if (!$params['language']) {
+        if (!isset($params['language']) || !$params['language']) {
             $params['language'] = $this->dictionary->language;
         }
         
@@ -713,13 +713,13 @@ class QueryAnalyzer {
              * Check in Gazetteer except if a toponym was already found !
              */
             if ($this->gazetteer && !$countryFoundInGazetteer) {
-                $locations = $this->gazetteer->locate($searchTerms[$i], $this->dictionary->language, $countryName, $params['geo:box']);
+                $locations = $this->gazetteer->locate($searchTerms[$i], $this->dictionary->language, $countryName, isset($params['geo:box']) ? $params['geo:box'] : null);
                 if (count($locations) > 0) {
                     $countryFoundInGazetteer = $locations[0]['country'];
                     $params['geo:name'] = $locations[0]['name'] . ', ' . $countryFoundInGazetteer;
                     $params['geo:lon'] = $locations[0]['longitude'];
                     $params['geo:lat'] = $locations[0]['latitude'];
-                    if (!$params['geo:radius']) {
+                    if (!isset($params['geo:radius']) || !$params['geo:radius']) {
                         $params['geo:radius'] = 10000;
                     }
                 }

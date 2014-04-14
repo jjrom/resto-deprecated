@@ -1258,10 +1258,11 @@ abstract class RestoController {
             /*
              * Create Empty GeoJSON
              */
+            ksort($prepared['missing']);
             $this->response = array(
                 'type' => 'FeatureCollection',
                 'totalResults' => 0,
-                'id' => UUIDv5(Resto::UUID, $this->request['collection'] . ':' . implode(ksort($prepared['missing']))),
+                'id' => UUIDv5(Resto::UUID, $this->request['collection'] . ':' . implode($prepared['missing'])),
                 'missing' => $prepared['missing'],
                 'links' => array(),
                 'features' => array()
@@ -1397,10 +1398,11 @@ abstract class RestoController {
         /*
          * Create GeoJSON
          */
+        ksort($query);
         $this->response = array(
             'type' => 'FeatureCollection',
             'title' => $query['searchTerms'],
-            'id' => UUIDv5(Resto::UUID, $this->request['collection'] . ':' . implode(ksort($query))),
+            'id' => UUIDv5(Resto::UUID, $this->request['collection'] . ':' . implode($query)),
             'totalResults' => $total,
             'startIndex' => $startIndex,
             'lastIndex' => $lastIndex,
@@ -1830,27 +1832,30 @@ abstract class RestoController {
          *                  &WIDTH=256
          *                  &HEIGHT=256
          */
-        $wms = $this->getModelValue('wms', array($product['wms'], str_replace(' ', ',', substr(substr($product['bbox3857'], 0, strlen($product['bbox3857']) - 1), 4))));
-        if ($wms) {
-            $properties['services']['browse'] = array(
-                'title' => 'Display full resolution product on map',
-                'layer' => array(
-                    'type' => 'WMS',
-                    'url' => $wms,
-                    // mapshup needs layers to be set -> to be changed in mapshup
-                    'layers' => ''
-                )
-            );
-        }
+        if (isset($product['wms'])) {
+            $wms = $this->getModelValue('wms', array($product['wms'], str_replace(' ', ',', substr(substr($product['bbox3857'], 0, strlen($product['bbox3857']) - 1), 4))));
+            if ($wms) {
+                $properties['services']['browse'] = array(
+                    'title' => 'Display full resolution product on map',
+                    'layer' => array(
+                        'type' => 'WMS',
+                        'url' => $wms,
+                        // mapshup needs layers to be set -> to be changed in mapshup
+                        'layers' => ''
+                    )
+                );
+            }
 
+        }
+        
         /*
          * Download url
          */
         $archive = $this->getModelValue('archive', $product['archive']);
-        if ($archive) {
+        if (isset($archive)) {
             $properties['services']['download'] = array(
                 'url' => $archive,
-                'mimeType' => $this->getModelValue('mimetype', $product['mimetype'])
+                'mimeType' => $this->getModelValue('mimetype', isset($product['mimetype']) ? $product['mimetype'] : null)
             );
         }
 
@@ -1907,7 +1912,7 @@ abstract class RestoController {
          * Add keywords from model
          */
         foreach (array_keys($this->description['searchFiltersDescription']) as $key) {
-            if ($this->description['searchFiltersDescription'][$key]['keyword'] && $product[$this->description['searchFiltersDescription'][$key]['key']]) {
+            if (isset($this->description['searchFiltersDescription'][$key]['keyword']) && isset($product[$this->description['searchFiltersDescription'][$key]['key']])) {
                 $v = replace($this->description['searchFiltersDescription'][$key]['keyword']['value'], array($product[$this->description['searchFiltersDescription'][$key]['key']]));
                 $keywords[$v] = array(
                     'type' => $this->description['searchFiltersDescription'][$key]['keyword']['type'],

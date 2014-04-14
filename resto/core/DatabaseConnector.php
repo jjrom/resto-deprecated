@@ -143,7 +143,7 @@ class DatabaseConnector {
             return null;
         }
         else {
-            return $this->config[$param];
+            return isset($this->config[$param]) ? $this->config[$param] : null;
         }
     }
     

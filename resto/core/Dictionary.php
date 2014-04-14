@@ -188,7 +188,7 @@ class Dictionary {
         if (!is_array($this->dictionary[$property])) {
             return null;
         }
-        return $this->dictionary[$property][$name];
+        return isset($this->dictionary[$property][$name]) ? $this->dictionary[$property][$name] : null;
     }
     
     /**
@@ -270,7 +270,7 @@ class Dictionary {
          * keywords entry is an array of array
          */
         foreach(array_keys($this->dictionary['keywords']) as $type) {
-            if ($this->dictionary['keywords'][$type][$name]) {
+            if (isset($this->dictionary['keywords'][$type][$name])) {
                 return array('keyword' => $this->dictionary['keywords'][$type][$name], 'type' => $type); 
             }
         }
@@ -328,7 +328,7 @@ class Dictionary {
      *                               if $name is not found in the dictionary
      * @param string any number of optional arguments
      */
-    final public function translate($sentence, $capitalize) {
+    final public function translate($sentence, $capitalize = false) {
         
         if (!isset($this->dictionary['translation'])) {
             return $capitalize ? ucwords($sentence) : $sentence;
@@ -337,16 +337,17 @@ class Dictionary {
         /*
          * Replace additional arguments
          */
-        if (false !== strpos($this->dictionary['translation'][$sentence], '{a:')) {
-            $replace = array();
-            $args = func_get_args();
-            for ($i = 1, $max = count($args); $i < $max; $i++) {
-                $replace['{a:' . $i . '}'] = $args[$i];
-            }
+        if (isset($this->dictionary['translation'][$sentence])) {
+            if (false !== strpos($this->dictionary['translation'][$sentence], '{a:')) {
+                $replace = array();
+                $args = func_get_args();
+                for ($i = 1, $max = count($args); $i < $max; $i++) {
+                    $replace['{a:' . $i . '}'] = $args[$i];
+                }
 
-            return strtr($this->dictionary['translation'][$sentence], $replace);
+                return strtr($this->dictionary['translation'][$sentence], $replace);
+            }
         }
-        
         return isset($this->dictionary['translation'][$sentence]) ? $this->dictionary['translation'][$sentence] : ($capitalize ? ucwords($sentence) : $sentence);
     }
 

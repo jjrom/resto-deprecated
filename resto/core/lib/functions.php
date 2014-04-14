@@ -60,9 +60,11 @@ function updateUrl($url, $mod) {
     }
 
     // modify/delete data
-    foreach($query as $q){
-        list($key, $value) = explode("=", $q);
-        if(array_key_exists($key, $mod)) {
+    foreach($query as $q) {
+        $tmp = explode("=", $q);
+        $key = isset($tmp[0]) ? $tmp[0] : null;
+        $value = isset($tmp[1]) ? $tmp[1] : null;
+        if (array_key_exists($key, $mod)) {
             if($mod[$key]) {
                 $url = preg_replace('/' . urlencode($key) . '=' . urlencode($value) . '/', urlencode($key) . '=' . urlencode($mod[$key]), $url);
             }
@@ -350,7 +352,7 @@ function asciify2($text, $charset = 'UTF-8') {
  */
 function getModelName($model, $key) {
 
-    if (!key || !$model[$key]) {
+    if (!$key || !$model[$key]) {
         return null;
     }
 
@@ -377,7 +379,7 @@ function getModelName($model, $key) {
  */
 function getModelValue($model, $key, $value) {
 
-    if (!key || !$model[$key]) {
+    if (!$key || !$model[$key]) {
         return !is_array($value) ? $value : null;
     }
 
@@ -447,7 +449,7 @@ function getModelType($model, $key) {
         'keywords' => 'hstore DEFAULT \'\''
     );
 
-    if (!key || !$model[$key]) {
+    if (!$key || !$model[$key]) {
         return null;
     }
 
@@ -644,7 +646,7 @@ function toAtom($response, $dictionary, $version = '1.0', $encoding = 'UTF-8') {
          * Element 'title'
          *  read from $product['properties']['title']
          */
-        $xml->writeElement('title', $product['properties']['title']);
+        $xml->writeElement('title', isset($product['properties']['title']) ? $product['properties']['title'] : '');
 
         /*
          * Element 'published' - date of metadata first publication
@@ -735,7 +737,7 @@ function toAtom($response, $dictionary, $version = '1.0', $encoding = 'UTF-8') {
          * Element 'summary' - HTML description
          *  construct from $product['properties'][*]
          */
-        $content = '<p>' . $product['properties']['platform'] . ($product['properties']['platform'] && $product['properties']['instrument'] ? '/' : '') . $product['properties']['instrument'] . ' ' . $dictionary->translate('_acquiredOn', $product['properties']['startDate']) . '</p>';
+        $content = '<p>' . (isset($product['properties']['platform']) ? $product['properties']['platform'] : '') . (isset($product['properties']['platform']) && isset($product['properties']['instrument']) ? '/' . $product['properties']['instrument'] : '') . ' ' . $dictionary->translate('_acquiredOn', $product['properties']['startDate']) . '</p>';
         if ($product['properties']['keywords']) {
             $keywords = array();
             foreach ($product['properties']['keywords'] as $keyword => $value) {
