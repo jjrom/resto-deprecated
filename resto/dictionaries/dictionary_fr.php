@@ -359,6 +359,7 @@ return array(
             'uk' => 'united kingdom',
             'etats unis' => 'united states',
             'usa' => 'united states',
+            'us' => 'united states',
             'uruguay' => 'uruguay',
             'ouzbekistan' => 'uzbekistan',
             'vanuatu' => 'vanuatu',
