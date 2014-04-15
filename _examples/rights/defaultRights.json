@@ -19,7 +19,7 @@
             "enabled": false
         },
         "delete": {
-            "enabled": true
+            "enabled": false
         }
     }
 }
