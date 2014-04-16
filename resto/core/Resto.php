@@ -720,7 +720,7 @@ class Resto {
      * Converts response array to json.
      */
     private function jsonResponse() {
-        return json_format($this->response, isset($this->request['_pretty']) ? $this->request['_pretty'] : false);
+        return json_format($this->response, isset($this->request['special']['_pretty']) ? $this->request['special']['_pretty'] : false);
     }
 
     /**
