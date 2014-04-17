@@ -427,7 +427,7 @@ class CollectionManager {
          *   - 'visualize' service is disabled
          *   - 'download' service is disabled
          *   - PUT, POST and DELETE services are disabled
-         */
+         *
         $rights = array(
             'get' => array(
                 'search' => array(
@@ -459,10 +459,6 @@ class CollectionManager {
             '\'' . pg_escape_string('default') . '\'',
             '\'' . pg_escape_string(json_encode($rights)) . '\''
         );
-
-        /*
-         * Update database
-         */
         try {
             pg_query($this->dbh, 'DELETE FROM admin.rights WHERE collection=\'' . pg_escape_string($this->request['name']) . '\' AND groupid=\'default\'');
             $query = pg_query($this->dbh, 'INSERT INTO admin.rights (collection, groupid, rights) VALUES(' . join(',', $values) . ')');
@@ -472,7 +468,7 @@ class CollectionManager {
         } catch (Exception $e) {
             throw new Exception('Error : cannot update rights', 500);
         }
-        
+        */
         return array('Status' => 'success', 'Message' => 'Collection ' . $this->request['name'] . ' created');
     }
 
