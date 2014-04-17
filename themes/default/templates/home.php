@@ -1,4 +1,7 @@
 <!DOCTYPE html>
+<?php
+    $templateName = 'default';
+?>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>RESTo framework</title>
@@ -6,40 +9,7 @@
         <link rel="shortcut icon" href="<?php echo $this->request['restoUrl'] ?>/favicon.ico" />
         <link rel="stylesheet" href="<?php echo $this->request['restoUrl'] ?>/js/externals/foundation/foundation.min.css" type="text/css" />
         <link rel="stylesheet" href="<?php echo $this->request['restoUrl'] ?>/js/externals/fontawesome/css/font-awesome.min.css" type="text/css" />
-        <style>
-            .fullWidth {
-                width: 100%;
-                margin-left: auto;
-                margin-right: auto;
-                max-width: initial;
-            }
-            .resto-title, .resto-collection {
-                padding:5% 10%;
-            }
-            .resto-title a {
-                color: #fff;
-            }
-            .resto-title {
-                background:url('themes/default/img/halfearth.png') no-repeat scroll 0px 0px #000;
-                -webkit-background-size:contain;
-                -moz-background-size:contain;
-                -o-background-size:contain;
-                background-size:contain;
-                color:lightgray;
-            }
-            .resto-title p, .resto-collection p {
-                font-style: italic;
-            }
-            .resto-collection {
-                cursor:pointer;
-            }
-            .left {
-                text-align:left;
-            }
-            .right {
-                text-align:right;
-            }
-        </style>
+        <link rel="stylesheet" href="<?php echo $this->request['restoUrl'] ?>/themes/<?php echo $templateName ?>/style.css" type="text/css" />
         <!--[if lt IE 9]>
         <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/externals/modernizr/modernizr.min.js"></script>
         <![endif]-->
