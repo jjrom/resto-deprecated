@@ -187,7 +187,7 @@
                  */
                 if (feature.properties['services']['browse'] && feature.properties['services']['browse']['layer']) {
                     if (window.M) {
-                        message = {
+                        var message = {
                             title: feature.id,
                             type: feature.properties['services']['browse']['layer']['type'],
                             layers: feature.properties['services']['browse']['layer']['layers'],
