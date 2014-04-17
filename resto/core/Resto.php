@@ -334,7 +334,16 @@ class Resto {
         /*
          * Initialize rights object 
          */
-        $this->user = new RestoUser($this, null);
+        try {
+            $this->user = new RestoUser($this, null);
+        }
+        catch (Exception $e) {
+            $this->request['format'] = self::DEFAULT_RESPONSE_FORMAT;
+            $this->response = array('ErrorCode' => $e->getCode(), 'ErrorMessage' => $e->getMessage());
+            $this->responseStatus = $e->getCode();
+            $this->response()->send();
+            exit();
+        }
         
         /*
         try {

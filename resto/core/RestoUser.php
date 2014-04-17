@@ -72,24 +72,19 @@ class RestoUser {
          * otherwise retrieves rights from database
          */
         if (!isset($_SESSION['rights']) || count($_SESSION['rights']) === 0) {
-            $_SESSION['rights'] = array();
-            
-            try {
-                $dbh = $R->getDatabaseConnectorInstance()->getConnection(true);
-                if (!$dbh) {
-                    throw new Exception();
-                }
-                $rights = pg_query($dbh, 'SELECT groupid, collection, rights from admin.rights WHERE groupid=\'' . pg_escape_string($userid). '\'');
-                if (!$rights) {
-                    pg_close($dbh);
-                    throw new Exception();
-                }
-                
-                while ($right = pg_fetch_assoc($rights)) {
-                    $_SESSION['rights'][$right['collection']] = json_decode($right['rights'], true);
-                }
-            } catch (Exception $e) {
+            $_SESSION['rights'] = array();            
+            $dbh = $R->getDatabaseConnectorInstance()->getConnection(true);
+            if (!$dbh) {
                 throw new Exception('Database connection error', 500);
+            }
+            $rights = pg_query($dbh, 'SELECT groupid, collection, rights from admin.rights WHERE groupid=\'' . pg_escape_string($userid). '\'');
+            if (!$rights) {
+                pg_close($dbh);
+                throw new Exception('Database connection error', 500);
+            }
+
+            while ($right = pg_fetch_assoc($rights)) {
+                $_SESSION['rights'][$right['collection']] = json_decode($right['rights'], true);
             }
         }
         
