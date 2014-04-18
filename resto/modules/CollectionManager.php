@@ -107,10 +107,14 @@ class CollectionManager {
          *  where
          *      - 'key' should be equal to 'data'
          *      - 'value' should be an encoded JSON string
-         */ else {
+         */
+        else {
             $request = $R->getRequest();
             if ($request['params'] && $request['params']['data']) {
                 $this->request = json_decode(urldecode($request['params']['data']), true);
+            }
+            else {
+                $this->request = $request['params'];
             }
         }
 
@@ -539,7 +543,6 @@ class CollectionManager {
          * Only available for schema within RESTo database
          */
         if ($this->request['physical']) {
-
             $results = pg_query($this->dbh, 'SELECT collection, dbname, schemaname, tablename FROM admin.collections WHERE collection=\'' . pg_escape_string($this->collection) . '\'');
             if (!$results) {
                 throw new Exception('Database connection error', 500);
