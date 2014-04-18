@@ -23,9 +23,18 @@
     };
     
     c.remove("layers", "Streets");
-    //c.remove("layers", "Satellite");
+    c.remove("layers", "Satellite");
     c.remove("layers", "Relief");
     c.remove("layers", "MapQuest OSM");
     c.remove("layers", "OpenStreetMap");
+    c.add("layers", {
+        type:"Google",
+        title:"Hybrid",
+        MID:"GoogleHybrid",
+        googleType:"hybrid",
+        numZoomLevels:22,
+        unremovable:true
+    });
+    
 
 })(window.M.Config);
