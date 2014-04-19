@@ -169,6 +169,13 @@ class CollectionManager {
         }
 
         /*
+         * Collection name '_ALL_' is reserved (see rights management)
+         */
+        if ($this->request['name'] === '_ALL_') {
+            throw new Exception('_ALL_ is a reserved name and cannot be used for Collection name', 500);
+        }
+        
+        /*
          * Collection must not already exist
          */
         if ($this->collectionExists($this->request['name'])) {
