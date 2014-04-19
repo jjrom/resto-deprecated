@@ -615,4 +615,6 @@
             alert('ERROR : missing mandatory theme.js updateResultEntries(json) function');
         }
     };
+    
+    
 })(window);

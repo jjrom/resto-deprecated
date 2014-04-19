@@ -111,9 +111,8 @@ class ResourceManager {
         
         /*
          * Only authenticated user can post files
-         * TODO - set authorization level within database (i.e. canPost, canPut, canDelete, etc. ?)
          */
-        if (!$this->Controller->getParent()->checkAuth()) {
+        if (!$this->Controller->getParent()->getUser()->canPOST($this->description['name'])) {
             throw new Exception('Unauthorized', 401);
         }
         

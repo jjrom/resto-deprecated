@@ -193,11 +193,20 @@ All configuration parameters are defined within $RESTO_TARGET/resto/resto.ini fi
 The configuration file is self explanatory. For a standard installation you should only check that :
 * **db.password** value is **the same as the 'resto' user password set during database installation**
 * **db.spassword** value is **the same as the 'sresto' user password set during database installation**
-* **admin.password**  changed to something more secure that the one set in the configuration file !
 * (optional) mapshup.url value is changed accordingly to your configuration.
 If you do not want to see products on map comment this line.
 * (optional) ResourceManager.iTag value is changed accordingly to your configuration. If this line
 is commented, then iTag will not be used (i.e. products will not be tagged)
+
+Create an admin user within the database
+        
+        # Change password !!!
+        $PASSWORD=nimda
+
+        psql -d resto << EOF
+        INSERT INTO admin.users (userid,groups,username,password,registrationdate) VALUES ('admin','admin','admin',md5('$PASSWORD'),now());
+        EOF
+
 
 masphup configuration
 ---------------------

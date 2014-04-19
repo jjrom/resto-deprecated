@@ -42,63 +42,61 @@
  * User description
  */
 class RestoUser {
+    
+    /*
+     * RESTo reference
+     */
+    private $R = null;
+    
+    /*
+     * User profile
+     */
+    private $profile = array(
+        'userid' => 'anonymous',
+        'groupid' => 'default'
+    );
+    
     /*
      * Reference to user rights array 
      */
     private $rights = array();
-
+    
     /*
-     * Reference to the user profile
+     * Default groups rights
      */
-    private $profile = array();
-
-    /*
-     * Special group rights
-     */
-    private $specialGroups = array(
+    private $defaultRights = array(
         'default' => array(
-            'get' => array(
-                'search' => array(
-                    'enabled' => true
-                ),
-                'visualize' => array(
-                    'enabled' => false
-                ),
-                'download' => array(
-                    'enabled' => false
+            'get' => true,
+            'post' => false,
+            'put' => false,
+            'delete' => false,
+            'search' => true,
+            /*
+             * Exclusion example
+            'search' => array(
+                'exclude' => array(
+                    'keywords' => array(
+                        'country:france'
+                    )
                 )
             ),
-            'post' => array(
-                'enabled' => false
-            ),
-            'put' => array(
-                'enabled' => false
-            ),
-            'delete' => array(
-                'enabled' => false
-            )
+             * 
+             */
+            'visualize' => false,
+            'download' => false,
+            'tag' => false,
+            'rights' => false
         ),
         'admin' => array(
-            'get' => array(
-                'search' => array(
-                    'enabled' => true
-                ),
-                'visualize' => array(
-                    'enabled' => false
-                ),
-                'download' => array(
-                    'enabled' => false
-                )
-            ),
-            'post' => array(
-                'enabled' => false
-            ),
-            'put' => array(
-                'enabled' => false
-            ),
-            'delete' => array(
-                'enabled' => false
-            )
+            'get' => true,
+            'post' => true,
+            'put' => true,
+            'delete' => true,
+            'search' => true,
+            'visualize' => true,
+            'download' => true,
+            'tag' => true,
+            'rights' => true
         )
     );
 
@@ -107,39 +105,59 @@ class RestoUser {
      * and stores it within $this->rights array
      * 
      * @param Object $R - RESTo object
-     * @param String $userid - user unique identifier (should be an email)
      * 
      */
-    final public function __construct($R, $userid) {
-
-        if (!isset($userid)) {
-            $userid = 'default';
-        }
-
+    final public function __construct($R) {
+        
+        $this->R = $R;
+        
         /*
-         * Previously retrieved 'rights' should be stored within session
-         * otherwise retrieves rights from database
+         * Authenticate if not already done
+         */
+        if (!isset($_SESSION['profile']) || count($_SESSION['profile']) === 0) {
+            $this->authenticate();
+        }
+        
+        /*
+         * Refresh rights from database if not set within session
          */
         if (!isset($_SESSION['rights']) || count($_SESSION['rights']) === 0) {
-            $_SESSION['rights'] = array();
-            $dbh = $R->getDatabaseConnectorInstance()->getConnection(true);
-            if (!$dbh) {
-                throw new Exception('Database connection error', 500);
-            }
-            $rights = pg_query($dbh, 'SELECT groupid, collection, rights from admin.rights WHERE groupid=\'' . pg_escape_string($userid) . '\'');
-            if (!$rights) {
-                pg_close($dbh);
-                throw new Exception('Database connection error', 500);
-            }
-
-            while ($right = pg_fetch_assoc($rights)) {
-                $_SESSION['rights'][$right['collection']] = json_decode($right['rights'], true);
-            }
+            $this->refreshRights();
         }
-
-        $this->rights = $_SESSION['rights'];
+        else {
+            $this->rights = $_SESSION['rights'];
+        }
+        
     }
 
+    /**
+     * Get rights from the database and update $_SESSION['rights']
+     */
+    public function refreshRights() {
+        
+        $_SESSION['rights'] = array(
+            'default' => isset($this->defaultRights[$this->profile['groupid']]) ? $this->defaultRights[$this->profile['groupid']] : $this->defaultRights['default'],
+            'collections' => array()
+        );
+
+        $dbh = $this->R->getDatabaseConnectorInstance()->getConnection(true);
+        if (!$dbh) {
+            throw new Exception('Database connection error', 500);
+        }
+        $rights = pg_query($dbh, 'SELECT groupid, collection, rights from admin.rights WHERE groupid=\'' . pg_escape_string($this->profile['userid']) . '\'');
+        if (!$rights) {
+            pg_close($dbh);
+            throw new Exception('Database connection error', 500);
+        }
+
+        while ($right = pg_fetch_assoc($rights)) {
+            $_SESSION['rights']['collections'][$right['collection']] = json_decode($right['rights'], true);
+        }
+        
+        $this->rights = $_SESSION['rights'];
+        
+    }
+    
     /*
      * Get rights filters for a given collection
      *
@@ -148,42 +166,79 @@ class RestoUser {
      * @param {String} action - 'search', 'visualize' or 'download'
      * @return {Array} filters
      */
-
     public function getRights($collection, $method, $action = null) {
         
         /*
          * Unlikely cases
          */
         $validMethods = array('get', 'post', 'put', 'delete');
-        $validActions = array('search', 'download', 'visualize');
+        $validActions = array('search', 'download', 'visualize', 'tag', 'rights');
         if (!isset($method) || !in_array($method, $validMethods)) {
-            return array(
-                "enabled" => false
-            );
+            return false;
         }
         
         /*
          * Unknown collection or no rights on collection
          *   => apply default rights
          */
-        if (!isset($collection) || !isset($this->rights[$collection]) || !isset($this->rights[$collection][$method])) {
-            return isset($action) && in_array($action, $validActions) ? $this->specialGroups['default'][$method][$action] : $this->specialGroups['default'][$method];
+        if (!isset($collection) || !isset($this->rights['collections'][$collection]) || !isset($this->rights['collections'][$collection][$method])) {
+            return isset($action) && in_array($action, $validActions) ? $this->rights['default'][$action] : $this->rights['default'][$method];
         }
 
         /*
          * Action cases
          */
         if (isset($action) && in_array($action, $validActions)) {
-            if (isset($this->rights[$collection][$method][$action])) {
-                return $this->rights[$collection][$method][$action];
+            if (isset($this->rights['collections'][$collection][$action])) {
+                return $this->rights['collections'][$collection][$action];
             } else {
-                return $this->rights['default'][$method][$action];
+                return $this->rights['default'][$action];
             }
         }
 
-        return $this->rights[$collection][$method];
+        return $this->rights['collections'][$collection][$method];
     }
 
+    /*
+     * Return true if user can POST
+     */
+    public function canPOST($collection = null) {
+        $rights = $this->getRights($collection, 'post');
+        return is_bool($rights) ? $rights : true;
+    }
+    
+    /*
+     * Return true if user can PUT
+     */
+    public function canPUT($collection = null) {
+        $rights = $this->getRights($collection, 'put');
+        return is_bool($rights) ? $rights : true;
+    }
+    
+    /*
+     * Return true if user can DELETE
+     */
+    public function canDELETE($collection = null) {
+        $rights = $this->getRights($collection, 'delete');
+        return is_bool($rights) ? $rights : true;
+    }
+    
+    /*
+     * Return true if user can Tag resources or collection
+     */
+    public function canTag($collection = null) {
+        $rights = $this->getRights($collection, 'post', 'tag');
+        return is_bool($rights) ? $rights : true;
+    }
+    
+    /*
+     * Return true if user can Tag resources or collection
+     */
+    public function canChangeRights($collection = null) {
+        $rights = $this->getRights($collection, 'post', 'rights');
+        return is_bool($rights) ? $rights : true;
+    }
+    
     /*
      * Get the user profile
      *      guest or registered 
@@ -195,4 +250,36 @@ class RestoUser {
         return $this->profile;
     }
 
+    /**
+     * Authenticate user
+     */
+    private function authenticate() {
+        
+        $dbh = $this->R->getDatabaseConnectorInstance()->getConnection(true);
+        if (!$dbh) {
+            throw new Exception('Database connection error', 500);
+        }
+        $profiles = pg_query($dbh, 'SELECT userid, groups, username, password from admin.users WHERE userid=\'' . pg_escape_string($_SERVER['PHP_AUTH_USER']) . '\' AND password=\'' . pg_escape_string(md5($_SERVER['PHP_AUTH_PW'])) . '\'');
+        if (!$profiles) {
+            pg_close($dbh);
+            throw new Exception('Database connection error', 500);
+        }
+        $profile = pg_fetch_assoc($profiles);
+        if ($profile) {
+            $_SESSION['profile'] = array(
+                'userid' => $profile['userid'],
+                'groupid' => $profile['groups']
+            );
+        }
+        else {
+            $_SESSION['profile'] = array(
+                'userid' => 'anonymous',
+                'groupid' => 'default'
+            );
+        }
+        pg_close($dbh);
+        
+        $this->profile = $_SESSION['profile'];
+        
+    }
 }

@@ -117,12 +117,11 @@ class ResourceTagger {
 
         /*
          * Only authenticated user can add tags
-         * TODO : anybody should post ?
          */
-        if (!$this->Controller->getParent()->checkAuth()) {
+        if (!$this->Controller->getParent()->getUser()->canTag($this->description['name'])) {
             throw new Exception('Unauthorized', 401);
         }
-
+        
         /*
          * Check if keywords column is set for the collection
          */

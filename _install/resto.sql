@@ -90,7 +90,7 @@ CREATE TABLE admin.users (
 -- rights table list user rights on collection
 --
 CREATE TABLE admin.rights (
-    groupid              VARCHAR(255),  -- group name as stored in admin.users groups column
+    groupid             VARCHAR(255),  -- group name as stored in admin.users groups column
     collection          VARCHAR(50) NOT NULL, -- same as collection in admin.collections
     rights              TEXT -- serialized json representation of services rights
 );

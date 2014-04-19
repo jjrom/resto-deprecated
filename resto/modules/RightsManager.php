@@ -82,14 +82,6 @@ class RightsManager {
         }
 
         /*
-         * Only authenticated user can add tags
-         * TODO : anybody should post ?
-         */
-        if (!$this->Controller->getParent()->checkAuth()) {
-            throw new Exception('Unauthorized', 401);
-        }
-
-        /*
          * Get DatabaseConnector instance
          */
         $this->dbh = $this->Controller->getParent()->getDatabaseConnectorInstance()->getConnection(true);
@@ -107,7 +99,14 @@ class RightsManager {
         if (!$this->dbh) {
             throw new Exception('Database connection error', 500);
         }
-
+        
+        /*
+         * Only authenticated user can change rights
+         */
+        if (!$this->Controller->getParent()->getUser()->canChangeRights($this->description['name'])) {
+            throw new Exception('Unauthorized', 401);
+        }
+        
         /*
          * Request is an array of rights file
          */

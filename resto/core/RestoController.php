@@ -1091,39 +1091,40 @@ abstract class RestoController {
          * Add filters depending on user rights
          */
         $rights = $this->R->getUser()->getRights($this->description['name'], 'get', 'search');
-        foreach(array('include', 'exclude') as $modifier) {
-            if (isset($rights[$modifier])) {
-                foreach ($rights[$modifier] as $key => $value) {
-                    $modelKey = $this->modelNameFromRestoKey($key);
-                    $arr = null;
-                    if ($key === 'keywords') {
-                        $arr = array(
-                            $modelKey => join(' ', $value)
-                        );
-                    }
-                    /*
-                     * TODO for geometry !
-                     */
-                    else if ($key === 'geometry') {
-                        
-                    }
-                    else {
-                        /*
-                         * Currently only exclusion of 'keywords' is supported
-                         */
-                        if ($rights['modifier'] === 'include') {
+        if (is_array($rights)) {
+            foreach(array('include', 'exclude') as $modifier) {
+                if (isset($rights[$modifier])) {
+                    foreach ($rights[$modifier] as $key => $value) {
+                        $modelKey = $this->modelNameFromRestoKey($key);
+                        $arr = null;
+                        if ($key === 'keywords') {
                             $arr = array(
-                                $modelKey => $value
+                                $modelKey => join(' ', $value)
                             );
                         }
+                        /*
+                         * TODO for geometry !
+                         */
+                        else if ($key === 'geometry') {
+
+                        }
+                        else {
+                            /*
+                             * Currently only exclusion of 'keywords' is supported
+                             */
+                            if ($rights['modifier'] === 'include') {
+                                $arr = array(
+                                    $modelKey => $value
+                                );
+                            }
+                        }
+                        if (isset($arr)) {
+                            array_push($filters, $this->prepareFilterQuery($arr, $modelKey, $modifier === 'exclude' ? true : false));
+                        }        
                     }
-                    if (isset($arr)) {
-                        array_push($filters, $this->prepareFilterQuery($arr, $modelKey, $modifier === 'exclude' ? true : false));
-                    }        
                 }
             }
         }
-        
         /**
          * Default order is acquisition startDate
          */
@@ -1263,7 +1264,7 @@ abstract class RestoController {
          * Check authorization
          */
         $rights = $this->R->getUser()->getRights($this->description['name'], 'get', 'search');
-        if (!$rights['enabled']) {
+        if ($rights === false) {
             return $this->error('Forbidden', 403);
         }
         

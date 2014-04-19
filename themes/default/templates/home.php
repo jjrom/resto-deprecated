@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <?php
-    $templateName = 'default';
+$templateName = 'default';
+$user = $this->R->getUser();
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
     <head>
@@ -21,17 +22,52 @@
                 <p><?php echo $this->R->getDescription(); ?></p>
             </div>
         </div>
-        <?php
+        <div class="collections">
+            <?php
             $left = false;
             foreach ($this->R->getCollectionsDescription() as $key => $collection) {
                 $left = !$left;
-        ?>
-            <div class="row fullWidth resto-collection">
-                <div class="large-12 columns <?php echo $left ? 'left' : 'right' ?>">
-                    <h1><a class="fa fa-search" href="<?php echo $this->request['restoUrl'] . $key . '/?q=' . urlencode($collection['os']['Query']);?>">  <?php echo $collection['os']['ShortName']; ?></a></h1>
-                    <p><?php echo $collection['os']['Description']; ?></p>
+                ?>
+                <div class="row fullWidth resto-collection" id="_<?php echo $key;?>"> 
+                    <div class="large-12 columns <?php echo $left ? 'left' : 'right' ?>">
+                        <h1>
+                            <a class="fa fa-search" href="<?php echo $this->request['restoUrl'] . $key . '/?q=' . urlencode($collection['os']['Query']); ?>">  <?php echo $collection['os']['ShortName']; ?></a><br/>
+                            <?php if ($user->canPut($key)) { ?><a class="button green updateCollection" href="#" collection="<?php echo $key; ?>"><?php echo $this->description['dictionary']->translate('_update'); ?></a><?php } ?>
+                            <?php if ($user->canDelete($key)) { ?><a class="button orange deactivateCollection" href="#" collection="<?php echo $key; ?>"><?php echo $this->description['dictionary']->translate('_deactivate'); ?></a><?php } ?>
+                            <?php if ($user->canDelete($key)) { ?><a class="button red removeCollection" href="#" collection="<?php echo $key; ?>"><?php echo $this->description['dictionary']->translate('_remove'); ?></a><?php } ?>
+                        </h1>
+                        <p><?php echo $collection['os']['Description']; ?></p>
+                    </div>
+                </div>
+            <?php } ?>
+            <?php if ($user->canPost()) { ?>
+            <div class="row fullWidth resto-admin">
+                <div class="large-12 columns center">
+                    <h1><?php echo $this->description['dictionary']->translate('_addCollection'); ?></h1>
+                    <textarea id='collectionDescription' placeholder="JSON description" name='collectionDescription'></textarea>
+                    <p class="center">
+                        <a href="#" class="fa fa-4x fa-plus-circle white addCollection"></a>
+                    </p>
                 </div>
             </div>
-        <?php } ?>
+            <?php } ?>
+        </div>
+        <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/externals/mjquery/mjquery.js"></script>
+        <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/admin.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function() {
+
+                /*
+                 * Initialize RESTo admin
+                 */
+                R.Admin.init({
+                    language: '<?php echo $this->request['language']; ?>',
+                    data:<?php echo json_encode($this->response) ?>,
+                    translation:<?php echo json_encode($this->description['dictionary']->getTranslation()) ?>,
+                    restoUrl: '<?php echo $this->request['restoUrl'] ?>'
+                });
+
+            });
+        </script>
     </body>
 </html>

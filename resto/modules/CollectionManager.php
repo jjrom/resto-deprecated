@@ -49,7 +49,8 @@
  * 
  */
 class CollectionManager {
-
+    
+    private $R;
     private $dbh;
     private $request;
     private $collection;
@@ -70,6 +71,7 @@ class CollectionManager {
         /*
          * Get module configuration and set collection name
          */
+        $this->R = $R;
         $config = $R->getModuleConfig('CollectionManager');
         $r = $R->getRequest();
         $this->collection = $r['collection'];
@@ -79,14 +81,6 @@ class CollectionManager {
          */
         if (!$config || ($config['secure'] && $_SERVER['HTTPS'] !== 'on')) {
             throw new Exception('This service supports https only', 403);
-        }
-
-        /*
-         * Only authenticated user can post files
-         * TODO - set authorization level within database (i.e. canPost, canPut, canDelete, etc. ?)
-         */
-        if (!$R->checkAuth()) {
-            throw new Exception('Unauthorized', 401);
         }
 
         /*
@@ -159,6 +153,13 @@ class CollectionManager {
         if (!$this->request['name']) {
             throw new Exception('Collection name must be defined', 500);
         }
+        
+        /*
+         * POST should be authorized
+         */
+        if (!$this->R->getUser()->canPOST()) {
+            throw new Exception('Unauthorized', 401);
+        }
 
         /*
          * Collection name starting with '$' is not permitted
@@ -168,13 +169,6 @@ class CollectionManager {
             throw new Exception('Collection name cannot start with "$" character', 500);
         }
 
-        /*
-         * Collection name '_ALL_' is reserved (see rights management)
-         */
-        if ($this->request['name'] === '_ALL_') {
-            throw new Exception('_ALL_ is a reserved name and cannot be used for Collection name', 500);
-        }
-        
         /*
          * Collection must not already exist
          */
@@ -430,56 +424,6 @@ class CollectionManager {
             throw new Exception('Cannot insert collection ' . $this->request['name'] . ' in resto collections table', 500);
         }
         
-        /*
-         * Insert rights for collection
-         * 
-         * Default rights are :
-         *   - 'search' service is enabled without restriction
-         *   - 'visualize' service is disabled
-         *   - 'download' service is disabled
-         *   - PUT, POST and DELETE services are disabled
-         *
-        $rights = array(
-            'get' => array(
-                'search' => array(
-                    'enabled' => true
-                ),
-                'visualize' => array(
-                    'enabled' => false
-                ),
-                'download' => array(
-                    'enabled' => false
-                )
-            ),
-            'post' => array(
-                'enabled' => false
-            ),
-            'put' => array(
-                'enabled' => false
-            ),
-            'delete' => array(
-                'enabled' => false
-            )
-        );
-        
-        if (isset($this->request['rights'])) {
-            $rights = $this->request['rights'];
-        }
-        $values= array(
-            '\'' . pg_escape_string($this->request['name']) . '\'',
-            '\'' . pg_escape_string('default') . '\'',
-            '\'' . pg_escape_string(json_encode($rights)) . '\''
-        );
-        try {
-            pg_query($this->dbh, 'DELETE FROM admin.rights WHERE collection=\'' . pg_escape_string($this->request['name']) . '\' AND groupid=\'default\'');
-            $query = pg_query($this->dbh, 'INSERT INTO admin.rights (collection, groupid, rights) VALUES(' . join(',', $values) . ')');
-            if (!$query) {
-                throw new Exception();
-            }
-        } catch (Exception $e) {
-            throw new Exception('Error : cannot update rights', 500);
-        }
-        */
         return array('Status' => 'success', 'Message' => 'Collection ' . $this->request['name'] . ' created');
     }
 
@@ -492,7 +436,7 @@ class CollectionManager {
      * TODO - Not implemented yet
      */
     public function update() {
-
+        
         if (!$this->dbh) {
             throw new Exception('Database connection error', 500);
         }
@@ -503,12 +447,19 @@ class CollectionManager {
         if (!$this->collection) {
             throw new Exception('Method Not Allowed', 405);
         }
-
+        
         /*
          * Collection must exist
          */
         if (!$this->collectionExists($this->collection)) {
             throw new Exception('Collection does not exist', 500);
+        }
+        
+        /*
+         * PUT should be authorized
+         */
+        if (!$this->R->getUser()->canPUT($this->collection)) {
+            throw new Exception('Unauthorized', 401);
         }
         
         $this->insertOpenSearchDescription();
@@ -544,7 +495,14 @@ class CollectionManager {
         if (!$this->collectionExists($this->collection)) {
             throw new Exception('Collection does not exist', 500);
         }
-
+        
+        /*
+         * DELETE should be authorized
+         */
+        if (!$this->R->getUser()->canDELETE($this->collection)) {
+            throw new Exception('Unauthorized', 401);
+        }
+        
         /*
          * WARNING ! Physical deletion
          * Only available for schema within RESTo database

@@ -645,6 +645,10 @@ return array(
         '_globalMapView' => 'Centrer la vue sur la Terre',
         '_hideLayer' => 'Masquer la couche de résultat de recherche',
         '_showLayer' => 'Afficher la couche de résultat de recherche',
-        '_centerOnFeature' => 'Centrer la vue sur le produit'
+        '_centerOnFeature' => 'Centrer la vue sur le produit',
+        '_addCollection' => 'Ajouter une collection',
+        '_update' => 'Modifier',
+        '_deactivate' => 'Désactiver',
+        '_remove' => 'Supprimer'
     )
 );

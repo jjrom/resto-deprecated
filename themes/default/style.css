@@ -394,9 +394,12 @@ a.resto-keyword-herbaceous  {
     margin-right: auto;
     max-width: initial;
 }
-.resto-title, .resto-collection {
-    padding:5% 10%;
+.resto-collection {
+    padding:3% 10%;
 }
+.resto-title {
+    padding:1% 10%;
+} 
 .resto-title a {
     color: #fff;
 }
@@ -421,12 +424,39 @@ a.resto-keyword-herbaceous  {
 /*
  * Administration
  */
-.addCollection {
-    background-color:#4099FF;
+.adminMessage {
+    position:fixed;
+    z-index:40000;
+    height:auto;
+    padding:20px 20px;
+    background-color: red;
+    color:#fff;
+    box-shadow: 1px 1px 1px #000;
 }
-.addCollection textarea {
-	width: 60%;
+.resto-admin {
+    background-color:#4099FF;
+    color:#fff;
+}
+.resto-admin h1 {
+    color:#fff;
+}
+.resto-admin a {
+    color:#fff;
+}
+.resto-admin a:hover {
+    color:#000;
+}
+.resto-admin textarea {
+	width: 80%;
 	height: 120px;
-	border: 3px solid #cccccc;
 	padding: 5px;
+}
+.button.green {
+    background-color: green;
+}
+.button.orange {
+    background-color: orange;
+}
+.button.red {
+    background-color: red;
 }

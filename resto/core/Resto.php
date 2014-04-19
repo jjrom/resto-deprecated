@@ -83,7 +83,7 @@
  *      | Update a collection                          |     PUT     |   /collection
  *      | Get resource within the collection           |     GET     |   /collection/identifier
  *      | Insert a new resource within the collection  |     POST    |   /collection
- *      | Add/update for this collection               |     POST    |   /collection/$rights
+ *      | Add/update rights for this collection        |     POST    |   /collection/$rights
  *      | Update a resource from the collection        |     PUT     |   /collection/identifier
  *      | Delete a resource from the collection        |     DELETE  |   /collection/identifier
  *      | Download product linked to resource          |     GET     |   /collection/identifier/$download
@@ -140,9 +140,9 @@ class Resto {
     private $response;
 
     /*
-     * Reference to RestoAuth instance for rights management
+     * Reference to RestoUser instance for rights management
      */
-    private $user;
+    private $restoUser;
     
     /*
      * If set to true, each query include returns a real count
@@ -332,10 +332,10 @@ class Resto {
         date_default_timezone_set(isset($this->config['general']['timezone']) ? $this->config['general']['timezone'] : 'Europe/Paris');
         
         /*
-         * Initialize rights object 
+         * Initialize RestoUser object 
          */
         try {
-            $this->user = new RestoUser($this, null);
+            $this->restoUser = new RestoUser($this);
         }
         catch (Exception $e) {
             $this->request['format'] = self::DEFAULT_RESPONSE_FORMAT;
@@ -344,22 +344,6 @@ class Resto {
             $this->response()->send();
             exit();
         }
-        
-        /*
-        try {
-            $authenticator = new ReflectionClass('LocalAuth');
-            if (!$authenticator->isInstantiable()) {
-                throw new Exception('Invalid authenticator', 500);
-            }
-            $this->restoAuth = $authenticator->newInstance($this); 
-        }
-        catch (Exception $e) {
-            $this->request['format'] = self::DEFAULT_RESPONSE_FORMAT;
-            $this->response = array('ErrorCode' => $e->getCode(), 'ErrorMessage' => $e->getMessage());
-            $this->responseStatus = $e->getCode();
-            $this->response()->send();
-            exit();
-        }*/
         
         /*
          * Store output for performance
@@ -391,15 +375,15 @@ class Resto {
             if (isset($this->request['collection']) && substr($this->request['collection'], 0 , 1) === '$') {
                 
                 /*
-                 * Action always returns JSON
-                 */
-                $this->request['format'] = self::DEFAULT_RESPONSE_FORMAT;
-                
-                /*
                  * QueryAnalyzer standalone service
                  */
                 if ($this->request['collection'] === '$analyzeQuery' && class_exists('QueryAnalyzer')) {
                     
+                   /*
+                    * QueryAnalyzer always returns JSON
+                    */
+                   $this->request['format'] = self::DEFAULT_RESPONSE_FORMAT;
+                
                    /*
                     * Change parameter keys to model parameter key
                     * and remove unset parameters
@@ -628,29 +612,10 @@ class Resto {
     }
 
     /**
-     * Check authorization
-     * 
-     * TODO : add users within resto database
-     * 
-     * @return boolean
-     */
-    public function checkAuth() {
-
-        /*
-         * Dummy stuff - just to test the authentication loop
-         */
-        if ($_SERVER['PHP_AUTH_USER'] === $this->config['general']['admin']['user'] && $_SERVER['PHP_AUTH_PW'] === $this->config['general']['admin']['password']) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
      * Get User information 
      */
     public function getUser() {
-        return $this->user;
+        return $this->restoUser;
     }
     
     /**
@@ -747,12 +712,25 @@ class Resto {
         }
         
         /*
-         * No collection set => renders home page
+         * Templates path is infered from theme name
          */
         $templatesPath = realpath(dirname(__FILE__)) . '/../../themes/' . (isset($this->responseDescription['theme']) ? $this->responseDescription['theme'] : $this->getThemeName()) . '/templates/';
-
+        
+        /*
+         * Default description (for home and admin)
+         */
+        $description = array(
+            'name' => $this->request['collection'],
+            'theme' => $this->getThemeName(),
+            'acceptedLangs' => $this->getAcceptedLangs(),
+            'dictionary' => $this->getDictionary()
+        );
+        
+        /*
+         * No collection set => renders home page
+         */
         if (!isset($this->request['collection']) || !$this->request['collection']) {
-            $template = new Template($templatesPath . 'home.php', $this, null, null);
+            $template = new Template($templatesPath . 'home.php', $this, null, $description);
         }
         /*
          * Identifier set => renders resource page
