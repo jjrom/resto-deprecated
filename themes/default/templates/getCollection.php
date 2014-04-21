@@ -28,15 +28,15 @@ $templateName = 'default';
             <span id="logo"><a title="<?php echo $this->description['dictionary']->translate('_home'); ?>" href="<?php echo $this->request['restoUrl'] ?>">RESTo</a> | <?php echo $this->description['os']['ShortName']; ?></span>
             <nav>
                 <a href="#" id="pull"></a>
-                <!--
                 <ul>
-                    <li title="<?php echo $this->description['dictionary']->translate('_shareOn', 'Facebook'); ?>" class="fa fa-facebook link"></li>
-                    <li title="<?php echo $this->description['dictionary']->translate('_shareOn', 'Twitter'); ?>" class="fa fa-twitter link"></li>
-                    <li title="<?php echo $this->description['dictionary']->translate('_viewAtomFeed'); ?>" class="fa fa-rss link"></li>
+                    <li title="<?php echo $this->description['dictionary']->translate('_shareOn', 'Facebook'); ?>" class="fa fa-facebook link shareOnFacebook"></li>
+                    <li title="<?php echo $this->description['dictionary']->translate('_shareOn', 'Twitter'); ?>" class="fa fa-twitter link shareOnTwitter"></li>
+                    <li title="<?php echo $this->description['dictionary']->translate('_viewAtomFeed'); ?>" class="fa fa-rss link displayRSS"></li>
                     <li></li>
-                    <li title="<?php echo $this->description['dictionary']->translate('_viewCart'); ?>" class="fa fa-shopping-cart   link"></li>
+                    <!--
+                    <li title="<?php echo $this->description['dictionary']->translate('_viewCart'); ?>" class="fa fa-shopping-cart link"></li>
+                    -->
                 </ul>
-                -->
             </nav>
 	</header>
 

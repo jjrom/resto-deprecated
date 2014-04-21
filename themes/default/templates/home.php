@@ -53,7 +53,7 @@ $user = $this->R->getUser();
             <?php } ?>
         </div>
         <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/externals/mjquery/mjquery.js"></script>
-        <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/admin.js"></script>
+        <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/resto.js"></script>
         <script type="text/javascript">
             $(document).ready(function() {
 

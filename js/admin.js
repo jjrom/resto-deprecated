@@ -40,10 +40,12 @@
     window.R = window.R || {};
 
     window.R.Admin = {
+        
         /*
          * RESTO URL
          */
         restoUrl: null,
+        
         /**
          * Initialize Resto Administation module
          * 
@@ -196,67 +198,6 @@
          */
         updateCollection: function(collection) {
 
-        },
-        /**
-         * Launch an ajax call
-         * This function relies on jquery $.ajax function
-         * 
-         * @param {Object} obj
-         * @param {boolean} showMask
-         */
-        ajax: function(obj, showMask) {
-
-            /*
-             * Paranoid mode
-             */
-            if (typeof obj !== "object") {
-                return null;
-            }
-
-            /*
-             * Ask for a Mask
-             */
-            if (showMask) {
-                obj['complete'] = function(c) {
-                    $('#resto-mask-overlay').remove();
-                };
-                $('<div id="resto-mask-overlay"><span class="fa fa-3x fa-refresh fa-spin"></span></div>').appendTo($('body')).css({
-                    'position': 'fixed',
-                    'z-index': '40000',
-                    'top': '0px',
-                    'left': '0px',
-                    'background-color': '#777',
-                    'opacity': 0.7,
-                    'color': 'white',
-                    'text-align': 'center',
-                    'width': $(window).width(),
-                    'height': $(window).height(),
-                    'line-height': $(window).height() + 'px'
-                }).show();
-            }
-
-            return $.ajax(obj);
-
-        },
-        
-        /**
-         * Display non intrusive message to user
-         * 
-         * @param {string} message
-         * @param {integer} duration
-         */
-        message: function(message, duration) {
-            var $container = $('body'), $d;
-            $container.append('<div class="adminMessage"><div class="content">' + message + '</div></div>');
-            $d = $('.adminMessage', $container);
-            $d.fadeIn('slow').delay(duration || 2000).fadeOut('slow', function(){
-                $d.remove();
-            }).css({
-                'left': ($container.width() - $d.width()) / 2,
-                'top' : 30
-            });
-            return $d;
-          
         }
 
     };

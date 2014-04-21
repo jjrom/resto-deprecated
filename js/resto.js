@@ -194,6 +194,46 @@
             });
 
             /*
+             * Share on facebook
+             */
+            $('.shareOnFacebook').click(function() {
+                window.open('https://www.facebook.com/sharer.php?u='+encodeURIComponent(window.History.getState().cleanUrl)+'&t='+encodeURIComponent($('#search').val()));
+                return false;
+            });
+            
+            /*
+             * Share to twitter
+             */
+            $('.shareOnTwitter').click(function() {
+                window.open('http://twitter.com/intent/tweet?status='+encodeURIComponent($('#search').val() + " - " + window.History.getState().cleanUrl));
+                /*
+                 * TODO use url shortener supporting CORS
+                 * 
+                self.showMask();
+                self.ajax({
+                    url:'http://tinyurl.com/api-create.php?url=' + encodeURIComponent(window.History.getState().cleanUrl),
+                    success: function(txt) {
+                        self.hideMask();
+                        window.open('http://twitter.com/intent/tweet?status='+encodeURIComponent($('#search').val() + " - " + txt));
+                    },
+                    error: function(e) {
+                        self.hideMask();
+                        self.message('Error - cannot share on twitter');
+                    }
+                });
+                */
+                return false;
+            });
+            
+            /*
+             * Share to twitter
+             */
+            $('.displayRSS').click(function() {
+                window.location = window.History.getState().cleanUrl.replace('format=html', 'format=atom');
+                return false;
+            });
+            
+            /*
              * Initialize page with no mapshup refresh
              */
             self.updatePage(options.data, false);
@@ -613,8 +653,222 @@
 
         updateResultEntries: function(json) {
             alert('ERROR : missing mandatory theme.js updateResultEntries(json) function');
+        },
+        
+        /**
+         * Launch an ajax call
+         * This function relies on jquery $.ajax function
+         * 
+         * @param {Object} obj
+         * @param {boolean} showMask
+         */
+        ajax: function(obj, showMask) {
+            
+            var self = this;
+            
+            /*
+             * Paranoid mode
+             */
+            if (typeof obj !== "object") {
+                return null;
+            }
+
+            /*
+             * Ask for a Mask
+             */
+            if (showMask) {
+                obj['complete'] = function(c) {
+                    self.hideMask();
+                };
+                self.showMask();
+            }
+
+            return $.ajax(obj);
+
+        },
+        
+        /**
+         * Display non intrusive message to user
+         * 
+         * @param {string} message
+         * @param {integer} duration
+         */
+        message: function(message, duration) {
+            var $container = $('body'), $d;
+            $container.append('<div class="adminMessage"><div class="content">' + message + '</div></div>');
+            $d = $('.adminMessage', $container);
+            $d.fadeIn('slow').delay(duration || 2000).fadeOut('slow', function(){
+                $d.remove();
+            }).css({
+                'left': ($container.width() - $d.width()) / 2,
+                'top' : 30
+            });
+            return $d;
+          
         }
     };
+    
+    window.R.Admin = {
+        
+        /*
+         * RESTO URL
+         */
+        restoUrl: null,
+        
+        /**
+         * Initialize Resto Administation module
+         * 
+         * @param {object} options
+         */
+        init: function(options) {
+
+            var self = this;
+
+            options = options || {};
+
+            self.restoUrl = options.restoUrl;
+
+            /*
+             * Actions
+             */
+            $('.addCollection').click(function(e) {
+                e.stopPropagation();
+                try {
+                    self.addCollection($.parseJSON($('#collectionDescription').val()));
+                    /*
+                     * For test
+                     *
+                    self.addCollection({
+                        "name": "Example",
+                        "controller": "SpotController",
+                        "status": "public",
+                        "createdb": true,
+                        "osDescription": {
+                            "en": {
+                                "ShortName": "RESTo collection example",
+                                "LongName": "RESTo collection example",
+                                "Description": "A dummy collection using SPOTController",
+                                "Tags": "resto example",
+                                "Developper": "J\u00e9r\u00f4me Gasperi",
+                                "Contact": "jerome.gasperi@gmail.com",
+                                "Query": "SPOT6",
+                                "Attribution": "RESTo - Copyright 2014, All Rights Reserved"
+                            }
+                        }
+                    });
+                    */
+                }
+                catch (e) {
+                    window.R.message('Error : collection description is not valid JSON');
+                }
+                return false;
+            });
+
+            $('.deactiveCollection').each(function() {
+                $(this).click(function(e) {
+                    e.stopPropagation();
+                    self.removeCollection($(this).attr('collection'), false);
+                    return false;
+                });
+            });
+            $('.removeCollection').each(function() {
+                $(this).click(function(e) {
+                    e.stopPropagation();
+                    self.removeCollection($(this).attr('collection'), true);
+                    return false;
+                });
+            });
+            $('.updateCollection').each(function() {
+                $(this).click(function(e) {
+                    e.stopPropagation();
+                    self.updateCollection($(this).attr('collection'));
+                    return false;
+                });
+            });
+
+        },
+        /**
+         * Add a collection
+         * 
+         * @param {object} description
+         */
+        addCollection: function(description) {
+            
+            var self = this;
+
+            if (window.confirm('Add collection ' + description.name + ' ?')) {
+                window.R.ajax({
+                    url: self.restoUrl,
+                    async: true,
+                    type: 'POST',
+                    dataType: "json",
+                    beforeSend: function(xhr) {
+                        xhr.setRequestHeader('Authorization', 'Basic ' + btoa('admin:nimda'));
+                    },
+                    data: {
+                        data: encodeURIComponent(JSON.stringify(description))
+                    },
+                    success: function(obj, textStatus, XMLHttpRequest) {
+                        if (XMLHttpRequest.status === 200) {
+                            window.location = self.restoUrl + '$admin';
+                        }
+                        else {
+                            alert(textStatus);
+                        }
+                    },
+                    error: function(e) {
+                        alert(e.responseJSON['ErrorMessage']);
+                    }
+                }, true);
+            }
+        },
+        /**
+         * Logically remove a collection
+         * 
+         * @param {type} collection
+         * @param {boolean} physical - true to physically delete the collection
+         *                             (otherwise collection is logically delete)
+         */
+        removeCollection: function(collection, physical) {
+            
+            if (window.confirm('Remove collection ' + collection + ' ?')) {
+                window.R.ajax({
+                    url: this.restoUrl + collection + (physical ? '?physical=true' : ''),
+                    async: true,
+                    type: 'DELETE',
+                    dataType: "json",
+                    beforeSend: function(xhr) {
+                        xhr.setRequestHeader('Authorization', 'Basic ' + btoa('admin:nimda'));
+                    },
+                    success: function(obj, textStatus, XMLHttpRequest) {
+                        if (XMLHttpRequest.status === 200) {
+                            window.R.message(obj['Message']);
+                            $('#_' + collection).fadeOut(300, function() {
+                                $(this).remove();
+                            });
+                        }
+                        else {
+                            alert(textStatus);
+                        }
+                    },
+                    error: function(e) {
+                        alert(e.responseJSON['ErrorMessage']);
+                    }
+                }, true);
+            }
+
+        },
+        /**
+         * Update a collection
+         * 
+         * @param {type} collection
+         */
+        updateCollection: function(collection) {
+
+        }
+
+    };
+
     
     
 })(window);

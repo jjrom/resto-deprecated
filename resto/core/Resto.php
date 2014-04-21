@@ -344,7 +344,7 @@ class Resto {
             $this->response()->send();
             exit();
         }
-        
+  
         /*
          * Store output for performance
          */
@@ -827,7 +827,7 @@ class Resto {
         header('HTTP/1.1 ' . $status . ' ' . (isset(self::$codes[$status]) ? self::$codes[$status] : self::$codes[200]));
         header('Access-Control-Allow-Origin: *');
         header('Content-Type: ' . self::$contentTypes[$this->request['format']]);
-
+        
         /*
          * Flush result
          */
