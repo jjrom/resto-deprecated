@@ -118,7 +118,7 @@
             window.History.Adapter.bind(window, 'statechange', function() {
 
                 // Be sure that json is called !
-                var url = window.History.getState().cleanUrl.replace('format=html', 'format=json');
+                var url = self.updateURL(window.History.getState().cleanUrl, {format:'json'});
 
                 self.showMask();
 
@@ -229,7 +229,7 @@
              * Share to twitter
              */
             $('.displayRSS').click(function() {
-                window.location = window.History.getState().cleanUrl.replace('format=html', 'format=atom');
+                window.location = self.updateURL(window.History.getState().cleanUrl, {format:'json'});
                 return false;
             });
             
