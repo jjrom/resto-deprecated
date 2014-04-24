@@ -199,7 +199,27 @@ Edit the PostgreSQL pg_hba.conf file and add the following rules :
         host   resto   resto,sresto            127.0.0.1/32            md5
         host   resto   resto,sresto            ::1/128                 md5
 
+Edit the PostreSQL postgresql.conf and be sure that postgres accept tcp_ip connection.
+
+        # Uncomment these two lines within postgesql.conf
+        listen_adresses = 'localhost'
+        port = 5432
+
 Then restart postgresql (e.g. "pg_ctl restart")
+
+Note : **Read the following if you are using Fedora, Red Hat Enterprise Linux, CentOS, Scientific Linux,
+or one of the other distros that enable SELinux by default**
+
+        # 
+        #  Enable the specific permission to allow Apache to issue HTTP connections.
+        #
+        service httpd stop
+        service postgresql stop
+
+        setsebool -P httpd_can_network_connect 1
+
+        service httpd start
+        service postgresql start
 
 RESTo configuration
 -------------------
