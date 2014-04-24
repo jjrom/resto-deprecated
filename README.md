@@ -20,7 +20,7 @@ Prerequesites
 -------------
 
 * Apache (v2.0+) with **mod_rewrite support**
-* PHP (v5.3+) with **curl and XMLWriter extension**
+* PHP (v5.3+) with **curl, XMLWriter and PGConnect extension**
 * PostgreSQL (v9.0+) with **hstore extension**
 * PostGIS (v1.5.1+)
 
@@ -73,7 +73,23 @@ First you need to download geonames data in $GEONAMES_DIR directory
         unzip alternateNames.zip
 
 Next install the gazetteer within RESTo
-
+        
+        # 
+        # Note : Read this if you are using Fedora, Red Hat Enterprise Linux, CentOS,
+        # Scientific Linux, or one of the other distros that enable SELinux by default.
+        #
+        # SELinux policies for PostgreSQL do not permit the server to read files outside
+        # the PostgreSQL data directory, or the file was created by a service covered by
+        # a targeted policy so it has a label that PostgreSQL isn't allowed to read from.
+        #
+        # To make the itagPopulateDB.sh, run the following command as root
+        #
+        #   setenforce 0
+        # 
+        # Then after a successful itagPopulateDB.sh relaunch the command
+        #
+        #   setenforce 1
+        #
         $RESTO_HOME/_install/Gazetteer/installGazetteerDB.sh -F -D $GEONAMES_DIR
 
 Note : gazetteer contains more than 9 000 000 of toponyms. Depending on your server performance, the above step can
