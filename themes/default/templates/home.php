@@ -16,6 +16,21 @@ $user = $this->R->getUser();
         <![endif]-->
     </head>
     <body>
+        <header>
+            <span id="logo"><a title="<?php echo $this->description['dictionary']->translate('_home'); ?>" href="<?php echo $this->request['restoUrl'] ?>">RESTo</a></span>
+            <nav>
+                <ul>
+                    <li title="<?php echo $this->description['dictionary']->translate('_shareOn', 'Facebook'); ?>" class="fa fa-facebook link shareOnFacebook"></li>
+                    <li title="<?php echo $this->description['dictionary']->translate('_shareOn', 'Twitter'); ?>" class="fa fa-twitter link shareOnTwitter"></li>
+                    <li></li>
+                    <li title="<?php echo $this->description['dictionary']->translate('_login'); ?>" class="fa fa-sign-in link  signIn"></li>
+                    <li title="<?php echo $this->description['dictionary']->translate('_logout'); ?>" class="fa fa-sign-out link  signOut"></li>
+                    <!--
+                    <li title="<?php echo $this->description['dictionary']->translate('_viewCart'); ?>" class="fa fa-shopping-cart link"></li>
+                    -->
+                </ul>
+            </nav>
+	</header>
         <div class="row fullWidth resto-title">
             <div class="large-12 columns">
                 <h1><a href="http://jjrom.github.io/resto/"><?php echo $this->R->getTitle(); ?></a></h1>
@@ -32,9 +47,9 @@ $user = $this->R->getUser();
                     <div class="large-12 columns <?php echo $left ? 'left' : 'right' ?>">
                         <h1>
                             <a class="fa fa-search" href="<?php echo $this->request['restoUrl'] . $key . '/?q=' . urlencode($collection['os']['Query']); ?>">  <?php echo $collection['os']['ShortName']; ?></a><br/>
-                            <?php if ($user->canPut($key)) { ?><a class="button green updateCollection" href="#" collection="<?php echo $key; ?>"><?php echo $this->description['dictionary']->translate('_update'); ?></a><?php } ?>
-                            <?php if ($user->canDelete($key)) { ?><a class="button orange deactivateCollection" href="#" collection="<?php echo $key; ?>"><?php echo $this->description['dictionary']->translate('_deactivate'); ?></a><?php } ?>
-                            <?php if ($user->canDelete($key)) { ?><a class="button red removeCollection" href="#" collection="<?php echo $key; ?>"><?php echo $this->description['dictionary']->translate('_remove'); ?></a><?php } ?>
+                            <?php if ($user->canPut($key)) { ?><a class="button bggreen updateCollection" href="#" collection="<?php echo $key; ?>"><?php echo $this->description['dictionary']->translate('_update'); ?></a><?php } ?>
+                            <?php if ($user->canDelete($key)) { ?><a class="button bgorange deactivateCollection" href="#" collection="<?php echo $key; ?>"><?php echo $this->description['dictionary']->translate('_deactivate'); ?></a><?php } ?>
+                            <?php if ($user->canDelete($key)) { ?><a class="button bgred removeCollection" href="#" collection="<?php echo $key; ?>"><?php echo $this->description['dictionary']->translate('_remove'); ?></a><?php } ?>
                         </h1>
                         <p><?php echo $collection['os']['Description']; ?></p>
                     </div>
@@ -50,23 +65,25 @@ $user = $this->R->getUser();
                     </p>
                 </div>
             </div>
-            <?php } ?>
+            <?php } ?>       
         </div>
         <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/externals/mjquery/mjquery.js"></script>
+        <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/externals/mjquery/mjquery.ui.js"></script>
+        <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/externals/swipebox/js/jquery.swipebox.min.js"></script>
+        <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/externals/history/jquery.history.js"></script>
         <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/resto.js"></script>
         <script type="text/javascript">
             $(document).ready(function() {
 
                 /*
-                 * Initialize RESTo admin
+                 * Initialize RESTo 
                  */
-                R.Admin.init({
+                R.init({
                     language: '<?php echo $this->request['language']; ?>',
                     data:<?php echo json_encode($this->response) ?>,
                     translation:<?php echo json_encode($this->description['dictionary']->getTranslation()) ?>,
                     restoUrl: '<?php echo $this->request['restoUrl'] ?>'
                 });
-
             });
         </script>
     </body>

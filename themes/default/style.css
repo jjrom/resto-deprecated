@@ -66,6 +66,21 @@ body {
 .rss {
     color:#FF6600;
 }
+.hidden {
+    display:none;
+}
+.orange {
+    color: orange;
+}
+.bggreen {
+    background-color: green;
+}
+.bgorange {
+    background-color: orange;
+}
+.bgred {
+    background-color: red;
+}
 /*
  * Enlarge foundation row for big displays
  */
@@ -125,10 +140,6 @@ nav a {
 nav a:active {
     background-color: #FF0000;
 }
-nav a#pull {
-    display: none;
-}
-
 .footer{
     height: 50px;
     line-height: 50px;
@@ -141,29 +152,10 @@ nav a#pull {
  * Styles for screen 480px and lower
  */
 @media only screen and (max-width : 480px) {
-    nav {
-        border-bottom: 0;
+   
+    #logo {
+        display:none;
     }
-    nav ul {
-        display: none;
-        height: auto;
-    }
-    nav a#pull {
-        display: block;
-        width: 100%;
-        position: relative;
-    }
-    nav a#pull:after {
-        content:"";
-        background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAC9JREFUeNpi/P//PwM1AQsQU9VEJgYqg8FvICgMGUeel0eTzWiyGU02Qz/ZAAQYAOPcBjEdYroKAAAAAElFTkSuQmCC') no-repeat;
-        width: 30px;
-        height: 30px;
-        display: inline-block;
-        position: absolute;
-        right: 15px;
-        top: 10px;
-    }
-
     /*
      * Hide mapshup for small screens
      */
@@ -186,14 +178,6 @@ nav a#pull {
  * Smartphone
  */
 @media only screen and (max-width : 320px) {
-    nav li {
-        display: block;
-        float: none;
-        width: 100%;
-    }
-    nav li a {
-        border-bottom: 1px solid #576979;
-    }
 }
 
 
@@ -450,13 +434,4 @@ a.resto-keyword-herbaceous  {
 	width: 80%;
 	height: 120px;
 	padding: 5px;
-}
-.button.green {
-    background-color: green;
-}
-.button.orange {
-    background-color: orange;
-}
-.button.red {
-    background-color: red;
 }

@@ -649,6 +649,8 @@ return array(
         '_addCollection' => 'Ajouter une collection',
         '_update' => 'Modifier',
         '_deactivate' => 'Désactiver',
-        '_remove' => 'Supprimer'
+        '_remove' => 'Supprimer',
+        '_login' => 'Connexion',
+        '_logout' => 'Deconnexion'
     )
 );

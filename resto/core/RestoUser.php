@@ -44,9 +44,9 @@
 class RestoUser {
     
     /*
-     * RESTo reference
+     * Database connector instance
      */
-    private $R = null;
+    private $dbConnector = null;
     
     /*
      * User profile
@@ -104,24 +104,25 @@ class RestoUser {
      * Constructor retrieves user rights for all collections
      * and stores it within $this->rights array
      * 
-     * @param Object $R - RESTo object
+     * @param Object $dbConnector - DatabaseConnector instance
+     * @param boolean $forceAuth - true to force authentication/rights refresh even if session is set
      * 
      */
-    final public function __construct($R) {
+    final public function __construct($dbConnector, $forceAuth = false) {
         
-        $this->R = $R;
+        $this->dbConnector = $dbConnector;
         
         /*
          * Authenticate if not already done
          */
-        if (!isset($_SESSION['profile']) || count($_SESSION['profile']) === 0) {
+        if ($forceAuth || !isset($_SESSION['profile']) || count($_SESSION['profile']) === 0) {
             $this->authenticate();
         }
         
         /*
          * Refresh rights from database if not set within session
          */
-        if (!isset($_SESSION['rights']) || count($_SESSION['rights']) === 0) {
+        if ($forceAuth || !isset($_SESSION['rights']) || count($_SESSION['rights']) === 0) {
             $this->refreshRights();
         }
         else {
@@ -140,7 +141,7 @@ class RestoUser {
             'collections' => array()
         );
 
-        $dbh = $this->R->getDatabaseConnectorInstance()->getConnection(true);
+        $dbh = $this->dbConnector->getConnection(true);
         if (!$dbh) {
             throw new Exception('Database connection error', 500);
         }
@@ -255,7 +256,7 @@ class RestoUser {
      */
     private function authenticate() {
         
-        $dbh = $this->R->getDatabaseConnectorInstance()->getConnection(true);
+        $dbh = $this->dbConnector->getConnection(true);
         if (!$dbh) {
             throw new Exception('Database connection error', 500);
         }
@@ -281,5 +282,9 @@ class RestoUser {
         
         $this->profile = $_SESSION['profile'];
         
+    }
+    
+    public function disconnect() {
+        unset($_SESSION['profile'], $_SESSION['rights']);
     }
 }

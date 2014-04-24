@@ -43,24 +43,19 @@
      * Create RESTo javascript object
      */
     window.R = {
-        
         VERSION_NUMBER: 'RESTo 1.0',
-
         /*
          * Translation array
          */
         translation: {},
-        
         /*
          * RESTO URL
          */
         restoUrl: null,
-        
         /*
          * Result layer
          */
         layer: null,
-
         /*
          * Initialize RESTo
          * 
@@ -79,12 +74,12 @@
              * mapshup is defined
              */
             if (window.M) {
-                
+
                 /*
                  * Set mapshup-tools
                  */
                 self.updateMapshupToolbar();
-                
+
                 /*
                  * mapshup bug ?
                  * Force map size refresh when user scroll RESTo page
@@ -118,7 +113,7 @@
             window.History.Adapter.bind(window, 'statechange', function() {
 
                 // Be sure that json is called !
-                var url = self.updateURL(window.History.getState().cleanUrl, {format:'json'});
+                var url = self.updateURL(window.History.getState().cleanUrl, {format: 'json'});
 
                 self.showMask();
 
@@ -164,25 +159,6 @@
             });
 
             /*
-             * Responsive toolbar
-             */
-            $(function() {
-                var pull = $('#pull'),
-                        menu = $('nav ul');
-
-                $(pull).on('click', function(e) {
-                    e.preventDefault();
-                    menu.slideToggle();
-                });
-
-                $(window).resize(function() {
-                    if ($(window).width() > 320 && menu.is(':hidden')) {
-                        menu.removeAttr('style');
-                    }
-                });
-            });
-
-            /*
              * Clear button on search bar
              */
             $(document).on('input', '.clearable', function() {
@@ -194,55 +170,165 @@
             });
 
             /*
-             * Share on facebook
+             * Set the toolbar actions
              */
-            $('.shareOnFacebook').click(function() {
-                window.open('https://www.facebook.com/sharer.php?u='+encodeURIComponent(window.History.getState().cleanUrl)+'&t='+encodeURIComponent($('#search').val()));
-                return false;
-            });
-            
-            /*
-             * Share to twitter
-             */
-            $('.shareOnTwitter').click(function() {
-                window.open('http://twitter.com/intent/tweet?status='+encodeURIComponent($('#search').val() + " - " + window.History.getState().cleanUrl));
-                /*
-                 * TODO use url shortener supporting CORS
-                 * 
-                self.showMask();
-                self.ajax({
-                    url:'http://tinyurl.com/api-create.php?url=' + encodeURIComponent(window.History.getState().cleanUrl),
-                    success: function(txt) {
-                        self.hideMask();
-                        window.open('http://twitter.com/intent/tweet?status='+encodeURIComponent($('#search').val() + " - " + txt));
-                    },
-                    error: function(e) {
-                        self.hideMask();
-                        self.message('Error - cannot share on twitter');
-                    }
-                });
-                */
-                return false;
-            });
-            
-            /*
-             * Share to twitter
-             */
-            $('.displayRSS').click(function() {
-                window.location = self.updateURL(window.History.getState().cleanUrl, {format:'json'});
-                return false;
-            });
-            
+            self.updateRestoToolbar();
+
             /*
              * Initialize page with no mapshup refresh
              */
             self.updatePage(options.data, false);
-            
+
+            /*
+             * Set the admin actions
+             */
+            self.Admin.updateAdminActions();
+
             /*
              * Force focus on search input form
              */
             $('#search').focus();
+
+        },
+        /**
+         * Set the RESTo toolbar actions
+         */
+        updateRestoToolbar: function() {
+
+            var self = this;
+
+            /*
+             * Share on facebook
+             */
+            $('.shareOnFacebook').click(function() {
+                window.open('https://www.facebook.com/sharer.php?u=' + encodeURIComponent(window.History.getState().cleanUrl) + '&t=' + encodeURIComponent($('#search').val()));
+                return false;
+            });
+
+            /*
+             * Share to twitter
+             */
+            $('.shareOnTwitter').click(function() {
+                window.open('http://twitter.com/intent/tweet?status=' + encodeURIComponent($('#search').val() + " - " + window.History.getState().cleanUrl));
+                /*
+                 * TODO use url shortener supporting CORS
+                 * 
+                 self.showMask();
+                 self.ajax({
+                 url:'http://tinyurl.com/api-create.php?url=' + encodeURIComponent(window.History.getState().cleanUrl),
+                 success: function(txt) {
+                 self.hideMask();
+                 window.open('http://twitter.com/intent/tweet?status='+encodeURIComponent($('#search').val() + " - " + txt));
+                 },
+                 error: function(e) {
+                 self.hideMask();
+                 self.message('Error - cannot share on twitter');
+                 }
+                 });
+                 */
+                return false;
+            });
+
+            /*
+             * Display Atom feed
+             */
+            $('.displayRSS').click(function() {
+                window.location = self.updateURL(window.History.getState().cleanUrl, {format: 'json'});
+                return false;
+            });
+
+            /*
+             * Display profile or login action
+             * depending if connected or not 
+             */
+            self.showMask();
+            self.ajax({
+                url: self.restoUrl + 'auth.php',
+                data:{
+                    a:'profile'
+                },
+                dataType:'json',
+                success: function(json) {
+                    
+                    /*
+                     * User is connected from previous session
+                     */
+                    if (json && json.userid && json.userid !== 'anonymous') {
+                        self.showConnected(json);
+                    }
+                    else {
+                        self.hideConnected();
+                    }
+                    self.hideMask();
+                },
+                error: function(e) {
+                    self.hideMask();
+                }
+            });
             
+            /*
+             * Sign in
+             */
+            $('.signIn').click(function() {
+                self.showMask();
+                self.ajax({
+                    url: self.restoUrl + 'auth.php',
+                    dataType:'json',
+                    success: function(json) {
+                        self.hideMask();
+                        window.location.reload();
+                    },
+                    error: function(e) {
+                        self.hideMask();
+                        self.message('Error - cannot sign in');
+                    }
+                });
+                return false;
+            });
+            
+            /*
+             * Sign in
+             */
+            $('.signOut').click(function() {
+                self.showMask();
+                self.ajax({
+                    url: self.restoUrl + 'auth.php',
+                    data:{
+                        a:'disconnect'
+                    },
+                    dataType:'json',
+                    success: function(json) {
+                        self.hideMask();
+                        window.location.reload();
+                    },
+                    error: function(e) {
+                        self.hideMask();
+                        self.message('Error : cannot disconnect');
+                    }
+                });
+                return false;
+            });
+            
+        },
+        
+        /**
+         * Show connection info in toolbar
+         * 
+         * @param {object} profile
+         */
+        showConnected: function(profile) {
+            $('.signIn').hide();
+            $('.signOut').show();
+        },
+        
+        /**
+         * Hide connection info in toolbar
+         * 
+         * @param {object} profile
+         */
+        hideConnected: function(profile) {
+            $('.signIn').show();
+            $('.signOut').hide();
         },
         
         /**
@@ -256,21 +342,21 @@
                 'left': '0px',
                 'background-color': '#777',
                 'opacity': 0.7,
-                'color':'white',
-                'text-align':'center',
+                'color': 'white',
+                'text-align': 'center',
                 'width': $(window).width(),
                 'height': $(window).height(),
-                'line-height':$(window).height() + 'px'
+                'line-height': $(window).height() + 'px'
             }).show();
         },
-                
+        
         /**
          * Clear mask overlay
          */
         hideMask: function() {
             $('#resto-mask-overlay').remove();
         },
-                
+        
         /**
          * Replace {a:1}, {a:2}, etc within str by array values
          * 
@@ -297,7 +383,6 @@
 
             return out;
         },
-                
         /**
          * Update key/value parameters from url by values
          * 
@@ -333,7 +418,6 @@
 
             return sourceBase + "?" + newParamsString;
         },
-           
         /**
          * Post to mapshup
          * 
@@ -354,7 +438,6 @@
             });
 
         },
-
         /**
          * Initialize search result layer
          */
@@ -371,10 +454,10 @@
                     onSelect: function(f) {
                         if (f && f.fid) {
 
-                           /*
-                            * Unhilite all features before scrolling
-                            * to the right one
-                            */
+                            /*
+                             * Unhilite all features before scrolling
+                             * to the right one
+                             */
                             window.M.Map.featureInfo.unhilite(window.M.Map.featureInfo.hilited);
 
                             /*
@@ -412,7 +495,6 @@
             });
 
         },
-
         /**
          * Return type from mimeType
          * 
@@ -433,7 +515,6 @@
                     return mimeType;
             }
         },
-                
         /**
          * Add map bounding box in EPSG:4326 to all element with a 'resto-updatebbox' class
          */
@@ -448,7 +529,6 @@
                 });
             }
         },
-                
         /**
          * Return textual resolution from value in meters
          * 
@@ -475,7 +555,6 @@
             return 'LR';
 
         },
-                
         /**
          * Update getCollection page
          * 
@@ -518,7 +597,9 @@
             /*
              * Update search input form
              */
-            $('#search').val(json.query ? json.query.original.searchTerms : '');
+            if ($('#search').length > 0) {
+                $('#search').val(json.query ? json.query.original.searchTerms : '');
+            }
 
             /*
              * Update query analysis result
@@ -577,21 +658,20 @@
             });
 
         },
-                
         /**
          * Set mapshup toolbar
          */
         updateMapshupToolbar: function() {
-            
+
             var self = this, $tools = $('#mapshup-tools');
-            
+
             $('ul', $tools.html('<ul></ul>'))
                     .append('<li class="zoom fa fa-search-plus" title="' + self.translate('_zoom') + '"></li>')
                     .append('<li class="unZoom fa fa-search-minus" title="' + self.translate('_unZoom') + '"></li>')
                     .append('<li class="centerOnLayer fa fa-bullseye" title="' + self.translate('_centerOnLayer') + '"></li>')
                     .append('<li class="globalView fa fa-globe" title="' + self.translate('_globalMapView') + '"></li>')
                     .append('<li class="hideLayer fa fa-eye" title="' + self.translate('_hideLayer') + '"></li>');
-                    
+
             /*
              * Zoom
              */
@@ -599,7 +679,7 @@
                 e.preventDefault();
                 window.M.Map.map.setCenter(window.M.Map.map.getCenter(), window.M.Map.map.getZoom() + 1);
             });
-            
+
             /*
              * unZoom
              */
@@ -607,7 +687,7 @@
                 e.preventDefault();
                 window.M.Map.map.setCenter(window.M.Map.map.getCenter(), Math.max(window.M.Map.map.getZoom() - 1, window.M.Map.lowestZoomLevel));
             });
-            
+
             /*
              * Center on layer
              */
@@ -620,7 +700,7 @@
                     window.M.Map.setCenter(window.M.Map.Util.d2p(new OpenLayers.LonLat(0, 40)), 1, true);
                 }
             });
-            
+
             /*
              * Map global view
              */
@@ -628,7 +708,7 @@
                 e.preventDefault();
                 window.M.Map.setCenter(window.M.Map.Util.d2p(new OpenLayers.LonLat(0, 40)), 1, true);
             });
-            
+
             /*
              * Hide / Show layer
              */
@@ -650,11 +730,9 @@
                 }
             });
         },
-
         updateResultEntries: function(json) {
-            alert('ERROR : missing mandatory theme.js updateResultEntries(json) function');
+            // Should be defined in theme.js
         },
-        
         /**
          * Launch an ajax call
          * This function relies on jquery $.ajax function
@@ -663,9 +741,9 @@
          * @param {boolean} showMask
          */
         ajax: function(obj, showMask) {
-            
+
             var self = this;
-            
+
             /*
              * Paranoid mode
              */
@@ -686,7 +764,6 @@
             return $.ajax(obj);
 
         },
-        
         /**
          * Display non intrusive message to user
          * 
@@ -697,36 +774,26 @@
             var $container = $('body'), $d;
             $container.append('<div class="adminMessage"><div class="content">' + message + '</div></div>');
             $d = $('.adminMessage', $container);
-            $d.fadeIn('slow').delay(duration || 2000).fadeOut('slow', function(){
+            $d.fadeIn('slow').delay(duration || 2000).fadeOut('slow', function() {
                 $d.remove();
             }).css({
                 'left': ($container.width() - $d.width()) / 2,
-                'top' : 30
+                'top': 30
             });
             return $d;
-          
+
         }
     };
-    
+
     window.R.Admin = {
-        
-        /*
-         * RESTO URL
-         */
-        restoUrl: null,
-        
         /**
-         * Initialize Resto Administation module
+         * Update admin actions
          * 
          * @param {object} options
          */
-        init: function(options) {
+        updateAdminActions: function() {
 
             var self = this;
-
-            options = options || {};
-
-            self.restoUrl = options.restoUrl;
 
             /*
              * Actions
@@ -738,25 +805,25 @@
                     /*
                      * For test
                      *
-                    self.addCollection({
-                        "name": "Example",
-                        "controller": "SpotController",
-                        "status": "public",
-                        "createdb": true,
-                        "osDescription": {
-                            "en": {
-                                "ShortName": "RESTo collection example",
-                                "LongName": "RESTo collection example",
-                                "Description": "A dummy collection using SPOTController",
-                                "Tags": "resto example",
-                                "Developper": "J\u00e9r\u00f4me Gasperi",
-                                "Contact": "jerome.gasperi@gmail.com",
-                                "Query": "SPOT6",
-                                "Attribution": "RESTo - Copyright 2014, All Rights Reserved"
-                            }
-                        }
-                    });
-                    */
+                     self.addCollection({
+                     "name": "Example",
+                     "controller": "SpotController",
+                     "status": "public",
+                     "createdb": true,
+                     "osDescription": {
+                     "en": {
+                     "ShortName": "RESTo collection example",
+                     "LongName": "RESTo collection example",
+                     "Description": "A dummy collection using SPOTController",
+                     "Tags": "resto example",
+                     "Developper": "J\u00e9r\u00f4me Gasperi",
+                     "Contact": "jerome.gasperi@gmail.com",
+                     "Query": "SPOT6",
+                     "Attribution": "RESTo - Copyright 2014, All Rights Reserved"
+                     }
+                     }
+                     });
+                     */
                 }
                 catch (e) {
                     window.R.message('Error : collection description is not valid JSON');
@@ -793,12 +860,12 @@
          * @param {object} description
          */
         addCollection: function(description) {
-            
+
             var self = this;
 
             if (window.confirm('Add collection ' + description.name + ' ?')) {
                 window.R.ajax({
-                    url: self.restoUrl,
+                    url: window.R.restoUrl,
                     async: true,
                     type: 'POST',
                     dataType: "json",
@@ -810,7 +877,7 @@
                     },
                     success: function(obj, textStatus, XMLHttpRequest) {
                         if (XMLHttpRequest.status === 200) {
-                            window.location = self.restoUrl + '$admin';
+                            window.location = window.R.restoUrl + '$admin';
                         }
                         else {
                             alert(textStatus);
@@ -830,10 +897,10 @@
          *                             (otherwise collection is logically delete)
          */
         removeCollection: function(collection, physical) {
-            
+
             if (window.confirm('Remove collection ' + collection + ' ?')) {
                 window.R.ajax({
-                    url: this.restoUrl + collection + (physical ? '?physical=true' : ''),
+                    url: window.R.restoUrl + collection + (physical ? '?physical=true' : ''),
                     async: true,
                     type: 'DELETE',
                     dataType: "json",
@@ -869,6 +936,6 @@
 
     };
 
-    
-    
+
+
 })(window);

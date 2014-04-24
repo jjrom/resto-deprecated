@@ -447,7 +447,9 @@ return array(
         '_addCollection' => 'Add a collection',
         '_update' => 'Update',
         '_deactivate' => 'Deactivate',
-        '_remove' => 'Remove'
+        '_remove' => 'Remove',
+        '_login' => 'Connect',
+        '_logout' => 'Disconnect'
     )
     
 );

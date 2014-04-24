@@ -335,7 +335,7 @@ class Resto {
          * Initialize RestoUser object 
          */
         try {
-            $this->restoUser = new RestoUser($this);
+            $this->restoUser = new RestoUser($this->getDatabaseConnectorInstance());
         }
         catch (Exception $e) {
             $this->request['format'] = self::DEFAULT_RESPONSE_FORMAT;
