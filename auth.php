@@ -46,7 +46,7 @@ error_reporting(E_ERROR | E_PARSE);
 /*
  * Load functions
  */
-require_once realpath(dirname(__FILE__)) . '/resto/core/lib/functions.php';
+require realpath(dirname(__FILE__)) . '/resto/core/lib/functions.php';
 
 /*
  * Autoload controllers and modules
