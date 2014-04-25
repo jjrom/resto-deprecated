@@ -1440,7 +1440,26 @@ abstract class RestoController {
             }
             $real[$key] = $value;
         }
-
+        
+        /*
+         * Determine if real query contain a location i.e.
+         * geo:name or searchTerms containing keyword of type 'city', 'country' or 'continent'
+         */
+        $hasLocation = false;
+        if ($real['geo:name']) {
+            $hasLocation = true;
+        }
+        else {
+            $splitted = explode(' ', $real['searchTerms']);
+            for ($i = count($splitted); $i--;) {
+                $arr = explode(':', $splitted[$i]);
+                if ($arr[0] === 'continent' || $arr[0] === 'country' || $arr[0] === 'city') {
+                    $hasLocation = true;
+                    break;
+                }
+            }
+        }
+        
         /*
          * Request stop time
          */
@@ -1461,7 +1480,8 @@ abstract class RestoController {
                 'original' => $query,
                 'real' => $real,
                 'queryAnalyzeProcessingTime' => $this->request['queryAnalyzeProcessingTime'],
-                'searchProcessingTime' => $requestStopTime - $requestStartTime
+                'searchProcessingTime' => $requestStopTime - $requestStartTime,
+                'hasLocation' => $hasLocation
             ),
             'links' => array(
                 array(

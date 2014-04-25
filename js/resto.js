@@ -106,7 +106,7 @@
                 if (options.data) {
                     var fct = setInterval(function() {
                         if (window.M.Map.map && window.M.isLoaded) {
-                            self.initSearchLayer(options.data);
+                            self.initSearchLayer(options.data, options.data.query && options.data.query.hasLocation ? true : false);
                             clearInterval(fct);
                         }
                     }, 500);
@@ -131,7 +131,7 @@
                         self.hideMask();
                         self.updatePage(json, {
                             updateMap:true,
-                            centerMap:state.data ? state.data.centerMap : false
+                            centerMap:(state.data && state.data.centerMap) || (json.query && json.query.hasLocation) ? true : false
                         });
                     },
                     error: function(e) {
@@ -187,7 +187,8 @@
              * Initialize page with no mapshup refresh
              */
             self.updatePage(options.data, {
-                updateMap:false
+                updateMap:false,
+                centerMap:options.data && options.data.query 
             });
 
             /*
@@ -453,12 +454,12 @@
         /**
          * Initialize search result layer
          */
-        initSearchLayer: function(json, zoomOnNew) {
+        initSearchLayer: function(json, centerMap) {
             this.layer = this.addLayer({
                 type: 'GeoJSON',
                 clusterized: false,
                 data: json,
-                zoomOnNew: zoomOnNew,
+                zoomOnNew: centerMap ? 'always' : false,
                 MID: '__resto__',
                 color: '#FFF1FB',
                 featureInfo: {
@@ -608,7 +609,7 @@
                  * Layer does not exist => create it
                  */
                 else {
-                    self.initSearchLayer(json, options.centerMap ? 'always' : false);
+                    self.initSearchLayer(json, options.centerMap);
                 }
             }
 
