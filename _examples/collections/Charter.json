@@ -77,7 +77,7 @@
         }
     },
     "searchFiltersList": [
-        "searchTerms",
+        "searchTerms?",
         "count?",
         "startIndex?",
         "geo:box?",

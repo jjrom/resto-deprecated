@@ -144,7 +144,7 @@ class SpotController extends RestoController {
      * Search filters list
      */
     public static $searchFiltersList = array(
-        'searchTerms',
+        'searchTerms?',
         'count?',
         'startIndex?',
         'language?',
