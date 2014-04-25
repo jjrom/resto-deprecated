@@ -51,6 +51,7 @@ class QueryAnalyzer {
     private $searchFiltersDescription;
     private $gazetteer;
     private $unProcessed = array();
+    private $remaining = array();
 
     public function __construct($dictionary, $searchFiltersDescription, $gazetteer) {
         $this->dictionary = $dictionary;
@@ -347,7 +348,7 @@ class QueryAnalyzer {
          */
         $this->extractKeywordsAndLocation($searchTerms, $params);
 
-        return array('query' => $input, 'analyze' => $params, 'unProcessed' => $this->unProcessed, 'queryAnalyzeProcessingTime' => microtime(true) - $startTime);
+        return array('query' => $input, 'analyze' => $params, 'unProcessed' => $this->unProcessed, 'remaining' => implode(' ', $this->remaining), 'queryAnalyzeProcessingTime' => microtime(true) - $startTime);
         
     }
 
@@ -725,10 +726,12 @@ class QueryAnalyzer {
                 }
                 else {
                     array_push($this->unProcessed, $searchTerms[$i]);
+                    array_push($this->remaining, $searchTerms[$i]);
                 }
             }
             else {
                 array_push($this->unProcessed, $searchTerms[$i]);
+                array_push($this->remaining, $searchTerms[$i]);
             }
         }
         
