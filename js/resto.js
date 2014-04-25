@@ -877,7 +877,7 @@
                     },
                     success: function(obj, textStatus, XMLHttpRequest) {
                         if (XMLHttpRequest.status === 200) {
-                            window.location = window.R.restoUrl + '$admin';
+                            window.location = window.R.restoUrl;
                         }
                         else {
                             alert(textStatus);
