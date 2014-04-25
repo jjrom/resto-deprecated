@@ -865,12 +865,11 @@ abstract class RestoController {
                 /*
                  * Default bounding box is the whole earth
                  */
-                $lonmin = -180;
-                $lonmax = 180;
-                $latmin = -90;
-                $latmax = 90;
-                
                 if ($filterName === 'geo:box') {
+                    $lonmin = -180;
+                    $lonmax = 180;
+                    $latmin = -90;
+                    $latmax = 90;
                     $coords = explode(',', $requestParams[$filterName]);
                     if (count($coords) === 4) {
                         $lonmin = is_numeric($coords[0]) ? $coords[0] : $lonmin;
@@ -878,9 +877,14 @@ abstract class RestoController {
                         $lonmax = is_numeric($coords[2]) ? $coords[2] : $lonmax;
                         $latmax = is_numeric($coords[3]) ? $coords[3] : $latmax;
                     }
+                    if ($lonmin <= -180 && $latmin <= -90 && $lonmax >= 180 && $latmax >= 90) {
+                        return null;
+                    }
+                    else {
+                        return 'ST_' . $operation . '(' . $this->getModelName($this->description['searchFiltersDescription'][$filterName]['key']) . ", ST_GeomFromText('" . pg_escape_string('POLYGON((' . $lonmin . ' ' . $latmin . ',' . $lonmin . ' ' . $latmax . ',' . $lonmax . ' ' . $latmax . ',' . $lonmax . ' ' . $latmin . ',' . $lonmin . ' ' . $latmin . '))') . "', 4326))";
+                    }
                 }
-
-                return 'ST_' . $operation . '(' . $this->getModelName($this->description['searchFiltersDescription'][$filterName]['key']) . ", ST_GeomFromText('" . pg_escape_string('POLYGON((' . $lonmin . ' ' . $latmin . ',' . $lonmin . ' ' . $latmax . ',' . $lonmax . ' ' . $latmax . ',' . $lonmax . ' ' . $latmin . ',' . $lonmin . ' ' . $latmin . '))') . "', 4326))";
+                
             }
             /*
              * Spatial operation ST_Distance (Center point + radius)

@@ -414,7 +414,12 @@ class Gazetteer {
                 $lonmax = is_numeric($coords[2]) ? $coords[2] : $lonmax;
                 $latmax = is_numeric($coords[3]) ? $coords[3] : $latmax;
             }
-            $bboxConstraint = " AND ST_intersects(geom, ST_GeomFromText('" . pg_escape_string('POLYGON((' . $lonmin . ' ' . $latmin . ',' . $lonmin . ' ' . $latmax . ',' . $lonmax . ' ' . $latmax . ',' . $lonmax . ' ' . $latmin . ',' . $lonmin . ' ' . $latmin . '))') . "', 4326))";
+            if ($lonmin <= -180 && $latmin <= -90 && $lonmax >= 180 && $latmax >= 90) {
+                $bboxConstraint = '';
+            }
+            else {
+                $bboxConstraint = " AND ST_intersects(geom, ST_GeomFromText('" . pg_escape_string('POLYGON((' . $lonmin . ' ' . $latmin . ',' . $lonmin . ' ' . $latmax . ',' . $lonmax . ' ' . $latmax . ',' . $lonmax . ' ' . $latmin . ',' . $lonmin . ' ' . $latmin . '))') . "', 4326))";
+            }
         }
 
         /*
