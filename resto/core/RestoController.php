@@ -1068,7 +1068,24 @@ abstract class RestoController {
                 array_push($missing, $this->description['searchFiltersList'][$i]);
             }
         }
-
+        
+        /*
+         * Remove box filter if location filter is set
+         */
+        if ($this->request['realParams']['geo:name']) {
+            unset($this->request['realParams']['geo:box']);
+        }
+        else {
+            $splitted = explode(' ', $this->request['realParams']['searchTerms']);
+            for ($i = count($splitted); $i--;) {
+                $arr = explode(':', $splitted[$i]);
+                if ($arr[0] === 'continent' || $arr[0] === 'country' || $arr[0] === 'city') {
+                    unset($this->request['realParams']['geo:box']);
+                    break;
+                }
+            }
+        }
+        
         /*
          * Missing mandatory elements ?
          */
