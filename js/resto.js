@@ -119,7 +119,7 @@
             window.History.Adapter.bind(window, 'statechange', function() {
 
                 // Be sure that json is called !
-                var url = self.updateURL(window.History.getState().cleanUrl, {format: 'json'});
+                var state = window.History.getState(), url = self.updateURL(state.cleanUrl, {format: 'json'});
 
                 self.showMask();
 
@@ -129,11 +129,14 @@
                     dataType: 'json',
                     success: function(json) {
                         self.hideMask();
-                        self.updatePage(json, true);
+                        self.updatePage(json, {
+                            updateMap:true,
+                            centerMap:state.data ? state.data.centerMap : false
+                        });
                     },
                     error: function(e) {
                         self.hideMask();
-                        alert("Connection error");
+                        self.message("Connection error");
                     }
                 });
             });
@@ -183,7 +186,9 @@
             /*
              * Initialize page with no mapshup refresh
              */
-            self.updatePage(options.data, false);
+            self.updatePage(options.data, {
+                updateMap:false
+            });
 
             /*
              * Set the admin actions
@@ -448,12 +453,12 @@
         /**
          * Initialize search result layer
          */
-        initSearchLayer: function(json) {
+        initSearchLayer: function(json, zoomOnNew) {
             this.layer = this.addLayer({
                 type: 'GeoJSON',
                 clusterized: false,
                 data: json,
-                zoomOnNew: true,
+                zoomOnNew: zoomOnNew,
                 MID: '__resto__',
                 color: '#FFF1FB',
                 featureInfo: {
@@ -562,23 +567,29 @@
             return 'LR';
 
         },
+        
         /**
          * Update getCollection page
          * 
          * @param {array} json
-         * @param {boolean} updateMapshup - true to update mapshup
+         * @param {boolean} options 
+         *          {
+         *              updateMap: // true to update map content
+         *              centerMap: // true to center map on content
+         *          }
          * 
          */
-        updatePage: function(json, updateMapshup) {
+        updatePage: function(json, options) {
 
             var foundFilters, key, self = this;
 
             json = json || {};
-
+            options = options || {};
+            
             /*
              * Update mapshup view
              */
-            if (window.M && updateMapshup) {
+            if (window.M && options.updateMap) {
 
                 /*
                  * Layer already exist => reload content
@@ -590,14 +601,14 @@
                         data: json,
                         layerDescription: self.layer['_M'].layerDescription,
                         layer: self.layer,
-                        zoomOnNew: true
+                        zoomOnNew: options.centerMap ? 'always' : false
                     });
                 }
                 /*
                  * Layer does not exist => create it
                  */
                 else {
-                    self.initSearchLayer(json);
+                    self.initSearchLayer(json, options.centerMap ? 'always' : false);
                 }
             }
 
@@ -652,7 +663,10 @@
             $('.resto-ajaxified').each(function() {
                 $(this).click(function(e) {
                     e.preventDefault();
-                    window.History.pushState({randomize: window.Math.random()}, null, $(this).attr('href'));
+                    window.History.pushState({
+                        randomize: window.Math.random(),
+                        centerMap:$(this).hasClass('centerMap')
+                    }, null, $(this).attr('href'));
                 });
             });
 

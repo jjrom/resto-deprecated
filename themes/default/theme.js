@@ -43,10 +43,8 @@
      * Update result entries after a search
      * 
      * @param {array} json
-     * @param {boolean} updateMapshup - true to update mapshup
-     * 
      */
-    window.R.updateResultEntries = function(json, updateMapshup) {
+    window.R.updateResultEntries = function(json) {
 
         var i, l, j, k, thumbnail, quicklook, feature, key, keyword, keywords, type, $content, $actions, value, title, addClass, platform, results, resolution, self = this;
 
@@ -260,15 +258,17 @@
                     if (keyword.type === 'landuse') {
                         type = 'landuse';
                         value = value + ' (' + Math.round(keyword.value) + '%)';
-                        addClass = keyword.id;
+                        addClass = ' resto-updatebbox resto-keyword-' + keyword.id;
                         title = self.translate('_thisResourceContainsLanduse', [keyword.value, key]);
                     }
                     else if (keyword.type === 'country' || keyword.type === 'continent') {
                         type = 'location';
+                        addClass = ' centerMap';
                         title = self.translate('_thisResourceIsLocated', [key]);
                     }
                     else if (keyword.type === 'city') {
                         type = 'location';
+                        addClass = ' centerMap';
                         title = self.translate('_thisResourceContainsCity', [key]);
                     }
                     else if (keyword.type === 'platform' || keyword.type === 'instrument') {
@@ -279,11 +279,13 @@
                     }
                     else if (key.indexOf("#") === 0) {
                         type = 'tag';
+                        addClass = ' resto-updatebbox';
                     }
                     else {
                         type = 'other';
+                        addClass = ' resto-updatebbox';
                     }
-                    keywords[type]['keywords'].push('<a href="' + self.updateURL(feature.properties.keywords[key]['href'], {format: 'html'}) + '" class="resto-ajaxified resto-updatebbox resto-keyword' + (feature.properties.keywords[key]['type'] ? ' resto-keyword-' + feature.properties.keywords[key]['type'].replace(' ', '') : '') + (addClass ? ' resto-keyword-' + addClass : '') + '" title="' + title + '">' + value + '</a> ');
+                    keywords[type]['keywords'].push('<a href="' + self.updateURL(feature.properties.keywords[key]['href'], {format: 'html'}) + '" class="resto-ajaxified resto-keyword' + (feature.properties.keywords[key]['type'] ? ' resto-keyword-' + feature.properties.keywords[key]['type'].replace(' ', '') : '') + (addClass ? addClass  : '') + '" title="' + title + '">' + value + '</a> ');
                 }
 
                 /*
