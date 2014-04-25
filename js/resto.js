@@ -43,19 +43,25 @@
      * Create RESTo javascript object
      */
     window.R = {
+        
         VERSION_NUMBER: 'RESTo 1.0',
+        
         /*
          * Translation array
          */
         translation: {},
+        
         /*
          * RESTO URL
          */
+        
         restoUrl: null,
         /*
          * Result layer
          */
+        
         layer: null,
+        
         /*
          * Initialize RESTo
          * 
@@ -190,6 +196,7 @@
             $('#search').focus();
 
         },
+        
         /**
          * Set the RESTo toolbar actions
          */
@@ -785,11 +792,13 @@
         }
     };
 
+    /**
+     * Collection/Resources management
+     */
     window.R.Admin = {
+        
         /**
          * Update admin actions
-         * 
-         * @param {object} options
          */
         updateAdminActions: function() {
 
@@ -802,28 +811,6 @@
                 e.stopPropagation();
                 try {
                     self.addCollection($.parseJSON($('#collectionDescription').val()));
-                    /*
-                     * For test
-                     *
-                     self.addCollection({
-                     "name": "Example",
-                     "controller": "SpotController",
-                     "status": "public",
-                     "createdb": true,
-                     "osDescription": {
-                     "en": {
-                     "ShortName": "RESTo collection example",
-                     "LongName": "RESTo collection example",
-                     "Description": "A dummy collection using SPOTController",
-                     "Tags": "resto example",
-                     "Developper": "J\u00e9r\u00f4me Gasperi",
-                     "Contact": "jerome.gasperi@gmail.com",
-                     "Query": "SPOT6",
-                     "Attribution": "RESTo - Copyright 2014, All Rights Reserved"
-                     }
-                     }
-                     });
-                     */
                 }
                 catch (e) {
                     window.R.message('Error : collection description is not valid JSON');
@@ -854,6 +841,7 @@
             });
 
         },
+        
         /**
          * Add a collection
          * 
@@ -861,17 +849,12 @@
          */
         addCollection: function(description) {
 
-            var self = this;
-
             if (window.confirm('Add collection ' + description.name + ' ?')) {
                 window.R.ajax({
                     url: window.R.restoUrl,
                     async: true,
                     type: 'POST',
                     dataType: "json",
-                    beforeSend: function(xhr) {
-                        xhr.setRequestHeader('Authorization', 'Basic ' + btoa('admin:nimda'));
-                    },
                     data: {
                         data: encodeURIComponent(JSON.stringify(description))
                     },
@@ -880,15 +863,16 @@
                             window.location = window.R.restoUrl;
                         }
                         else {
-                            alert(textStatus);
+                            window.R.message(textStatus);
                         }
                     },
                     error: function(e) {
-                        alert(e.responseJSON['ErrorMessage']);
+                        window.R.message(e.responseJSON['ErrorMessage']);
                     }
                 }, true);
             }
         },
+        
         /**
          * Logically remove a collection
          * 
@@ -904,9 +888,6 @@
                     async: true,
                     type: 'DELETE',
                     dataType: "json",
-                    beforeSend: function(xhr) {
-                        xhr.setRequestHeader('Authorization', 'Basic ' + btoa('admin:nimda'));
-                    },
                     success: function(obj, textStatus, XMLHttpRequest) {
                         if (XMLHttpRequest.status === 200) {
                             window.R.message(obj['Message']);
@@ -925,6 +906,7 @@
             }
 
         },
+        
         /**
          * Update a collection
          * 
