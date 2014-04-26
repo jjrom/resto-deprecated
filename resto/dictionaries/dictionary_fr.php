@@ -651,6 +651,7 @@ return array(
         '_deactivate' => 'Désactiver',
         '_remove' => 'Supprimer',
         '_login' => 'Connexion',
-        '_logout' => 'Deconnexion'
+        '_logout' => 'Deconnexion',
+        '_dropCollection' => 'Déposer un fichier descriptif de collection'
     )
 );

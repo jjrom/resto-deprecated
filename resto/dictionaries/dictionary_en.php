@@ -449,7 +449,8 @@ return array(
         '_deactivate' => 'Deactivate',
         '_remove' => 'Remove',
         '_login' => 'Connect',
-        '_logout' => 'Disconnect'
+        '_logout' => 'Disconnect',
+        '_dropCollection' => 'Drop a collection description file'
     )
     
 );

@@ -58,11 +58,7 @@ $user = $this->R->getUser();
             <?php if ($user->canPost()) { ?>
             <div class="row fullWidth resto-admin">
                 <div class="large-12 columns center">
-                    <h1><?php echo $this->description['dictionary']->translate('_addCollection'); ?></h1>
-                    <textarea id='collectionDescription' placeholder="JSON description" name='collectionDescription'></textarea>
-                    <p class="center">
-                        <a href="#" class="fa fa-4x fa-plus-circle white addCollection"></a>
-                    </p>
+                    <div id="dropZone"><h1><?php echo $this->description['dictionary']->translate('_addCollection'); ?></h1><span class="fa fa-arrow-down"></span> <?php echo $this->description['dictionary']->translate('_dropCollection'); ?> <span class="fa fa-arrow-down"></span></div>
                 </div>
             </div>
             <?php } ?>       

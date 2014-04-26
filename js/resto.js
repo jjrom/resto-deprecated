@@ -822,17 +822,6 @@
             /*
              * Actions
              */
-            $('.addCollection').click(function(e) {
-                e.stopPropagation();
-                try {
-                    self.addCollection($.parseJSON($('#collectionDescription').val()));
-                }
-                catch (e) {
-                    window.R.message('Error : collection description is not valid JSON');
-                }
-                return false;
-            });
-
             $('.deactiveCollection').each(function() {
                 $(this).click(function(e) {
                     e.stopPropagation();
@@ -854,7 +843,71 @@
                     return false;
                 });
             });
+            
+            /*
+             * Drag&Drop listener
+             */
+            var $ddzone = $('#dropZone');
+            $ddzone.bind('dragleave',
+                function(e) {
+                    $ddzone.removeClass('hover');
+                    e.preventDefault();
+                    e.stopPropagation();
+            }).bind('dragover',
+                    function(e) {
+                        $ddzone.addClass('hover');
+                        e.preventDefault();
+                        e.stopPropagation();
+            }).bind('drop', function(e) {
 
+                $ddzone.removeClass('hover');
+
+                /*
+                 * Stop events
+                 */
+                e.preventDefault();
+                e.stopPropagation();
+
+                /*
+                 * HTML5 : get dataTransfer object
+                 */
+                var files = e.originalEvent.dataTransfer.files;
+
+                /*
+                 * If there is no file, we assume that user dropped
+                 * something else...a url for example !
+                 */
+                if (files.length === 0) {
+                    window.R.message("Error : drop a json file");
+                }
+                else if (files.length > 1) {
+                    window.R.message("Error : drop only one json file at a time");
+                }
+                else if (files[0].type.toLowerCase() !== "application/json") {
+                    window.R.message("Error : drop a json file");
+                }
+                /*
+                 * User dropped a json file
+                 */
+                else {
+
+                    var reader = new FileReader();
+
+                    /*
+                     * Parse and display result
+                     */
+                    reader.onloadend = function(e) {
+                        try {
+                            self.addCollection($.parseJSON(e.target.result));
+                        }
+                        catch (e) {
+                            window.R.message('Error : collection description is not valid JSON');
+                        }
+                    };
+                    reader.readAsText(files[0]);
+                    
+                }
+            });
         },
         
         /**
@@ -930,9 +983,6 @@
         updateCollection: function(collection) {
 
         }
-
     };
-
-
-
+    
 })(window);

@@ -616,6 +616,7 @@ return array(
         '_globalMapView' => 'Center on whole earth',
         '_hideLayer' => 'Hide search result layer',
         '_showLayer' => 'Show search result layer',
-        '_centerOnFeature' => 'Center view on product'
+        '_centerOnFeature' => 'Center view on product',
+        '_dropCollection' => 'Drop a collection description file'
     )
 );
