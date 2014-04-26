@@ -141,7 +141,7 @@ class RestoUser {
         if (!$dbh) {
             throw new Exception('Database connection error', 500);
         }
-        $rights = pg_query($dbh, 'SELECT groupid, collection, rights from admin.rights WHERE groupid=\'' . pg_escape_string($this->profile['userid']) . '\'');
+        $rights = pg_query($dbh, 'SELECT groupid, collection, rights from admin.rights WHERE groupid=\'' . pg_escape_string($this->profile['groupid']) . '\'');
         if (!$rights) {
             pg_close($dbh);
             throw new Exception('Database connection error', 500);
@@ -256,7 +256,7 @@ class RestoUser {
         if (!$dbh) {
             throw new Exception('Database connection error', 500);
         }
-        $profiles = pg_query($dbh, 'SELECT userid, groups, username, password from admin.users WHERE userid=\'' . pg_escape_string($_SERVER['PHP_AUTH_USER']) . '\' AND password=\'' . pg_escape_string(md5($_SERVER['PHP_AUTH_PW'])) . '\'');
+        $profiles = pg_query($dbh, 'SELECT userid, groups, username, password from admin.users WHERE userid=\'' . pg_escape_string(strtolower($_SERVER['PHP_AUTH_USER'])) . '\' AND password=\'' . pg_escape_string(md5($_SERVER['PHP_AUTH_PW'])) . '\' AND activated = TRUE');
         if (!$profiles) {
             pg_close($dbh);
             throw new Exception('Database connection error', 500);

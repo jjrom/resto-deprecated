@@ -184,6 +184,8 @@ CREATE TABLE admin.users (
     username            VARCHAR(50) NOT NULL,
     password            VARCHAR(50) NOT NULL, -- stored as md5
     registrationdate    TIMESTAMP NOT NULL,
+    activationcode      VARCHAR(255) NOT NULL UNIQUE, -- activation code store as md5
+    activated           BOOLEAN NOT NULL DEFAULT FALSE,              
     lastsessionid       VARCHAR(255)
 );
 
