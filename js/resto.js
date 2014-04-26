@@ -328,7 +328,7 @@
          */
         showConnected: function(profile) {
             $('.signIn').hide();
-            $('.signOut').show();
+            $('.signOut').css('background-image', 'url(' + this.getGravatar(profile.userhash) + ')').show();
         },
         
         /**
@@ -566,6 +566,18 @@
 
         },
         
+        /**
+         * Get gravatar icon url
+         * 
+         * See http://en.gravatar.com
+         * 
+         * @param emailhash : md5 hash of an email adress
+         * @param size : size of the returned icon in pixel
+         */
+        getGravatar: function(emailhash, size) {
+            return 'http://www.gravatar.com/avatar/' + (emailhash ? emailhash : '') + '?d=mm' + (!size || !$.isNumeric(size) ? '' : '&s=' + size);
+        },
+
         /**
          * Update getCollection page
          * 

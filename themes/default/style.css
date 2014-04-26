@@ -81,6 +81,13 @@ body {
 .bgred {
     background-color: red;
 }
+.gravatar {
+    margin:3px 0px;
+    width:25px;
+    height:25px;
+    border-radius:50%;
+    background-size:100% 100%;
+}
 /*
  * Enlarge foundation row for big displays
  */
