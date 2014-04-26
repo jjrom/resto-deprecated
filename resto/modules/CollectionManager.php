@@ -160,15 +160,26 @@ class CollectionManager {
         if (!$this->R->getUser()->canPOST()) {
             throw new Exception('Unauthorized', 401);
         }
-
+        
         /*
-         * Collection name starting with '$' is not permitted
-         * (special action - see Resto.php)
+         * Reserved collection names
          */
-        if (substr($this->request['name'], 0, 1) === '$') {
-            throw new Exception('Collection name cannot start with "$" character', 500);
+        foreach (array('js', 'resto', 'themes', 'auth') as $key) {
+            if ($this->request['name'] === $key) {
+                throw new Exception($key . ' is a reserved name and cannot be used as a collection name', 500);
+            }
         }
-
+        
+        /*
+         * Collection name cannot include reserved characters
+         */
+        $reserved = array('.', '!', '?', '$', '#', '/', '\\', '<', '>', '+', ' ', '%', '&', '`', '*', '\'', '|', '"', '@');
+        foreach ($reserved as $key) {
+            if (strrpos($this->request['name'],$key) !== false) {
+                throw new Exception('Character "' . $key . '" cannot be used within collection name', 500);
+            }
+        }
+        
         /*
          * Collection must not already exist
          */
