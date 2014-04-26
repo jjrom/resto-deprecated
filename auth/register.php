@@ -191,7 +191,7 @@ try {
         pg_close($dbh);
         throw new Exception('Database connection error', 500);
     }
-    if (!sendActivationMail($userid, $config['general']['adminEmail'], getActivationUrl($userid, $activation))) {
+    if (!sendActivationMail($userid, $config['general']['adminEmail'], getActivationUrl($userid, $activationcode))) {
         throw new Exception('Problem sending activation code', 500);
     }
     echoResult(200, 'OK', array(
