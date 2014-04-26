@@ -75,7 +75,7 @@
 
             self.translation = options.translation || {};
             self.restoUrl = options.restoUrl;
-
+            
             /*
              * mapshup is defined
              */
@@ -254,7 +254,6 @@
              * Display profile or login action
              * depending if connected or not 
              */
-            self.showMask();
             self.ajax({
                 url: self.restoUrl + 'auth.php',
                 data:{
@@ -288,7 +287,6 @@
                     url: self.restoUrl + 'auth.php',
                     dataType:'json',
                     success: function(json) {
-                        self.hideMask();
                         window.location.reload();
                     },
                     error: function(e) {
@@ -311,7 +309,6 @@
                     },
                     dataType:'json',
                     success: function(json) {
-                        self.hideMask();
                         window.location.reload();
                     },
                     error: function(e) {
