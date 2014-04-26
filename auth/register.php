@@ -161,6 +161,7 @@ foreach ($mandatory as $key) {
 }
 
 try {
+    $config = IniParser::read($configFile);
     $dbConnector = new DatabaseConnector($config['general']['db']);
     $dbh = $dbConnector->getConnection(true);
     if (!$dbh) {

@@ -92,18 +92,6 @@ session_start();
 ob_start();
 
 /*
- * Initialize database connector
- */
-$configFile = realpath(dirname(__FILE__)) . '/../resto/resto.ini';
-if (!file_exists($configFile)) {
-    echoResult(500, 'Internal Server Error', array(
-        'ErrorCode' => 500,
-        'ErrorMessage' => 'Missing mandatory configuration file'
-    ));
-    exit;
-}
-
-/*
  * Only GET method is allowed
  */
 $method = strtolower($_SERVER['REQUEST_METHOD']);
