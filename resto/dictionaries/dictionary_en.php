@@ -388,7 +388,7 @@ return array(
         '_previousCollectionLink' => 'previous',
         '_selfFeatureLink' => 'self',
         '_about' => 'About',
-        '_close' => 'close',
+        '_close' => 'Close',
         '_acquiredOn' => 'acquired on <b>{a:1}</b>',
         '_placeHolder' => 'Search - ex. {a:1}',
         '_query' => 'Search filters - {a:1}',
@@ -450,7 +450,9 @@ return array(
         '_remove' => 'Remove',
         '_login' => 'Connect',
         '_logout' => 'Disconnect',
-        '_dropCollection' => 'Drop a collection description file'
+        '_dropCollection' => 'Drop a collection description file',
+        '_email' => 'Email',
+        '_password' => 'Password'
     )
     
 );

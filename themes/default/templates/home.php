@@ -19,18 +19,17 @@ $user = $this->R->getUser();
         <header>
             <span id="logo"><a title="<?php echo $this->description['dictionary']->translate('_home'); ?>" href="<?php echo $this->request['restoUrl'] ?>">RESTo</a></span>
             <nav>
-                <ul>
-                    <li title="<?php echo $this->description['dictionary']->translate('_shareOn', 'Facebook'); ?>" class="fa fa-facebook link shareOnFacebook"></li>
-                    <li title="<?php echo $this->description['dictionary']->translate('_shareOn', 'Twitter'); ?>" class="fa fa-twitter link shareOnTwitter"></li>
-                    <li></li>
-                    <li title="<?php echo $this->description['dictionary']->translate('_login'); ?>" class="fa fa-sign-in link signIn"></li>
-                    <li title="<?php echo $this->description['dictionary']->translate('_logout'); ?>" class="signOut link gravatar"></li>
+                <ul class="no-bullet">
                     <!--
                     <li title="<?php echo $this->description['dictionary']->translate('_viewCart'); ?>" class="fa fa-shopping-cart link"></li>
                     -->
+                    <li class="link gravatar center bgorange viewUserPanel"></li>
                 </ul>
             </nav>
 	</header>
+        <div class="row" style="height:35px;">
+            <div class="large-12 columns"></div>
+        </div>
         <div class="row fullWidth resto-title">
             <div class="large-12 columns">
                 <h1><a href="http://jjrom.github.io/resto/"><?php echo $this->R->getTitle(); ?></a></h1>
@@ -47,9 +46,9 @@ $user = $this->R->getUser();
                     <div class="large-12 columns <?php echo $left ? 'left' : 'right' ?>">
                         <h1>
                             <a class="fa fa-search" href="<?php echo $this->request['restoUrl'] . $key . '/?q=' . urlencode($collection['os']['Query']); ?>">  <?php echo $collection['os']['ShortName']; ?></a><br/>
-                            <?php if ($user->canPut($key)) { ?><a class="button bggreen updateCollection" href="#" collection="<?php echo $key; ?>"><?php echo $this->description['dictionary']->translate('_update'); ?></a><?php } ?>
-                            <?php if ($user->canDelete($key)) { ?><a class="button bgorange deactivateCollection" href="#" collection="<?php echo $key; ?>"><?php echo $this->description['dictionary']->translate('_deactivate'); ?></a><?php } ?>
-                            <?php if ($user->canDelete($key)) { ?><a class="button bgred removeCollection" href="#" collection="<?php echo $key; ?>"><?php echo $this->description['dictionary']->translate('_remove'); ?></a><?php } ?>
+                            <?php if ($user->canPut($key)) { ?><a class="fa fa-edit button bggreen updateCollection admin" href="#" collection="<?php echo $key; ?>" title="<?php echo $this->description['dictionary']->translate('_update'); ?>"></a><?php } ?>
+                            <?php if ($user->canDelete($key)) { ?><a class="fa fa-moon-o button bgorange deactivateCollection admin" href="#" collection="<?php echo $key; ?>" title="<?php echo $this->description['dictionary']->translate('_deactivate'); ?>"></a><?php } ?>
+                            <?php if ($user->canDelete($key)) { ?><a class="fa fa-trash-o button bgred removeCollection admin" href="#" collection="<?php echo $key; ?>" title="<?php echo $this->description['dictionary']->translate('_remove'); ?>"></a><?php } ?>
                         </h1>
                         <p><?php echo $collection['os']['Description']; ?></p>
                     </div>

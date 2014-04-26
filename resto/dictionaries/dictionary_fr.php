@@ -598,7 +598,7 @@ return array(
         '_previousCollectionLink' => 'previous',
         '_selfFeatureLink' => 'self',
         '_about' => 'A propos',
-        '_close' => 'fermer',
+        '_close' => 'Fermer',
         '_acquiredOn' => 'acquise en <b>{a:1}</b>',
         '_placeHolder' => 'Chercher - ex. {a:1}',
         '_query' => 'Filtres de recherche - {a:1}',
@@ -652,6 +652,8 @@ return array(
         '_remove' => 'Supprimer',
         '_login' => 'Connexion',
         '_logout' => 'Deconnexion',
-        '_dropCollection' => 'Déposer un fichier descriptif de collection'
+        '_dropCollection' => 'Déposer un fichier descriptif de collection',
+        '_email' => 'Adresse mail',
+        '_password' => 'Mot de passe'
     )
 );

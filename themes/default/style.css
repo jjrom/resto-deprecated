@@ -82,9 +82,9 @@ body {
     background-color: red;
 }
 .gravatar {
-    margin:3px 0px;
-    width:25px;
-    height:25px;
+    margin:-5px 0px;
+    width:50px;
+    height:50px;
     border-radius:50%;
     background-size:100% 100%;
 }
@@ -105,7 +105,7 @@ header {
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 1000;
+    z-index: 90000;
 }
 #logo{
     color:#fff;
@@ -431,12 +431,61 @@ a.resto-keyword-herbaceous  {
 #dropZone.hover h1 {
     color:#000;
 }
+#restoUserPanel .close {
+    position:absolute;
+    top:0px;
+    right:20px;
+    cursor:pointer;
+    font-size:4em;
+    color:#fff;
+}
+#restoUserPanel .close:before {
+    content:"\00D7";
+}
+#restoUserPanel input[type="password"],#restoUserPanel input[type="text"] {
+    -moz-border-bottom-colors: none;
+    -moz-border-image: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    -moz-box-sizing: border-box;
+    background: none repeat scroll 0 0 #FFFFFF;
+    border-color: #C0C0C0 #D9D9D9 #D9D9D9;
+    border-right: 1px solid #D9D9D9;
+    border-style: solid;
+    border-width: 1px;
+    display: inline-block;
+    height: 39px;
+    margin: 0;
+    padding: 0 8px;
+    font-size:1em;
+}
+#restoUserPanel input:focus,input[type="password"]:hover,#restoUserPanel input[type="text"]:hover {
+    -moz-border-bottom-colors: none;
+    -moz-border-image: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    border-color: #A0A0A0 #B9B9B9 #B9B9B9;
+    border-right: 1px solid #B9B9B9;
+    border-style: solid;
+    border-width: 1px;
+}
+#restoUserPanel input:placeholder {
+    color:#666;
+}
+
+.button.admin {
+    font-size:0.5em;
+    padding:15px;
+    border-radius:5px;
+}
 .adminMessage {
     position:fixed;
-    z-index:40000;
+    z-index:95000;
     height:auto;
     padding:20px 20px;
-    background-color: red;
+    background-color: orange;
     color:#fff;
     box-shadow: 1px 1px 1px #000;
 }

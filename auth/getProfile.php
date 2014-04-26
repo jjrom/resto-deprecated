@@ -46,14 +46,13 @@ error_reporting(E_ERROR | E_PARSE);
 /*
  * Load functions
  */
-require realpath(dirname(__FILE__)) . '/resto/core/lib/functions.php';
+require realpath(dirname(__FILE__)) . '/../resto/core/lib/functions.php';
 
 /*
  * Autoload controllers and modules
  */
-
 function autoload($className) {
-    foreach (array('resto/auth/', 'resto/controllers/', 'resto/core/', 'resto/modules/') as $current_dir) {
+    foreach (array('../resto/core/') as $current_dir) {
         $path = $current_dir . sprintf('%s.php', $className);
         if (file_exists($path)) {
             include $path;
@@ -95,7 +94,7 @@ ob_start();
 /*
  * Initialize database connector
  */
-$configFile = realpath(dirname(__FILE__)) . '/resto/resto.ini';
+$configFile = realpath(dirname(__FILE__)) . '/../resto/resto.ini';
 if (!file_exists($configFile)) {
     echoResult(500, 'Internal Server Error', array(
         'ErrorCode' => 500,
@@ -108,57 +107,16 @@ if (!file_exists($configFile)) {
  * Only GET method is allowed
  */
 $method = strtolower($_SERVER['REQUEST_METHOD']);
-$action = isset($_GET['a']) ? $_GET['a'] : null;
 if ($method !== 'get') {
     echoResult(405, 'Method Not Allowed');
     exit;
 }
 
-/*
- * Return user profile
- */
-if ($action === 'profile') {
-    if (!$_SESSION['profile']) {
-        echoResult(200, 'OK', array('userid' => 'anonymous'));
-    }
-    else {
-        echoResult(200, 'OK', $_SESSION['profile']);
-    }
+if (!$_SESSION['profile']) {
+    echoResult(200, 'OK', array('userid' => 'anonymous'));
 }
-/*
- * Disconnect user
- */
-else if ($action === 'disconnect') {
-    try {
-        $config = IniParser::read($configFile);
-        $user = new RestoUser(new DatabaseConnector($config['general']['db']), true);
-        $user->disconnect();
-        echoResult(200, 'OK', array('userid' => 'anonymous'));
-    } catch (Exception $e) {
-        echoResult(500, 'Internal Server Error', array(
-            'ErrorCode' => 500,
-            'ErrorMessage' => 'Database connection error'
-        ));
-    }
-}
-/*
- * Connect user
- */
 else {
-
-    $_SERVER['PHP_AUTH_USER'] = 'admin';
-    $_SERVER['PHP_AUTH_PW'] = 'nimda';
-
-    try {
-        $config = IniParser::read($configFile);
-        $user = new RestoUser(new DatabaseConnector($config['general']['db']), true);
-        echoResult(200, 'OK', $user->getProfile());
-    } catch (Exception $e) {
-        echoResult(500, 'Internal Server Error', array(
-            'ErrorCode' => 500,
-            'ErrorMessage' => 'Database connection error'
-        ));
-    }
+    echoResult(200, 'OK', $_SESSION['profile']);
 }
 
 ob_end_flush();

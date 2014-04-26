@@ -568,7 +568,7 @@ return array(
         '_previousCollectionLink' => 'previous',
         '_selfFeatureLink' => 'self',
         '_about' => 'Circa',
-        '_close' => 'chiudi',
+        '_close' => 'Chiudi',
         '_acquiredOn' => 'acquisita in <b>{a:1}</b>',
         '_placeHolder' => 'Ricerca - ex. {a:1}',
         '_query' => 'Filtri di ricerca - {a:1}',
@@ -611,6 +611,8 @@ return array(
         '_hideLayer' => 'Hide search result layer',
         '_showLayer' => 'Show search result layer',
         '_centerOnFeature' => 'Center view on product',
-        '_dropCollection' => 'Drop a collection description file'
+        '_dropCollection' => 'Drop a collection description file',
+        '_email' => 'Email',
+        '_password' => 'Password'
     )
 );

@@ -71,17 +71,13 @@ class RestoUser {
             'put' => false,
             'delete' => false,
             'search' => true,
-            /*
-             * Exclusion example
-            'search' => array(
+            /*'search' => array(
                 'exclude' => array(
                     'keywords' => array(
-                        'country:france'
+                        'city:toulouse'
                     )
                 )
-            ),
-             * 
-             */
+            ),*/
             'visualize' => false,
             'download' => false,
             'tag' => false,
