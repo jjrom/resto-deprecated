@@ -269,12 +269,14 @@ class RestoUser {
         if ($profile) {
             $_SESSION['profile'] = array(
                 'userid' => $profile['userid'],
+                'userhash' => md5($profile['userid']),
                 'groupid' => $profile['groups']
             );
         }
         else {
             $_SESSION['profile'] = array(
                 'userid' => 'anonymous',
+                'userhash' => md5('anonymous'),
                 'groupid' => 'default'
             );
         }
