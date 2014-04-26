@@ -71,7 +71,7 @@ function echoResult($status, $message, $body = null) {
     header('HTTP/1.1 ' . $status . ' ' . $message);
     header('Access-Control-Allow-Origin: *');
     header('Content-Type: application/json');
-    if (!body && $status !== 200) {
+    if (!$body && $status !== 200) {
         echo json_encode(array(
             'ErrorCode' => $status,
             'ErrorMessage' => $message
@@ -186,6 +186,7 @@ try {
     $password = md5($params['password']);
     $activationcode = md5($params['userid'] + microtime());
     $groups = 'default';
+    $username = trim($params['username']);
     $results = pg_query($dbh, 'INSERT INTO admin.users (userid,groups,username,password,activationcode,activated,registrationdate) VALUES (\'' . $userid . '\',\'' . $groups . '\',\'' . $username . '\',\'' . $password . '\',\'' . $activationcode . '\', FALSE, now())');
     if (!$results) {
         pg_close($dbh);
