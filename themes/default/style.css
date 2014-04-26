@@ -431,6 +431,9 @@ a.resto-keyword-herbaceous  {
 #dropZone.hover h1 {
     color:#000;
 }
+#restoUserPanel img {
+    border:solid 1px #fff;
+}
 #restoUserPanel .close {
     position:absolute;
     top:0px;

@@ -787,7 +787,7 @@
                 'z-index': '90000',
                 'top': '0px',
                 'left': '0px',
-                'background-color': 'rgba(0, 0, 0, 0.7)',
+                'background-color': 'rgba(0, 0, 0, 0.9)',
                 'color': 'white',
                 'text-align': 'center',
                 'width': '100%',
