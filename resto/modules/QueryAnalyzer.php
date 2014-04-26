@@ -232,6 +232,8 @@ class QueryAnalyzer {
      * 
      *      <with> "keyword" 
      *      <without> "keyword"
+     *  
+     *      <without> "quantity"   // equivalent to "quantity" <equal> 0 "unit"
      * 
      *      "quantity" <lesser> (than) "numeric" "unit"
      *      "quantity" <greater> (than) "numeric" "unit"
@@ -437,7 +439,21 @@ class QueryAnalyzer {
                  */
                 if ($modifier === 'without') {
                     if ($i + 1 < $l && !$this->isNumeric($searchTerms[$i + 1])) {
-                        $searchTerms[$i + 1] = '-' . $searchTerms[$i + 1];
+                        
+                        /*
+                         * Special case with quantity - "without quantity" means quantity = 0
+                         */
+                        $quantity = $this->dictionary->getQuantity($searchTerms[$i + 1]);
+                        if (isset($quantity)) {
+                            $searchFilter = $this->getSearchFilter($quantity);
+                            if (isset($searchFilter)) {
+                                $params[$searchFilter['key']] = 0;
+                            }
+                            array_push($toRemove, $searchTerms[$i + 1]);
+                        }
+                        else {
+                            $searchTerms[$i + 1] = '-' . $searchTerms[$i + 1];
+                        }
                     }
                 }
                 /*

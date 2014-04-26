@@ -776,7 +776,7 @@ abstract class RestoController {
          */
         $operation = $this->description['searchFiltersDescription'][$filterName]['operation'];
 
-        if (isset($requestParams[$filterName]) && $requestParams[$filterName]) {
+        if (isset($requestParams[$filterName]) && $requestParams[$filterName] !== '') {
 
             /*
              * Check if filter as an associated column within database
