@@ -654,6 +654,12 @@ return array(
         '_logout' => 'Deconnexion',
         '_dropCollection' => 'Déposer un fichier descriptif de collection',
         '_email' => 'Adresse mail',
-        '_password' => 'Mot de passe'
+        '_password' => 'Mot de passe',
+        '_createAccount' => 'Créer un compte',
+        '_givenName' => 'Prénom',
+        '_lastName' => 'Nom',
+        '_userName' => 'Surnom',
+        '_retypePassword' => 'Retaper le mot de passe',
+        '_back' => 'Retour'
     )
 );

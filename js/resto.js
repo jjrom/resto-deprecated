@@ -857,7 +857,15 @@
             
             var self = this, $userPanel = $('#restoUserPanel');
             
-            $userPanel.append('<div class="row"><div class="large-12 columns"><form action="#"><ul class="no-bullet"><li><input id="userEmail" type="text" placeholder="' + self.translate('_email') + '"/></li><li><input id="userPassword" type="password" placeholder="' + self.translate('_password') + '"/></li></ul><a class="button signIn">' + self.translate('_login') + '</a></form></div></div>');
+            /*
+             * Remove register panel
+             */
+            $('#displayRegister').remove();
+            
+            /*
+             * Display login panel
+             */
+            $userPanel.append('<div class="row" id="displayLogin"><div class="large-12 columns"><form action="#"><ul class="no-bullet"><li><input id="userEmail" type="text" placeholder="' + self.translate('_email') + '"/></li><li><input id="userPassword" type="password" placeholder="' + self.translate('_password') + '"/></li></ul><p><a class="button signIn">' + self.translate('_login') + '</a></p><p><a class="register">' + self.translate('_createAccount') + '</a></p></form></div></div>');
             $('#userEmail').focus();
             $('#userPassword').keypress(function (e) {
                 if (e.which === 13) {
@@ -865,7 +873,13 @@
                     return false;
                 }
             });
-            $('.signIn').click(function() {
+            $('.register').click(function(e){
+                e.preventDefault();
+                self.displayRegister();
+                return false;
+            });
+            $('.signIn').click(function(e) {
+                e.preventDefault();
                 self.showMask();
                 self.ajax({
                     url: self.restoUrl + 'auth/connect.php',
@@ -891,7 +905,109 @@
             });
         },
         
+        /**
+         * Display account creation in user panel
+         */
         displayRegister: function() {
+            
+            var self = this, bottomContent, leftContent, rightContent, $userPanel = $('#restoUserPanel');
+            
+            /*
+             * Remove login panel
+             */
+            $('#displayLogin').remove();
+            
+            /*
+             * Display register panel
+             */
+            leftContent = '<li><input id="givenName" class="input-text" type="text" placeholder="' + self.translate('_givenName') + '"/></li>' +
+                          '<li><input id="lastName" class="input-text" type="text" placeholder="' + self.translate('_lastName') + '"/></li>' +
+                          '<li><input id="userName" class="input-text" type="text" placeholder="' + self.translate('_userName') + '"/></li>';
+            
+            rightContent = '<li><input id="userEmail" class="input-text" type="text" placeholder="' + self.translate('_email') + '"/></li>' +
+                          '<li><input id="userPassword1" class="input-password" type="password" placeholder="' + self.translate('_password') + '"/></li>' +
+                          '<li><input id="userPassword2" class="input-password" type="password" placeholder="' + self.translate('_retypePassword') + '"/></li>';
+            
+            bottomContent = '<p><a class="button register">' + self.translate('_createAccount') + '</a></p><p><a class="signIn">' + self.translate('_back') + '</a></p>';
+            
+            $userPanel.append('<div class="row" id="displayRegister"><form class="nice" action="#"><div class="large-6 columns"><ul class="no-bullet">' + leftContent + '</ul></div><div class="large-6 columns"><ul class="no-bullet">' + rightContent + '</ul>' + bottomContent + '</div></form></div>');
+            
+            $('#givenName').focus();
+            $('#userPassword2').keypress(function (e) {
+                if (e.which === 13) {
+                    $('.register').trigger('click');
+                    return false;
+                }
+            });
+            
+            $('.signIn').click(function(e){
+                e.preventDefault;
+                self.displayLogin();
+                return false;
+            });
+            
+            $('.register').click(function(e){
+                e.preventDefault;
+                var username = $('#userName').val(), password1 = $('#userPassword1').val(), password2 = $('#userPassword2').val(), email = $('#userEmail').val();
+                if (!email || !self.isEmailAdress(email)) {
+                    self.message('Email is not valid');
+                    return false;
+                }
+                if (!username) {
+                    self.message('Username is mandatory');
+                    return false;
+                }
+                if (!password1 || !password2 || password1 !== password2) {
+                    self.message('Passwords differ');
+                    return false;
+                }
+                
+                window.R.ajax({
+                    url: window.R.restoUrl + 'auth/register.php',
+                    async: true,
+                    type: 'POST',
+                    dataType: "json",
+                    data: {
+                        email:email,
+                        password:password1,
+                        username:username,
+                        givenname:$('#givenName').val(),
+                        lastname:$('#lastName').val()
+                    },
+                    success: function(json) {
+                        if (json && json.status === 'OK') {
+                            self.message(json.message);
+                            self.hideUserPanel();
+                        }
+                        else {
+                            self.message(json.ErrorMessage);
+                        }
+                    },
+                    error: function(e) {
+                        if (e.responseJSON) {
+                            self.message(e.responseJSON.ErrorMessage);
+                        }
+                        else {
+                            self.message('Error : cannot register');
+                        }
+                    }
+                }, true);
+                return false;
+            });
+            
+        },
+        
+        /**
+         * Check if a string is a valid email adress
+         * 
+         * @param {String} str
+         */
+        isEmailAdress: function (str) {
+            if (!str || str.length === 0) {
+                return false;
+            }
+            var pattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,4}$/;
+            return pattern.test(str);
             
         }
     };

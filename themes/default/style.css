@@ -459,37 +459,8 @@ a.resto-keyword-herbaceous  {
     content:"\00D7";
 }
 #restoUserPanel input[type="password"],#restoUserPanel input[type="text"] {
-    -moz-border-bottom-colors: none;
-    -moz-border-image: none;
-    -moz-border-left-colors: none;
-    -moz-border-right-colors: none;
-    -moz-border-top-colors: none;
-    -moz-box-sizing: border-box;
-    background: none repeat scroll 0 0 #FFFFFF;
-    border-color: #C0C0C0 #D9D9D9 #D9D9D9;
-    border-right: 1px solid #D9D9D9;
-    border-style: solid;
-    border-width: 1px;
     display: inline-block;
-    height: 39px;
-    margin: 0;
-    padding: 0 8px;
-    font-size:0.8em;
     width:250px;
-}
-#restoUserPanel input:focus,input[type="password"]:hover,#restoUserPanel input[type="text"]:hover {
-    -moz-border-bottom-colors: none;
-    -moz-border-image: none;
-    -moz-border-left-colors: none;
-    -moz-border-right-colors: none;
-    -moz-border-top-colors: none;
-    border-color: #A0A0A0 #B9B9B9 #B9B9B9;
-    border-right: 1px solid #B9B9B9;
-    border-style: solid;
-    border-width: 1px;
-}
-#restoUserPanel input:placeholder {
-    color:#666;
 }
 
 .button.admin {

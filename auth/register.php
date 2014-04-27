@@ -136,11 +136,10 @@ if (!file_exists($configFile)) {
  * Only POST method is allowed
  */
 $method = strtolower($_SERVER['REQUEST_METHOD']);
-/*
 if ($method !== 'post') {
     echoResult(405, 'Method Not Allowed');
     exit;
-}*/
+}
 $params = array_merge($_POST, $_GET);
 $mandatory = array(
     'email',
@@ -184,8 +183,11 @@ try {
     $password = md5($params['password']);
     $activationcode = md5($params['userid'] + microtime());
     $groups = 'default';
-    $username = trim($params['username']);
-    $results = pg_query($dbh, 'INSERT INTO admin.users (email,groups,username,password,activationcode,activated,registrationdate) VALUES (\'' . $email . '\',\'' . $groups . '\',\'' . $username . '\',\'' . $password . '\',\'' . $activationcode . '\', FALSE, now()) RETURNING userid');
+    $username = pg_escape_string(trim($params['username']));
+    $givenname = isset($params['givenname']) ? pg_escape_string(trim($params['givenname'])) : '';
+    $lastname = isset($params['lastname']) ? pg_escape_string(trim($params['lastname'])) : '';
+    
+    $results = pg_query($dbh, 'INSERT INTO admin.users (email,groups,username,givenname,lastname,password,activationcode,activated,registrationdate) VALUES (\'' . $email . '\',\'' . $groups . '\',\'' . $username . '\',\'' . $givenname . '\',\'' . $lastname . '\',\'' . $password . '\',\'' . $activationcode . '\', FALSE, now()) RETURNING userid');
     if (!$results) {
         pg_close($dbh);
         throw new Exception('Database connection error', 500);

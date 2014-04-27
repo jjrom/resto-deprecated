@@ -619,6 +619,12 @@ return array(
         '_centerOnFeature' => 'Center view on product',
         '_dropCollection' => 'Drop a collection description file',
         '_email' => 'Email',
-        '_password' => 'Password'
+        '_password' => 'Password',
+        '_createAccount' => 'Create an account',
+        '_givenName' => 'Given name',
+        '_lastName' => 'Last name',
+        '_userName' => 'User name',
+        '_retypePassword' => 'Retype password',
+        '_back' => 'Back'
     )
 );
