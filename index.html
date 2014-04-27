@@ -31,37 +31,376 @@
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
-        <h3>
-<a name="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages"><span class="octicon octicon-link"></span></a>Welcome to GitHub Pages.</h3>
+        <h1>
+<a name="resto" class="anchor" href="#resto"><span class="octicon octicon-link"></span></a>resto</h1>
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
+<p>RESTo - REstful Semantic search Tool for geOspatial</p>
 
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
+<p>You can try the <a href="http://mapshup.info/resto">RESTo demo</a></p>
+
+<h1>
+<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h1>
+
+<p>In the following, we suppose that $RESTO_HOME is the directory where resto sources will be installed</p>
+
+<pre><code>    export RESTO_HOME=/wherever/you/want/resto
 </code></pre>
 
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
+<p>If not already done, download RESTo to $RESTO_HOME</p>
+
+<pre><code>    git clone https://github.com/jjrom/resto.git $RESTO_HOME
+</code></pre>
+
+<h2>
+<a name="prerequesites" class="anchor" href="#prerequesites"><span class="octicon octicon-link"></span></a>Prerequesites</h2>
+
+<ul>
+<li>Apache (v2.0+) with <strong>mod_rewrite support</strong>
+</li>
+<li>PHP (v5.3+) with <strong>curl, XMLWriter and PGConnect extension</strong>
+</li>
+<li>PostgreSQL (v9.0+) with <strong>hstore extension</strong>
+</li>
+<li>PostGIS (v1.5.1+)</li>
+</ul><p>Note: RESTo could work with lower version of the specified requirements.
+However there is no guaranty of success and unwanted result may occured !</p>
+
+<h2>
+<a name="install-resto-database" class="anchor" href="#install-resto-database"><span class="octicon octicon-link"></span></a>Install RESTo database</h2>
+
+<p>RESTo installs a PostgreSQL database named 'resto'. </p>
+
+<p>The 'resto' database is created with PostGIS and hstore extension enabled within the 'public' schema.</p>
+
+<p>During the installation, two additional schemas are created :</p>
+
+<ul>
+<li>'admin' schema - among others, it stores the table containing the collections description</li>
+<li>'gazetteer' schema - it contains the gazetteer table (see below)</li>
+</ul><p>Two users 'resto' and 'sresto' are automatically created within this database :</p>
+
+<ul>
+<li>'resto' user has READ ONLY access to collections database, to collection description and to gazetteer table</li>
+<li>'sresto' user has same privileges as 'resto' user plus WRITE access to 'admin' schema and to all collection databases</li>
+</ul><p>It is very important to specify strong passwords for these two users.</p>
+
+<p>To install RESTo database, launch the following script</p>
+
+<pre><code>    $RESTO_HOME/_install/installDB.sh -F -d &lt;PostGIS directory&gt; -p &lt;resto user password&gt; -P &lt;sresto user password&gt;
+</code></pre>
+
+<p>Note1 :  should be replaced by the directory containing both postgis.sql and spatial_ref_sys.sql (e.g. /usr/local/share/postgis/)</p>
+
+<p>Note2 : installation script supposed that the PostgreSQL superuser name is 'postgres' (otherwise add '-s ' to the above command)
+and that it has access to psql on localhost without password.</p>
+
+<h2>
+<a name="install-gazetteer" class="anchor" href="#install-gazetteer"><span class="octicon octicon-link"></span></a>Install Gazetteer</h2>
+
+<p>RESTo provides a Gazetteer service based on geonames data (<a href="http://geonames.org">http://geonames.org</a>). This service is optional but if 
+you want to add location based search on toponyms (and i'm sure you want :) you should follow the next steps.</p>
+
+<p>First you need to download geonames data in $GEONAMES_DIR directory</p>
+
+<pre><code>    export GEONAMES_DIR=/a/temporary/directory
+    cd $GEONAMES_DIR
+    wget http://download.geonames.org/export/dump/allCountries.zip
+    wget http://download.geonames.org/export/dump/alternateNames.zip
+    wget http://download.geonames.org/export/dump/countryInfo.txt
+    wget http://download.geonames.org/export/dump/iso-languagecodes.txt
+    unzip allCountries.zip
+    unzip alternateNames.zip
+</code></pre>
+
+<p>Next install the gazetteer within RESTo</p>
+
+<pre><code>    # 
+    # Note : Read this if you are using Fedora, Red Hat Enterprise Linux, CentOS,
+    # Scientific Linux, or one of the other distros that enable SELinux by default.
+    #
+    # SELinux policies for PostgreSQL do not permit the server to read files outside
+    # the PostgreSQL data directory, or the file was created by a service covered by
+    # a targeted policy so it has a label that PostgreSQL isn't allowed to read from.
+    #
+    # To make the itagPopulateDB.sh, run the following command as root
+    #
+    #   setenforce 0
+    # 
+    # Then after a successful itagPopulateDB.sh relaunch the command
+    #
+    #   setenforce 1
+    #
+    $RESTO_HOME/_install/Gazetteer/installGazetteerDB.sh -F -D $GEONAMES_DIR
+</code></pre>
+
+<p>Note : gazetteer contains more than 9 000 000 of toponyms. Depending on your server performance, the above step can
+take a long time (about one hour)</p>
+
+<h2>
+<a name="install-wikipedia-data-gazetteer-module---optional" class="anchor" href="#install-wikipedia-data-gazetteer-module---optional"><span class="octicon octicon-link"></span></a>Install wikipedia data (Gazetteer module) - OPTIONAL</h2>
+
+<p>This step is optional and can only be performed if you have the geolocated wikipedia data (which probably you don't have :)
+In case of, these are the steps to follow in order to install this database within RESTo</p>
+
+<p>Put the geolocated wikipedia data in $GEONAMES_DIR/wikipedia directory, then run the command</p>
+
+<pre><code>    $RESTO_HOME/_install/Gazetteer/installWikipediaDB.sh -D $GEONAMES_DIR/wikipedia
+</code></pre>
+
+<h2>
+<a name="deploy-application" class="anchor" href="#deploy-application"><span class="octicon octicon-link"></span></a>Deploy application</h2>
+
+<p>Last step is to install application to the target directory. This directory will be accessed
+by the web server so it could be either directly under the DocumentRoot web server directory
+or in whatever directory accessed through web server Alias configuration. The latter case is prefered
+(see Apache configuration part below for Alias configuration)</p>
+
+<p>To install RESTo launch the following script</p>
+
+<pre><code>    # Note : RESTO_TARGET should not exist - it will be created by deploy.sh script
+    export RESTO_TARGET=/your/installation/directory
+    $RESTO_HOME/_install/deploy.sh -s $RESTO_HOME -t $RESTO_TARGET
+</code></pre>
+
+<h2>
+<a name="install-itag-optional" class="anchor" href="#install-itag-optional"><span class="octicon octicon-link"></span></a>Install iTag (optional)</h2>
+
+<p><a href="http://github.com/jjrom/itag">iTag</a> is an application to automatically tag geospatial metadata
+with geographical information (such as location, landuse, etc.)</p>
+
+<p>RESTo extensively use iTag during the ressource ingestion process. </p>
+
+<p>If you want to use iTag with RESTo, you should install it (follow the <a href="http://github.com/jjrom/itag/">instructions</a>) or use
+the <a href="http://mapshup.info/itag/?">online version of iTag</a> - see RESTo configuration below</p>
+
+<h1>
+<a name="configuration" class="anchor" href="#configuration"><span class="octicon octicon-link"></span></a>Configuration</h1>
+
+<h2>
+<a name="apache-configuration" class="anchor" href="#apache-configuration"><span class="octicon octicon-link"></span></a>Apache Configuration</h2>
+
+<p>The first thing to do is to configure Apache (or wathever is your web server) to support URL rewriting.</p>
+
+<p>Basically, with URLs rewriting every request sent to RESTo application will end up to index.php. For example,
+http://localhost/resto/whatever/youwant/to/access will be rewrite as http://localhost/resto/index.php?RESToURL=/whatever/youwant/to/access</p>
 
 <h3>
-<a name="designer-templates" class="anchor" href="#designer-templates"><span class="octicon octicon-link"></span></a>Designer Templates</h3>
+<a name="check-that-mod_rewrite-is-installed" class="anchor" href="#check-that-mod_rewrite-is-installed"><span class="octicon octicon-link"></span></a>Check that mod_rewrite is installed</h3>
 
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
+<p>For instance on MacOS X, looks for something like this in /etc/apache2/httpd.conf</p>
 
-<h3>
-<a name="rather-drive-stick" class="anchor" href="#rather-drive-stick"><span class="octicon octicon-link"></span></a>Rather Drive Stick?</h3>
-
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
+<pre><code>    LoadModule rewrite_module libexec/apache2/mod_rewrite.so 
+</code></pre>
 
 <h3>
-<a name="authors-and-contributors" class="anchor" href="#authors-and-contributors"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
+<a name="configure-target-directory" class="anchor" href="#configure-target-directory"><span class="octicon octicon-link"></span></a>Configure target directory</h3>
 
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
+<p>Set an alias to the resto directory. To make mod_rewrite works, you need to verify that both 'FollowSymLinks'
+and 'AllowOverride All' are set in the apache directory configuration</p>
+
+<p>For instance to access resto at http://localhost/resto (change "/directory/to/resto" by $RESTO_TARGET below):</p>
+
+<pre><code>    Alias /resto/ "/directory/to/resto"
+    &lt;Directory "/directory/to/resto"&gt;
+        Options FollowSymLinks
+        AllowOverride All
+        Order allow,deny
+        Allow from all
+    &lt;/Directory&gt;
+</code></pre>
 
 <h3>
-<a name="support-or-contact" class="anchor" href="#support-or-contact"><span class="octicon octicon-link"></span></a>Support or Contact</h3>
+<a name="check-rewritebase-value-within-resto_targethtaccess" class="anchor" href="#check-rewritebase-value-within-resto_targethtaccess"><span class="octicon octicon-link"></span></a>Check "RewriteBase" value within $RESTO_TARGET/.htaccess</h3>
 
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
+<p>Edit this value so it matches your alias name. If you use the same alias as in 2. (i.e. '/resto/')
+there is no need to edit $RESTO_TARGET/.htaccess file</p>
+
+<h3>
+<a name="configure-apache-to-support-https-optional" class="anchor" href="#configure-apache-to-support-https-optional"><span class="octicon octicon-link"></span></a>Configure apache to support https (optional)</h3>
+
+<p>RESTo can be accessed either in http or https. For security reason, https is prefered when
+dealing with authenticated request (e.g. creation of a collection, insertion of a resource in the collection, etc.)</p>
+
+<p>Thus, turning https in apache is optional to make RESTo work.</p>
+
+<p>This document does not explain how to turn https on - but your system administrator should know how to do it !</p>
+
+<p>Note: a step by step guide for installing https on Mac OS X is provided in the FAQ section below</p>
+
+<h3>
+<a name="restart-apache" class="anchor" href="#restart-apache"><span class="octicon octicon-link"></span></a>Restart apache</h3>
+
+<pre><code>    apachectl restart
+</code></pre>
+
+<h2>
+<a name="postgresql-configuration" class="anchor" href="#postgresql-configuration"><span class="octicon octicon-link"></span></a>PostgreSQL configuration</h2>
+
+<p>Note: the following configuration is optional but it is safer from a security point of view to do it like this.</p>
+
+<p>Edit the PostgreSQL pg_hba.conf file and add the following rules :</p>
+
+<pre><code>    # Configuration for RESTo framework
+    local  all     resto,sresto                                    password
+    host   resto   resto,sresto            127.0.0.1/32            md5
+    host   resto   resto,sresto            ::1/128                 md5
+</code></pre>
+
+<p>Edit the PostreSQL postgresql.conf and be sure that postgres accept tcp_ip connection.</p>
+
+<pre><code>    # Uncomment these two lines within postgesql.conf
+    listen_adresses = 'localhost'
+    port = 5432
+</code></pre>
+
+<p>Then restart postgresql (e.g. "pg_ctl restart")</p>
+
+<p>Note : <strong>Read the following if you are using Fedora, Red Hat Enterprise Linux, CentOS, Scientific Linux,
+or one of the other distros that enable SELinux by default</strong></p>
+
+<pre><code>    # 
+    #  Enable the specific permission to allow Apache to issue HTTP connections.
+    #
+    service httpd stop
+    service postgresql stop
+
+    setsebool -P httpd_can_network_connect 1
+
+    service httpd start
+    service postgresql start
+</code></pre>
+
+<h2>
+<a name="resto-configuration" class="anchor" href="#resto-configuration"><span class="octicon octicon-link"></span></a>RESTo configuration</h2>
+
+<p>All configuration parameters are defined within $RESTO_TARGET/resto/resto.ini file</p>
+
+<p>The configuration file is self explanatory. For a standard installation you should only check that :</p>
+
+<ul>
+<li>
+<strong>db.password</strong> value is <strong>the same as the 'resto' user password set during database installation</strong>
+</li>
+<li>
+<strong>db.spassword</strong> value is <strong>the same as the 'sresto' user password set during database installation</strong>
+</li>
+<li>(optional) mapshup.url value is changed accordingly to your configuration.
+If you do not want to see products on map comment this line.</li>
+<li>(optional) ResourceManager.iTag value is changed accordingly to your configuration. If this line
+is commented, then iTag will not be used (i.e. products will not be tagged)</li>
+</ul><p>Create an admin user within the database</p>
+
+<pre><code>    # Change password !!!
+    $PASSWORD=nimda
+
+    psql -d resto &lt;&lt; EOF
+    INSERT INTO admin.users (userid,groups,username,password,activationcode,activated,registrationdate) VALUES ('admin','admin','admin',md5('$PASSWORD'),md5('$PASSWORD' || now()), TRUE, now());
+    EOF
+</code></pre>
+
+<h2>
+<a name="masphup-configuration" class="anchor" href="#masphup-configuration"><span class="octicon octicon-link"></span></a>masphup configuration</h2>
+
+<p>Edit $RESTO_TARGET/themes/default/config.js and set c["general"].rootUrl value to $RESTO_TARGET url  </p>
+
+<h1>
+<a name="quick-start" class="anchor" href="#quick-start"><span class="octicon octicon-link"></span></a>Quick Start</h1>
+
+<h2>
+<a name="create-a-collection" class="anchor" href="#create-a-collection"><span class="octicon octicon-link"></span></a>Create a collection</h2>
+
+<pre><code>    $RESTO_HOME/_scripts/createCollection.sh -f $RESTO_HOME/_examples/collections/Example.json -u admin:nimda
+</code></pre>
+
+<h2>
+<a name="access-opensearch-description-for-a-collection" class="anchor" href="#access-opensearch-description-for-a-collection"><span class="octicon octicon-link"></span></a>Access OpenSearch Description for a collection</h2>
+
+<p>Only works for an existing collection (so create a collection first !)</p>
+
+<pre><code>    Open you browser to http://localhost/resto/Example/$describe
+</code></pre>
+
+<h2>
+<a name="delete-a-collection" class="anchor" href="#delete-a-collection"><span class="octicon octicon-link"></span></a>Delete a collection</h2>
+
+<p>WARNING ! This will also destroy all the resources within the collection</p>
+
+<pre><code>    $RESTO_HOME/_scripts/deleteCollection.sh -p -c Example -u admin:nimda
+</code></pre>
+
+<h2>
+<a name="list-all-collections" class="anchor" href="#list-all-collections"><span class="octicon octicon-link"></span></a>List all collections</h2>
+
+<pre><code>    Open your browser to http://localhost/resto/
+</code></pre>
+
+<h2>
+<a name="insert-a-resource" class="anchor" href="#insert-a-resource"><span class="octicon octicon-link"></span></a>Insert a resource</h2>
+
+<p>Only works for an existing collection (so create a collection first !)</p>
+
+<pre><code>    $RESTO_HOME/_scripts/postResource.sh -c Example -f $RESTO_HOME/_examples/resources/resource_Example.json -u admin:nimda
+</code></pre>
+
+<h2>
+<a name="search-for-resources" class="anchor" href="#search-for-resources"><span class="octicon octicon-link"></span></a>Search for resources</h2>
+
+<p>Only works for an existing collection (so create a collection first !)</p>
+
+<pre><code>    Open your browser to http://localhost/resto/Example/
+</code></pre>
+
+<h2>
+<a name="see-resource-metadata-in-atom" class="anchor" href="#see-resource-metadata-in-atom"><span class="octicon octicon-link"></span></a>See resource metadata in Atom</h2>
+
+<p>Only works on an existing resource (so insert resource first !)</p>
+
+<pre><code>    curl "http://localhost/resto/Example/DS_SPOT6_201211101947221_FR1_FR1_FR1_FR1_W152S17_01809/?&amp;format=atom"
+</code></pre>
+
+<h2>
+<a name="see-resource-metadata-in-geojson" class="anchor" href="#see-resource-metadata-in-geojson"><span class="octicon octicon-link"></span></a>See resource metadata in GeoJSON</h2>
+
+<p>Only works on an existing resource (so insert resource first !)</p>
+
+<pre><code>    curl "http://localhost/resto/Example/DS_SPOT6_201211101947221_FR1_FR1_FR1_FR1_W152S17_01809/?&amp;format=json"
+</code></pre>
+
+<h2>
+<a name="tag-a-resource" class="anchor" href="#tag-a-resource"><span class="octicon octicon-link"></span></a>Tag a resource</h2>
+
+<p>Only works for an existing resource</p>
+
+<pre><code>    $RESTO_HOME/_scripts/tagResource.sh -c Example -f $RESTO_HOME/_examples/tags/tagging_Example.json -i DS_SPOT6_201211101947221_FR1_FR1_FR1_FR1_W152S17_01809 -u admin:nimda
+</code></pre>
+
+<h2>
+<a name="tag-a-collection" class="anchor" href="#tag-a-collection"><span class="octicon octicon-link"></span></a>Tag a collection</h2>
+
+<p>Only works for an existing collection</p>
+
+<pre><code>    $RESTO_HOME/_scripts/tagCollection.sh -c Example -f $RESTO_HOME/_examples/tags/tagging_Example.json -u admin:nimda
+</code></pre>
+
+<h1>
+<a name="frequently-asked-questions" class="anchor" href="#frequently-asked-questions"><span class="octicon octicon-link"></span></a>Frequently Asked Questions</h1>
+
+<h2>
+<a name="how-to-configure-apache-for-https-" class="anchor" href="#how-to-configure-apache-for-https-"><span class="octicon octicon-link"></span></a>How to configure Apache for https ?</h2>
+
+<p>For <a href="http://blog.andyhunt.info/2011/11/26/apache-ssl-on-max-osx-lion-10-7/">Mac OS X</a></p>
+
+<p>(Warning <a href="http://stackoverflow.com/questions/18251128/why-am-i-suddenly-getting-a-blocked-loading-mixed-active-content-issue-in-fire">http://stackoverflow.com/questions/18251128/why-am-i-suddenly-getting-a-blocked-loading-mixed-active-content-issue-in-fire</a>)</p>
+
+<h2>
+<a name="for-security-reasons-i-cannot-post-file-through-php" class="anchor" href="#for-security-reasons-i-cannot-post-file-through-php"><span class="octicon octicon-link"></span></a>For security reasons i cannot POST file through PHP</h2>
+
+<p>You can POST collections descriptions using a "key=value" mechanism instead of file upload.</p>
+
+<p>To do so, you need to encode the json file (using javascript encodeURIComponent for instance) - see $RESTO_HOME/_examples/collections/Example.txt - and run the following command</p>
+
+<pre><code>    curl -X POST -d @$RESTO_HOME/_examples/collections/Example.txt http://admin:nimda@localhost/resto/
+</code></pre>
       </section>
     </div>
 
@@ -73,7 +412,17 @@ $ git checkout gh-pages
       </footer>
     </div>
 
-    
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-1386506-9");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
 
   </body>
 </html>
