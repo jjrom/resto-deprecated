@@ -431,8 +431,21 @@ a.resto-keyword-herbaceous  {
 #dropZone.hover h1 {
     color:#000;
 }
+#restoUserPanel {
+    position: fixed;
+    z-index: 90000;
+    top: 0px;
+    left: 0px;
+    background-color: rgba(0, 0, 0, 0.9);
+    color: white;
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    padding:10% 0 0 0
+}
 #restoUserPanel img {
-    border:solid 1px #fff;
+    padding:10px;
+    border-radius: 50%;
 }
 #restoUserPanel .close {
     position:absolute;
@@ -461,7 +474,8 @@ a.resto-keyword-herbaceous  {
     height: 39px;
     margin: 0;
     padding: 0 8px;
-    font-size:1em;
+    font-size:0.8em;
+    width:250px;
 }
 #restoUserPanel input:focus,input[type="password"]:hover,#restoUserPanel input[type="text"]:hover {
     -moz-border-bottom-colors: none;

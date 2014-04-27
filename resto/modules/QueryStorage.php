@@ -48,6 +48,7 @@
 class QueryStorage {
    
     private $dbh;
+    private $profile;
     
     /**
      * Constructor
@@ -56,6 +57,7 @@ class QueryStorage {
      */
     public function __construct($R) {
         $config = $R->getModuleConfig('QueryStorage');
+        $this->profile = $R->getUser()->getProfile();
         if ($config && $config['activate']) {
             $dbConnector = $R->getDatabaseConnectorInstance();
             if (isset($config['db']) && is_array($config['db'])) {
@@ -89,10 +91,11 @@ class QueryStorage {
             $query['realquery'] ? "'" . pg_escape_string(json_encode($query['realquery'])) . "'" : "null",
             "now()",
             "'" . $_SERVER['REMOTE_ADDR'] . "'",
-            "'" . pg_escape_string($query['url']) . "'"
+            "'" . pg_escape_string($query['url']) . "'",
+            $this->profile['userid']
         );
 
-        return pg_query($this->dbh, 'INSERT INTO admin.history (service,collection,query,realquery,querytime,ip,url) VALUES (' . join(',', $values) . ')');
+        return pg_query($this->dbh, 'INSERT INTO admin.history (service,collection,query,realquery,querytime,ip,url,userid) VALUES (' . join(',', $values) . ')');
 
     }
 

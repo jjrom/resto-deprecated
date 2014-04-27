@@ -113,7 +113,7 @@ if ($method !== 'get') {
 }
 $params = array_merge($_POST, $_GET);
 $mandatory = array(
-    'userid',
+    'uid',
     'act'
 );
 foreach ($mandatory as $key) {
@@ -134,19 +134,19 @@ try {
     if (!$dbh) {
         throw new Exception('Database connection error', 500);
     }
-    $userid = pg_escape_string(trim(strtolower($params['userid'])));
+    $userid = pg_escape_string($params['uid']);
     
     /*
      * Userid must be unique
      */
-    $results = pg_query($dbh, 'SELECT 1 FROM admin.users WHERE userid=\'' . $userid . '\' AND activationcode=\'' . pg_escape_string(trim($params['act'])) . '\'');
+    $results = pg_query($dbh, 'SELECT 1 FROM admin.users WHERE userid=' . $userid . ' AND activationcode=\'' . pg_escape_string(trim($params['act'])) . '\'');
     if (!$results || !pg_fetch_assoc($results)) {
         throw new Exception('Invalid activation code', 500);
     }
-    pg_query($dbh, 'UPDATE admin.users SET activated = TRUE WHERE userid=\'' . $userid . '\' AND activationcode=\'' . pg_escape_string(trim($params['act'])) . '\'');
+    pg_query($dbh, 'UPDATE admin.users SET activated = TRUE WHERE userid=' . $userid . ' AND activationcode=\'' . pg_escape_string(trim($params['act'])) . '\'');
     echoResult(200, 'OK', array(
         'status' => 'OK',
-        'message' => 'User ' . $userid . ' activated'
+        'message' => 'User activated'
     ));
 } catch (Exception $e) {
     echoResult(500, 'Internal Server Error', array(

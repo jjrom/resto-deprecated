@@ -52,7 +52,7 @@ class RestoUser {
      * User profile
      */
     private $profile = array(
-        'userid' => 'anonymous',
+        'userid' => -1,
         'groupid' => 'default'
     );
     
@@ -256,7 +256,7 @@ class RestoUser {
         if (!$dbh) {
             throw new Exception('Database connection error', 500);
         }
-        $profiles = pg_query($dbh, 'SELECT userid, groups, username, password from admin.users WHERE userid=\'' . pg_escape_string(strtolower($_SERVER['PHP_AUTH_USER'])) . '\' AND password=\'' . pg_escape_string(md5($_SERVER['PHP_AUTH_PW'])) . '\' AND activated = TRUE');
+        $profiles = pg_query($dbh, 'SELECT userid, email, groups, username, givenname, lastname, password from admin.users WHERE email=\'' . pg_escape_string(strtolower($_SERVER['PHP_AUTH_USER'])) . '\' AND password=\'' . pg_escape_string(md5($_SERVER['PHP_AUTH_PW'])) . '\' AND activated = TRUE');
         if (!$profiles) {
             pg_close($dbh);
             throw new Exception('Database connection error', 500);
@@ -265,14 +265,14 @@ class RestoUser {
         if ($profile) {
             $_SESSION['profile'] = array(
                 'userid' => $profile['userid'],
-                'userhash' => md5($profile['userid']),
+                'email' => $profile['email'],
+                'userhash' => md5($profile['email']),
                 'groupid' => $profile['groups']
             );
         }
         else {
             $_SESSION['profile'] = array(
-                'userid' => 'anonymous',
-                'userhash' => md5('anonymous'),
+                'userid' => -1,
                 'groupid' => 'default'
             );
         }

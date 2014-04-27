@@ -119,7 +119,7 @@ CREATE TABLE admin.history (
     querytime           TIMESTAMP,
     url                 TEXT DEFAULT NULL,
     ip                  VARCHAR(15),
-    userid              VARCHAR(255) DEFAULT 'anonymous'
+    userid              INTEGER DEFAULT -1
 );
 CREATE INDEX idx_service_history ON admin.history (service);
 CREATE INDEX idx_userid_history ON admin.history (userid);
@@ -179,15 +179,19 @@ CREATE INDEX idx_updated_tags ON admin.tags (updateddate);
 -- users table list user informations
 --
 CREATE TABLE admin.users (
-    userid              VARCHAR(255) PRIMARY KEY,  -- should be an email adress
-    groups              TEXT, -- group names are comma separated
+    userid              SERIAL PRIMARY KEY,
+    email               VARCHAR(255) UNIQUE,  -- should be an email adress
+    groups              TEXT, -- group names are comma separated (first one is the main group)
     username            VARCHAR(50) NOT NULL,
-    password            VARCHAR(50) NOT NULL, -- stored as md5
+    givenname           VARCHAR(255),
+    lastname            VARCHAR(255),
+    password            VARCHAR(32) NOT NULL, -- stored as md5
     registrationdate    TIMESTAMP NOT NULL,
     activationcode      VARCHAR(255) NOT NULL UNIQUE, -- activation code store as md5
     activated           BOOLEAN NOT NULL DEFAULT FALSE,              
     lastsessionid       VARCHAR(255)
 );
+CREATE INDEX idx_email_users ON admin.users (email);
 
 --
 -- rights table list user rights on collection
@@ -220,7 +224,7 @@ GRANT SELECT,INSERT,UPDATE,DELETE ON admin.collections TO $ADMIN;
 GRANT SELECT,INSERT,UPDATE,DELETE ON admin.osdescriptions TO $ADMIN;
 GRANT SELECT,INSERT,UPDATE,DELETE ON admin.rights TO $ADMIN;
 GRANT SELECT,INSERT,UPDATE,DELETE ON admin.users TO $ADMIN;
-
+GRANT ALL ON admin.users_userid_seq TO $ADMIN;
 EOF
 
 

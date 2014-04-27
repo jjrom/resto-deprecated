@@ -84,32 +84,26 @@ function echoResult($status, $message, $body = null) {
 /*
  * Send email
  */
-function sendActivationMail($userid, $sender, $url) {
-    $subject = "[RESTo] Activation code for user " . $userid;
+function sendActivationMail($to, $sender, $userid, $activation) {
+    
+    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+    $port = isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] !== '80' ? ':' . $_SERVER['SERVER_PORT'] : '';
+    $activationUrl = $protocol . '://' . $_SERVER['SERVER_NAME'] . $port . str_replace("register.php", "activate.php", $_SERVER['PHP_SELF']) . '?uid=' . $userid . '&act=' . $activation;
+    
+    $subject = "[RESTo] Activation code for user " . $to;
     $message = "Hi,\r\n\r\n" .
             "You have registered an account to RESTo application\r\n\r\n" .
-            "To validate this account, go to " . $url . "\r\n\r\n" .
+            "To validate this account, go to " . $activationUrl . "\r\n\r\n" .
             "Regards" . "\r\n\r\n" .
             "RESTo administrator";
     $headers = "From: " . $sender . "\r\n" .
             "Reply-To: " . $sender . "\r\n" .
             "X-Mailer: PHP/" . phpversion();
-    if (mail($userid, $subject, $message, $headers)) {
+    if (mail($to, $subject, $message, $headers)) {
         return true;
     }
 
     return false;
-}
-
-/*
- * Get calling url
- * 
- * @param {String} $activation
- */
-function getActivationUrl($userid, $activation) {
-    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
-    $port = isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] !== '80' ? ':' . $_SERVER['SERVER_PORT'] : '';
-    return $protocol . '://' . $_SERVER['SERVER_NAME'] . $port . str_replace("register.php", "activate.php", $_SERVER['PHP_SELF']) . '?userid=' . $userid . '&act=' . $activation;   
 }
 
 /*
@@ -145,7 +139,7 @@ if ($method !== 'post') {
 }*/
 $params = array_merge($_POST, $_GET);
 $mandatory = array(
-    'userid',
+    'email',
     'password',
     'username'
 );
@@ -167,12 +161,12 @@ try {
     if (!$dbh) {
         throw new Exception('Database connection error', 500);
     }
-    $userid = pg_escape_string(trim(strtolower($params['userid'])));
+    $email = pg_escape_string(trim(strtolower($params['email'])));
 
     /*
-     * Userid must be unique
+     * Email must be unique
      */
-    $results = pg_query($dbh, 'SELECT 1 FROM admin.users WHERE userid=\'' . $userid . '\'');
+    $results = pg_query($dbh, 'SELECT 1 FROM admin.users WHERE email=\'' . $email . '\'');
     if (!$results) {
         throw new Exception('Database connection error', 500);
     }
@@ -187,18 +181,25 @@ try {
     $activationcode = md5($params['userid'] + microtime());
     $groups = 'default';
     $username = trim($params['username']);
-    $results = pg_query($dbh, 'INSERT INTO admin.users (userid,groups,username,password,activationcode,activated,registrationdate) VALUES (\'' . $userid . '\',\'' . $groups . '\',\'' . $username . '\',\'' . $password . '\',\'' . $activationcode . '\', FALSE, now())');
+    $results = pg_query($dbh, 'INSERT INTO admin.users (email,groups,username,password,activationcode,activated,registrationdate) VALUES (\'' . $email . '\',\'' . $groups . '\',\'' . $username . '\',\'' . $password . '\',\'' . $activationcode . '\', FALSE, now()) RETURNING userid');
     if (!$results) {
         pg_close($dbh);
         throw new Exception('Database connection error', 500);
     }
-    if (!sendActivationMail($userid, $config['general']['adminEmail'], getActivationUrl($userid, $activationcode))) {
-        throw new Exception('Problem sending activation code', 500);
+    $result = pg_fetch_array($results);
+    if (isset($result) && $result['userid']) {
+        if (!sendActivationMail($email, $config['general']['adminEmail'], $result['userid'], $activationcode)) {
+            throw new Exception('Problem sending activation code', 500);
+        }
+        echoResult(200, 'OK', array(
+            'status' => 'OK',
+            'message' => 'User ' . $email . ' created'
+        ));
     }
-    echoResult(200, 'OK', array(
-        'status' => 'OK',
-        'message' => 'User ' . $userid . ' created'
-    ));
+    else {
+        throw new Exception('Cannot insert user in database', 500);
+    }
+        
 } catch (Exception $e) {
     echoResult(500, 'Internal Server Error', array(
         'ErrorCode' => $e->getCode(),

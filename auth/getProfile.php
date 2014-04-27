@@ -101,7 +101,7 @@ if ($method !== 'get') {
 }
 
 if (!$_SESSION['profile']) {
-    echoResult(200, 'OK', array('userid' => 'anonymous'));
+    echoResult(200, 'OK', array('userid' => -1));
 }
 else {
     echoResult(200, 'OK', $_SESSION['profile']);

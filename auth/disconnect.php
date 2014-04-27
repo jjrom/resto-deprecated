@@ -117,7 +117,7 @@ try {
     $config = IniParser::read($configFile);
     $user = new RestoUser(new DatabaseConnector($config['general']['db']), true);
     $user->disconnect();
-    echoResult(200, 'OK', array('userid' => 'anonymous'));
+    echoResult(200, 'OK', array('userid' => -1));
 } catch (Exception $e) {
     echoResult(500, 'Internal Server Error', array(
         'ErrorCode' => 500,

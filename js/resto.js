@@ -782,18 +782,7 @@
             /*
              * User panel is displayed on top of RESTo content
              */
-            $userPanel = $('<div id="restoUserPanel"><div class="close" title="' + self.translate('_close') + '"></div></div>').appendTo($('body')).css({
-                'position': 'fixed',
-                'z-index': '90000',
-                'top': '0px',
-                'left': '0px',
-                'background-color': 'rgba(0, 0, 0, 0.9)',
-                'color': 'white',
-                'text-align': 'center',
-                'width': '100%',
-                'height': '100%',
-                'padding':'20% 0 0 0'
-            }).show();
+            $userPanel = $('<div id="restoUserPanel"><div class="close" title="' + self.translate('_close') + '"></div></div>').appendTo($('body')).show();
             
             /*
              * Top-right close button to hide user panel
@@ -801,67 +790,20 @@
             $('.close', $userPanel).click(function(){
                 self.hideUserPanel();
             });
-                
+            
             /*
              * The user is connected (i.e. authenticated)
              * Display user profile and logout button
              */
             if (self.isConnected()) {
-                $userPanel.append('<div class="row"><div class="large-12 columns"><img src="' + this.getGravatar(this.userProfile.userhash, 200) + '"/><ul class="no-bullet"><li>' + self.userProfile.userid + '</li></ul><a class="button signOut">' + self.translate('_logout') + '</a></div></div>');
-                $('.signOut').click(function() {
-                    self.showMask();
-                    self.ajax({
-                        url: self.restoUrl + 'auth/disconnect.php',
-                        dataType:'json',
-                        success: function(json) {
-                            window.location.reload();
-                        },
-                        error: function(e) {
-                            self.hideMask();
-                            self.hideUserPanel();
-                            self.message('Error : cannot disconnect');
-                        }
-                    });
-                    return false;
-                });
+                self.displayProfile();
             }
             /*
              * The user is not connected (i.e. not authenticated)
              * Display login/password form and sign with SSO / register buttons
              */
             else {
-                $userPanel.append('<div class="row"><div class="large-12 columns"><form action="#"><ul class="no-bullet"><li><input id="userEmail" type="text" placeholder="' + self.translate('_email') + '"/></li><li><input id="userPassword" type="password" placeholder="' + self.translate('_password') + '"/></li></ul><a class="button signIn">' + self.translate('_login') + '</a></form></div></div>');
-                $('#userEmail').focus();
-                $('#userPassword').keypress(function (e) {
-                    if (e.which === 13) {
-                        $('.signIn').trigger('click');
-                        return false;
-                    }
-                });
-                $('.signIn').click(function() {
-                    self.showMask();
-                    self.ajax({
-                        url: self.restoUrl + 'auth/connect.php',
-                        headers: {
-                            'Authorization': "Basic " + btoa($('#userEmail').val() + ":" + $('#userPassword').val())
-                        },
-                        dataType:'json',
-                        success: function(json) {
-                            if (json && json.userid === 'anonymous') {
-                                self.hideMask();
-                                self.message('Error - unknown user or incorrect password');
-                            }
-                            else {
-                                window.location.reload();
-                            }
-                        },
-                        error: function(e) {
-                            self.hideMask();
-                            self.message('Error - cannot sign in');
-                        }
-                    });
-                    return false;
-                });
+                self.displayLogin();
             }
         },
         
@@ -876,10 +818,81 @@
          * Return true if user is connected (i.e. authenticated)
          */
         isConnected: function() {
-            if (this.userProfile && this.userProfile.userid && this.userProfile.userid !== 'anonymous') {
+            if (this.userProfile && this.userProfile.userid && this.userProfile.userid !== -1) {
                 return true;
             }
             return false;
+        },
+        
+        /**
+         * Display user profile in user panel
+         */
+        displayProfile: function() {
+            
+            var self = this, $userPanel = $('#restoUserPanel');
+            
+            $userPanel.append('<div class="row"><div class="large-12 columns"><img src="' + self.getGravatar(this.userProfile.userhash, 200) + '"/><ul class="no-bullet"><li>' + self.userProfile.email + '</li></ul><a class="button signOut">' + self.translate('_logout') + '</a></div></div>');
+            $('.signOut').click(function() {
+                self.showMask();
+                self.ajax({
+                    url: self.restoUrl + 'auth/disconnect.php',
+                    dataType:'json',
+                    success: function(json) {
+                        window.location.reload();
+                    },
+                    error: function(e) {
+                        self.hideMask();
+                        self.hideUserPanel();
+                        self.message('Error : cannot disconnect');
+                    }
+                });
+                return false;
+            });
+        },
+        
+        /**
+         * Display login form in user panel
+         */
+        displayLogin: function() {
+            
+            var self = this, $userPanel = $('#restoUserPanel');
+            
+            $userPanel.append('<div class="row"><div class="large-12 columns"><form action="#"><ul class="no-bullet"><li><input id="userEmail" type="text" placeholder="' + self.translate('_email') + '"/></li><li><input id="userPassword" type="password" placeholder="' + self.translate('_password') + '"/></li></ul><a class="button signIn">' + self.translate('_login') + '</a></form></div></div>');
+            $('#userEmail').focus();
+            $('#userPassword').keypress(function (e) {
+                if (e.which === 13) {
+                    $('.signIn').trigger('click');
+                    return false;
+                }
+            });
+            $('.signIn').click(function() {
+                self.showMask();
+                self.ajax({
+                    url: self.restoUrl + 'auth/connect.php',
+                    headers: {
+                        'Authorization': "Basic " + btoa($('#userEmail').val() + ":" + $('#userPassword').val())
+                    },
+                    dataType:'json',
+                    success: function(json) {
+                        if (json && json.userid === -1) {
+                            self.hideMask();
+                            self.message('Error - unknown user or incorrect password');
+                        }
+                        else {
+                            window.location.reload();
+                        }
+                    },
+                    error: function(e) {
+                        self.hideMask();
+                        self.message('Error - cannot sign in');
+                    }
+                });
+                return false;
+            });
+        },
+        
+        displayRegister: function() {
+            
         }
     };
 
