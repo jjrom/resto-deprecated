@@ -117,7 +117,7 @@ class Resto {
     /*
      * RESTo major version number
      */
-    private $version = 'RESTo v1.0-alpha';
+    private $version = 'RESTo v1.0';
     
     /*
      * Config object
