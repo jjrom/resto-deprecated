@@ -96,6 +96,10 @@ function sendActivationMail($to, $sender, $userid, $activation) {
             "To validate this account, go to " . $activationUrl . "\r\n\r\n" .
             "Regards" . "\r\n\r\n" .
             "RESTo administrator";
+    
+    if (!$sender) {
+        $sender = 'restobot@' . $_SERVER['SERVER_NAME'];
+    }
     $headers = "From: " . $sender . "\r\n" .
             "Reply-To: " . $sender . "\r\n" .
             "X-Mailer: PHP/" . phpversion();
@@ -188,7 +192,7 @@ try {
     }
     $result = pg_fetch_array($results);
     if (isset($result) && $result['userid']) {
-        if (!sendActivationMail($email, $config['general']['adminEmail'], $result['userid'], $activationcode)) {
+        if (!sendActivationMail($email, isset($config['general']['activationEmail']) ? $config['general']['activationEmail'] : null, $result['userid'], $activationcode)) {
             throw new Exception('Problem sending activation code', 500);
         }
         echoResult(200, 'OK', array(
