@@ -298,7 +298,7 @@
 
                 for (key in keywords) {
                     if (keywords[key]['keywords'].length > 0) {
-                        results.push('<td class="title">' + self.translate(keywords[key]['title']) + '</td><td>&nbsp;</td><td class="values">' + keywords[key]['keywords'].join(', ') + '</td>');
+                        results.push('<td class="title">' + self.translate(keywords[key]['title']) + '</td><td class="values">' + keywords[key]['keywords'].join(', ') + '</td>');
                     }
                 }
 
