@@ -114,6 +114,9 @@ class RestoUser {
         if ($forceAuth || !isset($_SESSION['profile']) || count($_SESSION['profile']) === 0) {
             $this->authenticate();
         }
+        else {
+            $this->profile = $_SESSION['profile'];
+        }
         
         /*
          * Refresh rights from database if not set within session
