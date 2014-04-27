@@ -543,7 +543,7 @@ return array(
         'sierra leone' => 'Sierra leone',
         'slovakia' => 'Slovaquie',
         'slovenia' => 'Slovénie',
-        'solomon islands' => 'Iles Salomon',
+        'solomon islands' => 'Salomon',
         'somalia' => 'Somalie',
         'somaliland' => 'Somaliland',
         'south africa' => 'Afrique du Sud',
