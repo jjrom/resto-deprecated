@@ -157,6 +157,11 @@ class Resto {
     public $realCount;
 
     /*
+     * SSO authorize url
+     */
+    public $authorizeUrl;
+    
+    /*
      * Default response format is HTML for nominal GET requests
      * and JSON for other requests (including GET request in error)
      */
@@ -271,7 +276,12 @@ class Resto {
          * restoUrl is the root url of the webapp (e.g. http(s)://host/resto/)
          */
         $this->request['restoUrl'] = $RESToURL ? substr($this->getBaseURL(), 0, -(strlen($RESToURL) + 1)) : $this->getBaseURL();
-
+        
+        /*
+         * Authorize url
+         */
+        $this->authorizeUrl = isset($this->config['sso']) && isset($this->config['sso']['authorizeUrl']) ? $this->config['sso']['authorizeUrl'] . $this->request['restoUrl'] . 'auth/oauthCallback.php' : null;    
+            
         /*
          * Method is one of GET, POST, PUT or DELETE
          */

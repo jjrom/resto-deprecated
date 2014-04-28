@@ -115,7 +115,7 @@ if ($method !== 'get') {
 
 try {
     $config = IniParser::read($configFile);
-    $user = new RestoUser(new DatabaseConnector($config['general']['db']), true);
+    $user = new RestoUser(new DatabaseConnector($config['general']['db']), array('forceAuth' => true));
     $user->disconnect();
     echoResult(200, 'OK', array('userid' => -1));
 } catch (Exception $e) {

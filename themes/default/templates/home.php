@@ -77,7 +77,8 @@ $user = $this->R->getUser();
                     language: '<?php echo $this->request['language']; ?>',
                     data:<?php echo json_encode($this->response) ?>,
                     translation:<?php echo json_encode($this->description['dictionary']->getTranslation()) ?>,
-                    restoUrl: '<?php echo $this->request['restoUrl'] ?>'
+                    restoUrl: '<?php echo $this->request['restoUrl'] ?>',
+                    authorizeUrl:'<?php echo $this->R->authorizeUrl ?>'
                 });
             });
         </script>

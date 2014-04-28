@@ -63,6 +63,11 @@
         layer: null,
         
         /*
+         * Authorize url for SSO authentication
+         */
+        authorizeUrl: null,
+        
+        /*
          * User profile
          */
         userProfile: null,
@@ -80,6 +85,13 @@
 
             self.translation = options.translation || {};
             self.restoUrl = options.restoUrl;
+            
+            /*
+             * SSO authentication server is available
+             */
+            if (options.authorizeUrl) {
+                self.authorizeUrl = options.authorizeUrl;
+            }
             
             /*
              * mapshup is defined
@@ -288,7 +300,7 @@
             if (this.isConnected()) {
                 $('.viewUserPanel')
                         .html('')
-                        .attr('title', this.userProfile.username || this.userProfile.email)
+                        .attr('title', this.userProfile.email)
                         .css('background-image', 'url(' + this.getGravatar(this.userProfile.userhash, 200) + ')');
             }
             else {
@@ -865,7 +877,7 @@
             /*
              * Display login panel
              */
-            $userPanel.append('<div class="row" id="displayLogin"><div class="large-12 columns"><form action="#"><ul class="no-bullet"><li><input id="userEmail" type="text" placeholder="' + self.translate('_email') + '"/></li><li><input id="userPassword" type="password" placeholder="' + self.translate('_password') + '"/></li></ul><p><a class="button signIn">' + self.translate('_login') + '</a></p><p><a class="register">' + self.translate('_createAccount') + '</a></p></form></div></div>');
+            $userPanel.append('<div class="row" id="displayLogin"><div class="large-12 columns"><form action="#"><ul class="no-bullet"><li><input id="userEmail" type="text" placeholder="' + self.translate('_email') + '"/></li><li><input id="userPassword" type="password" placeholder="' + self.translate('_password') + '"/></li></ul><p><a class="button signIn">' + self.translate('_login') + '</a></p>' + (self.authorizeUrl ? '<p><a class="signInOutside">' + self.translate('_signInOutside') + '</a></p>' : '') + '<p><a class="register">' + self.translate('_createAccount') + '</a></p></form></div></div>');
             $('#userEmail').focus();
             $('#userPassword').keypress(function (e) {
                 if (e.which === 13) {
@@ -873,11 +885,19 @@
                     return false;
                 }
             });
+            
+            /*
+             * Register user locally
+             */
             $('.register').click(function(e){
                 e.preventDefault();
                 self.displayRegister();
                 return false;
             });
+            
+            /*
+             * Sign in locally
+             */
             $('.signIn').click(function(e) {
                 e.preventDefault();
                 self.showMask();
@@ -902,6 +922,28 @@
                     }
                 });
                 return false;
+            });
+            
+            /*
+             * Sign in using SSO Oauth server - e.g. Theia server
+             */
+            $('.signInOutside').click(function(e) {
+                
+                /*
+                 * Open SSO authentication window
+                 */
+                var popup = window.open(self.authorizeUrl, 'Theia', 'dependent=yes, menubar=yes, toolbar=yes');
+                
+                /*
+                 * Load user profile after popup has been closed
+                 */
+                var fct = setInterval(function() {
+                    if (popup.closed) {
+                        clearInterval(fct);
+                        window.location.reload();
+                    }
+                }, 200);
+                
             });
         },
         

@@ -101,18 +101,22 @@ class RestoUser {
      * and stores it within $this->rights array
      * 
      * @param Object $dbConnector - DatabaseConnector instance
-     * @param boolean $forceAuth - true to force authentication/rights refresh even if session is set
-     * 
+     * @param Array options - 
+     *          'forceAuth' => true to force authentication/rights refresh even if session is set
+     *          'email' => email of oauth user
+     *          'oauthToken' => oauth token
      */
-    final public function __construct($dbConnector, $forceAuth = false) {
+    final public function __construct($dbConnector, $options = array()) {
         
         $this->dbConnector = $dbConnector;
+        
+        $forceAuth = isset($options['forceAuth']) ? $options['forceAuth'] : false;
         
         /*
          * Authenticate if not already done
          */
         if ($forceAuth || !isset($_SESSION['profile']) || count($_SESSION['profile']) === 0) {
-            $this->authenticate();
+            $this->authenticate($options);
         }
         else {
             $this->profile = $_SESSION['profile'];
@@ -253,13 +257,26 @@ class RestoUser {
     /**
      * Authenticate user
      */
-    private function authenticate() {
+    private function authenticate($options = array()) {
+        
+        /*
+         * Authentication through oauth
+         */
+        if (isset($options['email']) && isset($options['oauthToken'])) {
+            $where = 'email=\'' . pg_escape_string(strtolower($options['email'])) . '\'';
+        }
+        /*
+         * Basic authentication
+         */
+        else {
+            $where = 'email=\'' . pg_escape_string(strtolower($_SERVER['PHP_AUTH_USER'])) . '\' AND password=\'' . pg_escape_string(md5($_SERVER['PHP_AUTH_PW'])) . '\'';
+        }
         
         $dbh = $this->dbConnector->getConnection(true);
         if (!$dbh) {
             throw new Exception('Database connection error', 500);
         }
-        $profiles = pg_query($dbh, 'SELECT userid, email, groups, username, givenname, lastname, password from admin.users WHERE email=\'' . pg_escape_string(strtolower($_SERVER['PHP_AUTH_USER'])) . '\' AND password=\'' . pg_escape_string(md5($_SERVER['PHP_AUTH_PW'])) . '\' AND activated = TRUE');
+        $profiles = pg_query($dbh, 'SELECT userid, email, groups, username, givenname, lastname, password from admin.users WHERE ' . $where . ' AND activated = TRUE');
         if (!$profiles) {
             pg_close($dbh);
             throw new Exception('Database connection error', 500);
@@ -273,7 +290,7 @@ class RestoUser {
                 'groupid' => $profile['groups'],
                 'username' => $profile['username'],
                 'givenname' => $profile['givenname'],
-                'lastname' => $profile['lastname'],
+                'lastname' => $profile['lastname'] 
             );
         }
         else {
@@ -284,6 +301,12 @@ class RestoUser {
         }
         pg_close($dbh);
         
+        /*
+         * Add oauth token if defined
+         */
+        if (isset($options['oauthToken'])) {
+            $_SESSION['profile']['oauthtoken'] = $options['oauthToken'];
+        }
         $this->profile = $_SESSION['profile'];
         
     }

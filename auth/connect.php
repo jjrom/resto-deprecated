@@ -114,7 +114,7 @@ if ($method !== 'get') {
 }
 try {
     $config = IniParser::read($configFile);
-    $user = new RestoUser(new DatabaseConnector($config['general']['db']), true);
+    $user = new RestoUser(new DatabaseConnector($config['general']['db']), array('forceAuth' => true));
     echoResult(200, 'OK', $user->getProfile());
 } catch (Exception $e) {
     echoResult(500, 'Internal Server Error', array(

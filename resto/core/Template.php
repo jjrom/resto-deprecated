@@ -48,13 +48,13 @@ class Template {
     private $R;
     private $request;
     private $response;
-
+    
     public function __construct($file, $R, $response, $responseDescription) {
         $this->file = $file;
         $this->R = $R;
         $this->request = $this->R->getRequest();
         $this->response = $response;
-        $this->description = $responseDescription;        
+        $this->description = $responseDescription;
     }
     
     public function render() {
