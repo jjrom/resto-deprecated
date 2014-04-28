@@ -288,7 +288,7 @@
             if (this.isConnected()) {
                 $('.viewUserPanel')
                         .html('')
-                        .attr('title', this.translate('_showProfile'))
+                        .attr('title', this.userProfile.username || this.userProfile.email)
                         .css('background-image', 'url(' + this.getGravatar(this.userProfile.userhash, 200) + ')');
             }
             else {

@@ -270,7 +270,10 @@ class RestoUser {
                 'userid' => $profile['userid'],
                 'email' => $profile['email'],
                 'userhash' => md5($profile['email']),
-                'groupid' => $profile['groups']
+                'groupid' => $profile['groups'],
+                'username' => $profile['username'],
+                'givenname' => $profile['givenname'],
+                'lastname' => $profile['lastname'],
             );
         }
         else {
