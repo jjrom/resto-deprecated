@@ -100,10 +100,12 @@ function sendActivationMail($to, $sender, $userid, $activation) {
     if (!$sender) {
         $sender = 'restobot@' . $_SERVER['SERVER_NAME'];
     }
-    $headers = "From: " . $sender . "\r\n" .
-            "Reply-To: " . $sender . "\r\n" .
-            "X-Mailer: PHP/" . phpversion();
-    if (mail($to, $subject, $message, $headers)) {
+    $headers = "From: " . $_SERVER['SERVER_NAME'] . " <" . $sender . ">\r\n" ;
+    $headers .= "Reply-To: doNotReply <" . $sender . ">\r\n";
+    $headers .= "X-Mailer: PHP/" . phpversion();
+    $headers .= "MIME-Version: 1.0\r\n";
+    $headers .= "Content-type: text/plain; charset=iso-8859-1\r\n";
+    if (mail($to, $subject, $message, $headers, '-f'. $sender)) {
         return true;
     }
 
