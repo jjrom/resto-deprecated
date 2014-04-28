@@ -103,7 +103,6 @@ $templateName = 'default';
         <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/resto.js"></script>
         <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/themes/<?php echo $templateName ?>/theme.js"></script>
         <!-- mapshup : start -->
-        <script type="text/javascript" src="http://maps.google.com/maps/api/js?v=3.14&sensor=false"></script>
         <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/externals/mol/OpenLayers.js"></script>
         <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/externals/mapshup/mapshup.js"></script>
         <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/externals/mapshup/config/default.js"></script>
