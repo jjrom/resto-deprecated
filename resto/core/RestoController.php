@@ -1736,7 +1736,7 @@ abstract class RestoController {
          * Check authorization
          */
         $rights = $this->R->getUser()->getRights($this->description['name'], 'get', 'download');
-        if (!$rights['enabled']) {
+        if ($rights === false) {
             return $this->error('Forbidden', 403);
         }
         
@@ -1899,9 +1899,6 @@ abstract class RestoController {
                         'identifier'
                     ))) {
                 continue;
-            /*
-             * Arrays property case
-             */
             }
             else if ($key === 'links') {
                 $properties[$key] = $value;
@@ -1921,7 +1918,7 @@ abstract class RestoController {
         $properties['services'] = array();
 
         /*
-         * WMS url (product full resolution visualization)
+         * WMS url (product full resolution visualization) if user has rights !
          * 
          * Notes :
          * 
@@ -1946,7 +1943,7 @@ abstract class RestoController {
          */
         if (isset($product['wms'])) {
             $wms = $this->getModelValue('wms', array($product['wms'], str_replace(' ', ',', substr(substr($product['bbox3857'], 0, strlen($product['bbox3857']) - 1), 4))));
-            if ($wms) {
+            if ($wms && $this->R->getUser()->getRights($this->description['name'], 'get', 'visualize') === true) {
                 $properties['services']['browse'] = array(
                     'title' => 'Display full resolution product on map',
                     'layer' => array(
@@ -1961,10 +1958,10 @@ abstract class RestoController {
         }
         
         /*
-         * Download url
+         * Download url if user has rights !
          */
         $archive = $this->getModelValue('archive', $product['archive']);
-        if (isset($archive)) {
+        if (isset($archive) && $this->R->getUser()->getRights($this->description['name'], 'get', 'download') === true) {
             $properties['services']['download'] = array(
                 'url' => $archive,
                 'mimeType' => $this->getModelValue('mimetype', isset($product['mimetype']) ? $product['mimetype'] : null)
