@@ -166,8 +166,8 @@ class ResourceManager {
                 /*
                  * Check that resource does not already exist in database
                  */
-                if ($this->resourceExists($feature['id'])) {
-                    array_push($alreadyInDatabase, $feature['id']);
+                if ($this->resourceExists($properties['identifier'])) {
+                    array_push($alreadyInDatabase, $properties['identifier']);
                     $status = 'partially';
                     continue;
                 }
@@ -223,11 +223,11 @@ class ResourceManager {
                         throw new Exception();
                     }
                 } catch (Exception $e) {
-                    array_push($inError, $feature['id']);
+                    array_push($inError, $properties['identifier']);
                     $status = 'error';
                     continue;
                 }
-                array_push($inserted, $feature['id']);
+                array_push($inserted, $properties['identifier']);
             }
             
         }
