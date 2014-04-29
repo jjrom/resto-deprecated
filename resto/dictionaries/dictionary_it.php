@@ -619,6 +619,7 @@ return array(
         '_lastName' => 'Last name',
         '_userName' => 'User name',
         '_retypePassword' => 'Retype password',
-        '_back' => 'Back'
+        '_back' => 'Back',
+        '_signWithOauth' => 'Sign in with {a:1} account'
     )
 );

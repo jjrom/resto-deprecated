@@ -660,6 +660,7 @@ return array(
         '_lastName' => 'Nom',
         '_userName' => 'Surnom',
         '_retypePassword' => 'Retaper le mot de passe',
-        '_back' => 'Retour'
+        '_back' => 'Retour',
+        '_signWithOauth' => 'S\'identifier avec un compte {a:1}'
     )
 );

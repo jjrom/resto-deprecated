@@ -157,9 +157,14 @@ class Resto {
     public $realCount;
 
     /*
+     * [SSO] Oauth2 service name
+     */
+    public $ssoServiceName;
+    
+    /*
      * [SSO] Oauth2 authorize url
      */
-    public $authorizeUrl;
+    public $ssoAuthorizeUrl;
     
     /*
      * [SSO] Oauth2 access_token
@@ -285,7 +290,8 @@ class Resto {
         /*
          * [SSO] Authorize url and access_token
          */
-        $this->authorizeUrl = isset($this->config['sso']) && isset($this->config['sso']['authorizeUrl']) ? $this->config['sso']['authorizeUrl'] . $this->request['restoUrl'] . 'auth/oauthCallback.php' : null;    
+        $this->ssoAuthorizeUrl = isset($this->config['sso']) && isset($this->config['sso']['authorizeUrl']) ? $this->config['sso']['authorizeUrl'] . $this->request['restoUrl'] . 'auth/oauthCallback.php' : null;    
+        $this->ssoServiceName = isset($this->config['sso']) && isset($this->config['sso']['serviceName']) ? $this->config['sso']['serviceName'] : null;    
         if (isset($_GET['access_token'])) {
             $this->access_token = $_GET['access_token'];
             unset($_GET['access_token']);

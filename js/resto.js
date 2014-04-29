@@ -63,9 +63,9 @@
         layer: null,
         
         /*
-         * Authorize url for SSO authentication
+         * SSO authentication
          */
-        authorizeUrl: null,
+        sso: {},
         
         /*
          * User profile
@@ -89,9 +89,7 @@
             /*
              * SSO authentication server is available
              */
-            if (options.authorizeUrl) {
-                self.authorizeUrl = options.authorizeUrl;
-            }
+            self.sso = options.sso || {};
             
             /*
              * mapshup is defined
@@ -877,7 +875,7 @@
             /*
              * Display login panel
              */
-            $userPanel.append('<div class="row" id="displayLogin"><div class="large-12 columns"><form action="#"><ul class="no-bullet"><li><input id="userEmail" type="text" placeholder="' + self.translate('_email') + '"/></li><li><input id="userPassword" type="password" placeholder="' + self.translate('_password') + '"/></li></ul><p><a class="button signIn">' + self.translate('_login') + '</a></p>' + (self.authorizeUrl ? '<p><a class="signInOutside">' + self.translate('_signInOutside') + '</a></p>' : '') + '<p><a class="register">' + self.translate('_createAccount') + '</a></p></form></div></div>');
+            $userPanel.append('<div class="row" id="displayLogin"><div class="large-12 columns"><form action="#"><ul class="no-bullet"><li><input id="userEmail" type="text" placeholder="' + self.translate('_email') + '"/></li><li><input id="userPassword" type="password" placeholder="' + self.translate('_password') + '"/></li></ul><p><a class="button signIn">' + self.translate('_login') + '</a></p>' + (self.sso.ssoAuthorizeUrl ? '<p><a class="signWithOauth">' + self.translate('_signWithOauth', [self.sso.ssoServiceName]) + '</a></p>' : '') + '<p><a class="register">' + self.translate('_createAccount') + '</a></p></form></div></div>');
             $('#userEmail').focus();
             $('#userPassword').keypress(function (e) {
                 if (e.which === 13) {
@@ -927,12 +925,12 @@
             /*
              * Sign in using SSO Oauth server - e.g. Theia server
              */
-            $('.signInOutside').click(function(e) {
+            $('.signWithOauth').click(function(e) {
                 
                 /*
                  * Open SSO authentication window
                  */
-                var popup = window.open(self.authorizeUrl, 'Theia', 'dependent=yes, menubar=yes, toolbar=yes');
+                var popup = window.open(self.sso.ssoAuthorizeUrl, 'Theia', 'dependent=yes, menubar=yes, toolbar=yes');
                 
                 /*
                  * Load user profile after popup has been closed

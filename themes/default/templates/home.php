@@ -78,7 +78,11 @@ $user = $this->R->getUser();
                     data:<?php echo json_encode($this->response) ?>,
                     translation:<?php echo json_encode($this->description['dictionary']->getTranslation()) ?>,
                     restoUrl: '<?php echo $this->request['restoUrl'] ?>',
-                    authorizeUrl:'<?php echo $this->R->authorizeUrl ?>'
+                    sso:{
+                        ssoAuthorizeUrl:'<?php echo $this->R->ssoAuthorizeUrl ?>',
+                        ssoServiceName:'<?php echo $this->R->ssoServiceName ?>'
+                    }
+                    
                 });
             });
         </script>
