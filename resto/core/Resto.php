@@ -157,9 +157,14 @@ class Resto {
     public $realCount;
 
     /*
-     * SSO authorize url
+     * [SSO] Oauth2 authorize url
      */
     public $authorizeUrl;
+    
+    /*
+     * [SSO] Oauth2 access_token
+     */
+    public $access_token;
     
     /*
      * Default response format is HTML for nominal GET requests
@@ -278,10 +283,14 @@ class Resto {
         $this->request['restoUrl'] = $RESToURL ? substr($this->getBaseURL(), 0, -(strlen($RESToURL) + 1)) : $this->getBaseURL();
         
         /*
-         * Authorize url
+         * [SSO] Authorize url and access_token
          */
         $this->authorizeUrl = isset($this->config['sso']) && isset($this->config['sso']['authorizeUrl']) ? $this->config['sso']['authorizeUrl'] . $this->request['restoUrl'] . 'auth/oauthCallback.php' : null;    
-            
+        if (isset($_GET['access_token'])) {
+            $this->access_token = $_GET['access_token'];
+            unset($_GET['access_token']);
+        }
+        
         /*
          * Method is one of GET, POST, PUT or DELETE
          */
@@ -350,7 +359,7 @@ class Resto {
          * Initialize RestoUser object 
          */
         try {
-            $this->restoUser = new RestoUser($this->getDatabaseConnectorInstance());
+            $this->restoUser = new RestoUser($this->getDatabaseConnectorInstance(), array('sso' => $this->config['sso'], 'access_token' => $this->access_token));
         }
         catch (Exception $e) {
             $this->request['format'] = self::DEFAULT_RESPONSE_FORMAT;

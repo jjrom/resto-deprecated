@@ -149,62 +149,15 @@ try {
 }
 
 /*
- * Get user profile from oauth token
+ * Update user session from oauth token
  */
 $error = 0;
 if (isset($jsonData) && $jsonData['access_token']) {
-
     try {
-
-        /*
-         * Get user profile
-         */
-        $ch = curl_init($config['sso']['userInfoUrl']);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Authorization: Bearer ' . $jsonData['access_token']));
-        $userInfo = json_decode(curl_exec($ch), true);
-        curl_close($ch);
-
-        /*
-         * Email is the unique identifier
-         */
-        $email = pg_escape_string(trim(strtolower($userInfo[$config['sso']['uidKey']])));
-
-        $dbConnector = new DatabaseConnector($config['general']['db']);
-        $dbh = $dbConnector->getConnection(true);
-        if (!$dbh) {
-            throw new Exception('Database connection error', 500);
-        }
-
-        /*
-         * User exist
-         */
-        $results = pg_query($dbh, 'SELECT 1 FROM admin.users WHERE email=\'' . $email . '\'');
-        if (!$results) {
-            throw new Exception('Database connection error', 500);
-        }
-        /*
-         * User does not exist, create it in database
-         */
-        if (!pg_fetch_assoc($results)) {
-
-            $groups = 'default';
-            $activationcode = md5($email + microtime());
-            $results = pg_query($dbh, 'INSERT INTO admin.users (email,groups,password,activationcode,activated,registrationdate) VALUES (\'' . $email . '\',\'' . $groups . '\',\'' . str_repeat('*', 32) . '\',\'' . $activationcode . '\', TRUE, now()) RETURNING userid');
-            if (!$results) {
-                pg_close($dbh);
-                throw new Exception('Database connection error', 500);
-            }
-        }
-
-        /*
-         * Update SESSION
-         */
         $user = new RestoUser(new DatabaseConnector($config['general']['db']), array(
-            'oauthToken' => $jsonData['access_token'],
-            'email' => $email,
-            'forceAuth' => true
+            'access_token' => $jsonData['access_token'],
+            'forceAuth' => true,
+            'sso' => $config['sso']
         ));
         
     } catch (Exception $e) {

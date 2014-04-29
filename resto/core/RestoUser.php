@@ -62,6 +62,11 @@ class RestoUser {
     private $rights = array();
     
     /*
+     * SSO server configuration (i.e. copy of resto.ini [sso] block)
+     */
+    private $sso = null;
+    
+    /*
      * Default groups rights
      */
     private $defaultRights = array(
@@ -103,8 +108,8 @@ class RestoUser {
      * @param Object $dbConnector - DatabaseConnector instance
      * @param Array options - 
      *          'forceAuth' => true to force authentication/rights refresh even if session is set
-     *          'email' => email of oauth user
-     *          'oauthToken' => oauth token
+     *          'sso' => SSO configuration array
+     *          'access_token' => oauth token
      */
     final public function __construct($dbConnector, $options = array()) {
         
@@ -113,10 +118,15 @@ class RestoUser {
         $forceAuth = isset($options['forceAuth']) ? $options['forceAuth'] : false;
         
         /*
+         * SSO configuration
+         */
+        $this->sso = isset($options['sso']) ? $options['sso'] : null;
+        
+        /*
          * Authenticate if not already done
          */
         if ($forceAuth || !isset($_SESSION['profile']) || count($_SESSION['profile']) === 0) {
-            $this->authenticate($options);
+            $this->authenticate(isset($options['access_token']) ? $options['access_token'] : null);
         }
         else {
             $this->profile = $_SESSION['profile'];
@@ -257,13 +267,48 @@ class RestoUser {
     /**
      * Authenticate user
      */
-    private function authenticate($options = array()) {
+    private function authenticate($access_token = null) {
         
         /*
          * Authentication through oauth
          */
-        if (isset($options['email']) && isset($options['oauthToken'])) {
-            $where = 'email=\'' . pg_escape_string(strtolower($options['email'])) . '\'';
+        if (isset($this->sso) && isset($access_token)) {
+            
+            /*
+             * Get user profile
+             */
+            $ch = curl_init($this->sso['userInfoUrl']);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Authorization: Bearer ' . $access_token));
+            $userInfo = json_decode(curl_exec($ch), true);
+            curl_close($ch);
+            
+            $email = pg_escape_string(trim(strtolower($userInfo[$this->sso['uidKey']])));
+
+            $dbh = $this->dbConnector->getConnection(true);
+            if (!$dbh) {
+                throw new Exception('Database connection error', 500);
+            }
+
+            /*
+             * User does not exist, create it in database
+             */
+            $results = pg_query($dbh, 'SELECT 1 FROM admin.users WHERE email=\'' . $email . '\'');
+            if (!$results) {
+                throw new Exception('Database connection error', 500);
+            }
+            if (!pg_fetch_assoc($results)) {
+                $groups = 'default';
+                $activationcode = md5($email + microtime());
+                $results = pg_query($dbh, 'INSERT INTO admin.users (email,groups,password,activationcode,activated,registrationdate) VALUES (\'' . $email . '\',\'' . $groups . '\',\'' . str_repeat('*', 32) . '\',\'' . $activationcode . '\', TRUE, now()) RETURNING userid');
+                if (!$results) {
+                    pg_close($dbh);
+                    throw new Exception('Database connection error', 500);
+                }
+            }
+
+            $where = 'email=\'' . $email . '\'';
         }
         /*
          * Basic authentication
@@ -304,8 +349,8 @@ class RestoUser {
         /*
          * Add oauth token if defined
          */
-        if (isset($options['oauthToken'])) {
-            $_SESSION['profile']['oauthtoken'] = $options['oauthToken'];
+        if (isset($access_token)) {
+            $_SESSION['profile']['access_token'] = $access_token;
         }
         $this->profile = $_SESSION['profile'];
         
