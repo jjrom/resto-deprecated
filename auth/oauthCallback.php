@@ -191,8 +191,7 @@ if (isset($jsonData) && $jsonData['access_token']) {
 
             $groups = 'default';
             $activationcode = md5($email + microtime());
-            $default = '***********';
-            $results = pg_query($dbh, 'INSERT INTO admin.users (email,groups,username,password,activationcode,activated,registrationdate) VALUES (\'' . $email . '\',\'' . $groups . '\',\'' . $default . '\',\'' . $default . '\',\'' . $activationcode . '\', TRUE, now()) RETURNING userid');
+            $results = pg_query($dbh, 'INSERT INTO admin.users (email,groups,password,activationcode,activated,registrationdate) VALUES (\'' . $email . '\',\'' . $groups . '\',\'' . str_repeat('*', 32) . '\',\'' . $activationcode . '\', TRUE, now()) RETURNING userid');
             if (!$results) {
                 pg_close($dbh);
                 throw new Exception('Database connection error', 500);

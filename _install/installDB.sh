@@ -182,7 +182,7 @@ CREATE TABLE admin.users (
     userid              SERIAL PRIMARY KEY,
     email               VARCHAR(255) UNIQUE,  -- should be an email adress
     groups              TEXT, -- group names are comma separated (first one is the main group)
-    username            VARCHAR(50) NOT NULL,
+    username            VARCHAR(50),
     givenname           VARCHAR(255),
     lastname            VARCHAR(255),
     password            VARCHAR(32) NOT NULL, -- stored as md5
