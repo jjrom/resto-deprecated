@@ -284,6 +284,18 @@ class RestoUser {
             $userInfo = json_decode(curl_exec($ch), true);
             curl_close($ch);
             
+            /*
+             * Wrong credential -> user is not authenticated
+             */
+            if (!$userInfo || !$userInfo[$this->sso['uidKey']]) {
+                $_SESSION['profile'] = array(
+                    'userid' => -1,
+                    'groupid' => 'default'
+                );
+                $this->profile = $_SESSION['profile'];
+                return true;
+            }
+            
             $email = pg_escape_string(trim(strtolower($userInfo[$this->sso['uidKey']])));
 
             $dbh = $this->dbConnector->getConnection(true);
@@ -353,6 +365,8 @@ class RestoUser {
             $_SESSION['profile']['access_token'] = $access_token;
         }
         $this->profile = $_SESSION['profile'];
+        
+        return true;
         
     }
     
