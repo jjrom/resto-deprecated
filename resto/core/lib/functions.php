@@ -190,6 +190,21 @@ function toISO8601($dateStr) {
 }
 
 /**
+ * Check if string starts like an url i.e. http:// or https:// or //:
+ * 
+ * @param {String} $str
+ */
+function isUrl($str) {
+    if (!isset($str)) {
+        return false;
+    }
+    if (substr(trim($str),0 , 7) === 'http://' || substr(trim($str),0 , 8) === 'https://' || substr(trim($str),0 , 2) === '//') {
+        return true;
+    }
+    return false;
+}
+
+/**
  * Upgraded implode($glue, $arr) function that
  * do not aggregate NULL elements in result
  */

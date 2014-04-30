@@ -1813,7 +1813,7 @@ abstract class RestoController {
         }
         
         /*
-         * Stream file in 1024*1024 chunk tiles
+         * Stream file in 1024*1024 chunk tiles if file or return url otherwise
          */
         header('HTTP/1.1 200 OK');
         header('Access-Control-Allow-Origin: *');
@@ -1963,7 +1963,7 @@ abstract class RestoController {
         $archive = $this->getModelValue('archive', $product['archive']);
         if (isset($archive) && $this->R->getUser()->getRights($this->description['name'], 'get', 'download') === true) {
             $properties['services']['download'] = array(
-                'url' => $archive,
+                'url' => isUrl($archive) ? $archive : $this->request['restoUrl'] . $this->request['collection'] . '/' . $product['identifier'] . '/$download',
                 'mimeType' => $this->getModelValue('mimetype', isset($product['mimetype']) ? $product['mimetype'] : null)
             );
         }
