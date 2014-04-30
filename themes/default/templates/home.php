@@ -57,7 +57,7 @@ $user = $this->R->getUser();
             <?php if ($user->canPost()) { ?>
             <div class="row fullWidth resto-admin">
                 <div class="large-12 columns center">
-                    <div id="dropZone"><h1><?php echo $this->description['dictionary']->translate('_addCollection'); ?></h1><span class="fa fa-arrow-down"></span> <?php echo $this->description['dictionary']->translate('_dropCollection'); ?> <span class="fa fa-arrow-down"></span></div>
+                    <div id="dropZone" class="_dropCollection"><h1><?php echo $this->description['dictionary']->translate('_addCollection'); ?></h1><span class="fa fa-arrow-down"></span> <?php echo $this->description['dictionary']->translate('_dropCollection'); ?> <span class="fa fa-arrow-down"></span></div>
                 </div>
             </div>
             <?php } ?>       

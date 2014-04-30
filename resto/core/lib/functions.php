@@ -955,7 +955,8 @@ function getFiles($options) {
         }
         /*
          * Nothing posted
-         */ else {
+         */
+        else {
             return $arr;
         }
     }

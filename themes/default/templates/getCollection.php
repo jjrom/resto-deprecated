@@ -48,8 +48,7 @@ $templateName = 'default';
         <div class="row mobile-block-fixed">
             <div class="large-12 columns"></div>
         </div>
-
-        <!-- Search bar -->
+        
         <div class="resto-search fixed">
             <form id="resto-searchform" action="<?php echo $collectionUrl ?>">
                 <input type="hidden" name="format" value="html" />
@@ -61,7 +60,15 @@ $templateName = 'default';
                 <input type="text" class="clearable" id="search" name="<?php echo $this->description['searchFiltersDescription']['searchTerms']['osKey'] ?>" value="<?php echo str_replace('"', '&quot;', stripslashes($this->request['params'][$this->description['searchFiltersDescription']['searchTerms']['osKey']])); ?>" placeholder="<?php echo $this->description['dictionary']->translate('_placeHolder', $this->description['os']['Query']); ?>"/>
             </form>
         </div>
-
+        
+        <?php if ($this->R->getUser()->canPost($this->request['collection'])) { ?>
+        <div class="row fullWidth resto-admin">
+            <div class="large-12 columns center">
+                <div id="dropZone"><h1><?php echo $this->description['dictionary']->translate('_addResource'); ?></h1><span class="fa fa-arrow-down"></span> <?php echo $this->description['dictionary']->translate('_dropResource'); ?> <span class="fa fa-arrow-down"></span></div>
+            </div>
+        </div>
+        <?php } ?>
+           
         <!-- query analyze result -->
         <?php if ($this->request['special']['_showQuery']) { ?>
         <div class="resto-queryanalyze fixed"></div>
@@ -126,6 +133,7 @@ $templateName = 'default';
                     data:<?php echo json_encode($this->response) ?>,
                     translation:<?php echo json_encode($this->description['dictionary']->getTranslation()) ?>,
                     restoUrl: '<?php echo $this->request['restoUrl'] ?>',
+                    collection:'<?php echo $this->request['collection'] ?>',
                     sso:{
                         ssoAuthorizeUrl:'<?php echo $this->R->ssoAuthorizeUrl ?>',
                         ssoServiceName:'<?php echo $this->R->ssoServiceName ?>'

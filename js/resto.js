@@ -54,7 +54,6 @@
         /*
          * RESTO URL
          */
-        
         restoUrl: null,
         
         /*
@@ -209,7 +208,7 @@
             /*
              * Set the admin actions
              */
-            self.Admin.updateAdminActions();
+            self.Admin.updateAdminActions(options.collection);
 
             /*
              * Force focus on search input form
@@ -1060,7 +1059,7 @@
         /**
          * Update admin actions
          */
-        updateAdminActions: function() {
+        updateAdminActions: function(collection) {
 
             var self = this;
 
@@ -1116,23 +1115,24 @@
                 /*
                  * HTML5 : get dataTransfer object
                  */
-                var files = e.originalEvent.dataTransfer.files;
-
+                var files = e.originalEvent.dataTransfer.files,
+                    type = $(this).hasClass('_dropCollection') ? 'collection' : 'resource';
+                
                 /*
                  * If there is no file, we assume that user dropped
                  * something else...a url for example !
                  */
                 if (files.length === 0) {
-                    window.R.message("Error : drop a json file");
+                    window.R.message("Error : drop a file");
                 }
                 else if (files.length > 1) {
-                    window.R.message("Error : drop only one json file at a time");
+                    window.R.message("Error : drop only one file at a time");
                 }
-                else if (files[0].type.toLowerCase() !== "application/json") {
+                else if (type === 'collection' && files[0].type.toLowerCase() !== "application/json") {
                     window.R.message("Error : drop a json file");
                 }
                 /*
-                 * User dropped a json file
+                 * User dropped a file
                  */
                 else {
 
@@ -1143,10 +1143,20 @@
                      */
                     reader.onloadend = function(e) {
                         try {
-                            self.addCollection($.parseJSON(e.target.result));
+                            if (type === 'collection') {
+                                self.addCollection($.parseJSON(e.target.result));
+                            }
+                            else {
+                                self.addResource(e.target.result, collection);
+                            }
                         }
                         catch (e) {
-                            window.R.message('Error : collection description is not valid JSON');
+                            if (type === 'collection') {
+                                window.R.message('Error : collection description is not valid JSON');
+                            }
+                            else {
+                                window.R.message('Error : resource file is not valid');
+                            }
                         }
                     };
                     reader.readAsText(files[0]);
@@ -1184,6 +1194,45 @@
                     }
                 }, true);
             }
+        },
+        
+        /**
+         * Add a resource
+         * 
+         * @param {object} resource
+         * @param {string} collection
+         * 
+         */
+        addResource: function(resource, collection) {
+            
+            if (!collection || !resource) {
+                return false;
+            }
+            
+            if (window.confirm('Add resource to collection ' + collection + ' ?')) {
+                window.R.ajax({
+                    url: window.R.restoUrl + '/' + collection + '/',
+                    async: true,
+                    type: 'POST',
+                    dataType: "json",
+                    data: {
+                        data: encodeURIComponent(resource)
+                    },
+                    success: function(obj, textStatus, XMLHttpRequest) {
+                        if (XMLHttpRequest.status === 200) {
+                            window.R.message('Resource added');
+                        }
+                        else {
+                            window.R.message(textStatus);
+                        }
+                    },
+                    error: function(e) {
+                        window.R.message(e.responseJSON['ErrorMessage']);
+                    }
+                }, true);
+            }
+            
+            return true;
         },
         
         /**
