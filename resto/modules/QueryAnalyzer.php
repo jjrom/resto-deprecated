@@ -835,10 +835,10 @@ class QueryAnalyzer {
                  * Unit is set and coherent with quantity unit
                  */
                 if ($unit && ($unit['unit'] === $searchFilter['unit'])) {
-                    $params[$searchFilter['key']] = ']' . (floatval($this->toNumeric($searchTerms[$i + 1])) * $unit['factor']) . ',' . (floatval($this->toNumeric($searchTerms[$i + 3])) * $unit['factor']) . '[';
+                    $params[$searchFilter['key']] = '[' . (floatval($this->toNumeric($searchTerms[$i + 1])) * $unit['factor']) . ',' . (floatval($this->toNumeric($searchTerms[$i + 3])) * $unit['factor']) . ']';
                 }
                 else if (!$unit && !$searchFilter['unit']) {
-                    $params[$searchFilter['key']] = ']' . $this->toNumeric($searchTerms[$i + 1]) . ',' . $this->toNumeric($searchTerms[$i + 3]) . '[';
+                    $params[$searchFilter['key']] = '[' . $this->toNumeric($searchTerms[$i + 1]) . ',' . $this->toNumeric($searchTerms[$i + 3]) . ']';
                 }
             }
             
