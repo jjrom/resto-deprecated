@@ -1,0 +1,41 @@
+{
+    "name": "Landsat",
+    "controller": "MuscateController",
+    "status": "public",
+    "createdb": true,
+    "osDescription": {
+        "en": {
+            "ShortName": "Landsat",
+            "LongName": "Landsat Level2A images",
+            "Description": "Reflectance Landsat images (Level 2A) processed by the French Space Agency (CNES) Muscate processing chain",
+            "Tags": "landsat level2A reflectance muscate CNES",
+            "Developper": "J\u00e9r\u00f4me Gasperi",
+            "Contact": "jerome.gasperi@cnes.fr",
+            "Query": "France",
+            "Attribution": "CNES. Copyright 2014, All Rights Reserved"
+        }
+    },
+    "model": {
+        "parentIdentifier": "urn:ogc:def:EOP:CNES::Landsat:",
+        "quicklook": {
+            "dbKey" : "db:identifier",
+            "template" : "http://spirit.cnes.fr/landsat/ql/{a:1}.png"
+        },
+        "thumbnail": {
+            "dbKey" : "db:identifier",
+            "template" : "http://spirit.cnes.fr/landsat/ql/{a:1}_thumb.png"
+        },
+        "metadata": {
+            "dbKey" : "db:identifier",
+            "template" : "http://spirit.cnes.fr/landsat/md/{a:1}.xml"
+        },
+        "archive": {
+            "dbKey" : "db:identifier",
+            "template" : "/mount/landsat/archives/{a:1}.tgz"
+        },
+        "wms": {
+            "dbKey" : "db:identifier",
+            "template" : "http://spirit.cnes.fr/cgi-bin/mapserv?map=/mount/landsat/wms/map.map&file={a:1}&LAYERS=landsat&FORMAT=image%2Fpng&TRANSITIONEFFECT=resize&TRANSPARENT=true&VERSION=1.1.1&SERVICE=WMS&REQUEST=GetMap&STYLES=&SRS=EPSG%3A3857&BBOX={a:2}&WIDTH=256&HEIGHT=256"
+        }
+    }
+}

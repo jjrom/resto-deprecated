@@ -984,7 +984,7 @@ function getFiles($options) {
             }
         }
         /*
-         * The data's format is text
+         * The data's format is not JSON
          */
         else {
             /*
