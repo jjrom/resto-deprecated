@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ROOT>
+<METADATA>
     <HEADER>
         <IDENT>LANDSAT8_OLITIRS_XS_20130414_N2A_France-MetropoleD0005H0002</IDENT>
         <DATE_PDV>2013-04-14 10:44:14.3364788</DATE_PDV>
@@ -62,4 +62,4 @@
             <VALUE>1000.0</VALUE>
         </QUANTIFICATION>
     </RADIOMETRY>
-</ROOT>
+</METADATA>
