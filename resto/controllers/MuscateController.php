@@ -192,7 +192,7 @@ class MuscateController extends RestoController {
     private function parse($xml) {
         
         $dom = new DOMDocument();
-        $dom->loadXML($xml);
+        $dom->loadXML(rawurldecode($xml));
         
         /*
          * Initialize feature
