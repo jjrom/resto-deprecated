@@ -620,6 +620,8 @@ return array(
         '_userName' => 'User name',
         '_retypePassword' => 'Retype password',
         '_back' => 'Back',
-        '_signWithOauth' => 'Sign in with {a:1} account'
+        '_signWithOauth' => 'Sign in with {a:1} account',
+        '_addResource' => 'Add a resource',
+        '_dropResource' => 'Drop a resource metadata file'
     )
 );

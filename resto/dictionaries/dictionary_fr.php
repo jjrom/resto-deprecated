@@ -661,6 +661,8 @@ return array(
         '_userName' => 'Surnom',
         '_retypePassword' => 'Retaper le mot de passe',
         '_back' => 'Retour',
-        '_signWithOauth' => 'S\'identifier avec un compte {a:1}'
+        '_signWithOauth' => 'S\'identifier avec un compte {a:1}',
+        '_addResource' => 'Ajouter une resource',
+        '_dropResource' => 'Déposer un fichier de métadonnées'
     )
 );
