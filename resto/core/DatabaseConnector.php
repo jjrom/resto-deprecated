@@ -121,7 +121,7 @@ class DatabaseConnector {
      * Return maximum number of results returned by page
      */
     public function getMaximumResultsPerPage() {
-        return intval($this->config['resultsPerPage']);
+        return intval($this->config['maximumResultsPerPage']);
     }
     
     /**
