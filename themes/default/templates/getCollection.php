@@ -85,12 +85,23 @@ $templateName = 'default';
             </div>
         </div>
         -->
-
-
+        
+        <div class="row">
+            <div class="large-12 columns">
+                <ul class="small-block-grid-1 medium-block-grid-3 large-block-grid-4 resto-pagination center"></ul>
+            </div>
+        </div>
+        
         <!-- Search result -->
         <div class="row">
             <div class="large-12 columns">
                 <ul class="small-block-grid-1 medium-block-grid-3 large-block-grid-4 resto-content center"></ul>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="large-12 columns">
+                <ul class="small-block-grid-1 medium-block-grid-3 large-block-grid-4 resto-pagination center"></ul>
             </div>
         </div>
 

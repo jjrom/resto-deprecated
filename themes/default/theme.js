@@ -90,7 +90,7 @@
                 pagination += self.translate('_multipleResult', [json.totalResults]);
             }
 
-            pagination += json.startIndex ? '&nbsp;|&nbsp;' + first + previous + self.translate('_pagination', [json.startIndex, json.lastIndex]) + next + last : '';
+            pagination += json.startIndex ? first + previous + self.translate('_pagination', [json.startIndex, json.lastIndex]) + next + last : '';
 
         }
 
