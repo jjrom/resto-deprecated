@@ -62,7 +62,7 @@ class RestoUser {
     private $rights = array();
     
     /*
-     * SSO server configuration (i.e. copy of resto.ini [sso] block)
+     * SSO server configuration (i.e. see resto.ini [sso] block)
      */
     private $sso = null;
     

@@ -157,19 +157,19 @@ class Resto {
     public $realCount;
 
     /*
-     * [SSO] Oauth2 service name
+     * [SSO] Oauth2 authentification services
      */
-    public $ssoServiceName;
-    
-    /*
-     * [SSO] Oauth2 authorize url
-     */
-    public $ssoAuthorizeUrl;
+    public $ssoServices = array();
     
     /*
      * [SSO] Oauth2 access_token
      */
     public $access_token;
+    
+    /*
+     * [SSO] Oauth2 issuer identifier
+     */
+    public $issuer_id;
     
     /*
      * Default response format is HTML for nominal GET requests
@@ -288,10 +288,17 @@ class Resto {
         $this->request['restoUrl'] = $RESToURL ? substr($this->getBaseURL(), 0, -(strlen($RESToURL) + 1)) : $this->getBaseURL();
         
         /*
-         * [SSO] Authorize url and access_token
+         * [SSO] Authorize urls and access_token
          */
-        $this->ssoAuthorizeUrl = isset($this->config['sso']) && isset($this->config['sso']['authorizeUrl']) ? $this->config['sso']['authorizeUrl'] . $this->request['restoUrl'] . 'auth/oauthCallback.php' : null;    
-        $this->ssoServiceName = isset($this->config['sso']) && isset($this->config['sso']['serviceName']) ? $this->config['sso']['serviceName'] : null;    
+        if (isset($this->config['sso'])) {
+            foreach(array_keys($this->config['sso']) as $key) {
+                $this->ssoServices[$key]['authorizeUrl'] = $this->config['sso'][$key]['authorizeUrl'] . '&client_id=' . $this->config['sso'][$key]['clientId'] . '&redirect_uri=' . $this->request['restoUrl'] . 'auth/oauthCallback.php?issuer_id=' . $key;
+                if (isset($_GET['oauth_issuer']) && $_GET['oauth_issuer'] === $this->config['sso'][$key]['host']) {
+                    $this->issuer_id = $key;
+                    unset($_GET['issuer_id']);
+                }
+            }
+        }
         if (isset($_GET['access_token'])) {
             $this->access_token = $_GET['access_token'];
             unset($_GET['access_token']);
@@ -365,7 +372,12 @@ class Resto {
          * Initialize RestoUser object 
          */
         try {
-            $this->restoUser = new RestoUser($this->getDatabaseConnectorInstance(), array('sso' => $this->config['sso'], 'access_token' => $this->access_token));
+            if (isset($this->access_token) && isset($this->issuer_id)) {
+                $this->restoUser = new RestoUser($this->getDatabaseConnectorInstance(), array('sso' => $this->config['sso'][$this->issuer_id], 'access_token' => $this->access_token));
+            }
+            else {
+                $this->restoUser = new RestoUser($this->getDatabaseConnectorInstance());
+            }
         }
         catch (Exception $e) {
             $this->request['format'] = self::DEFAULT_RESPONSE_FORMAT;

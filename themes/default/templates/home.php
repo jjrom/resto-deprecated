@@ -69,7 +69,7 @@ $user = $this->R->getUser();
         <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/resto.js"></script>
         <script type="text/javascript">
             $(document).ready(function() {
-
+                
                 /*
                  * Initialize RESTo 
                  */
@@ -78,11 +78,7 @@ $user = $this->R->getUser();
                     data:<?php echo json_encode($this->response) ?>,
                     translation:<?php echo json_encode($this->description['dictionary']->getTranslation()) ?>,
                     restoUrl: '<?php echo $this->request['restoUrl'] ?>',
-                    sso:{
-                        ssoAuthorizeUrl:'<?php echo $this->R->ssoAuthorizeUrl ?>',
-                        ssoServiceName:'<?php echo $this->R->ssoServiceName ?>'
-                    }
-                    
+                    ssoServices:<?php echo json_encode($this->R->ssoServices) ?>
                 });
             });
         </script>

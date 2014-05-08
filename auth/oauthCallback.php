@@ -93,7 +93,8 @@ if ($method !== 'get') {
  * No code - no authorization
  */
 $code = isset($_GET['code']) ? $_GET['code'] : null;
-if (!$code) {
+$issuer_id = isset($_GET['issuer_id']) ? $_GET['issuer_id'] : null;
+if (!$code || !$issuer_id) {
     header('HTTP/1.1 400 Bad Request');
     exit;
 }
@@ -106,12 +107,13 @@ if (!file_exists($configFile)) {
     header('HTTP/1.1 500 Internal Server Error');
     exit;
 }
-
+$sso = array();
 try {
     $config = IniParser::read($configFile);
-    if (!isset($config) || !isset($config['sso']) || !isset($config['sso']['uidKey']) || !isset($config['sso']['host']) || !isset($config['sso']['accessTokenUrl']) || !isset($config['sso']['authenticationCode']) || !isset($config['sso']['userInfoUrl'])) {
+    if (!isset($config) || !isset($config['sso']) || !isset($config['sso'][$issuer_id])) {
         throw new Exception();
     }
+    $sso = $config['sso'][$issuer_id];
 } catch (Exception $e) {
     header('HTTP/1.1 500 Internal Server Error');
     exit;
@@ -122,26 +124,37 @@ try {
  */
 $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
 $port = isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] !== '80' ? ':' . $_SERVER['SERVER_PORT'] : '';
-$redirect_uri = $protocol . '://' . $_SERVER['SERVER_NAME'] . $port . $_SERVER['PHP_SELF'];
+$redirect_uri = $protocol . '://' . $_SERVER['SERVER_NAME'] . $port . $_SERVER['PHP_SELF'] . '?issuer_id=' . $issuer_id ;
 
 /*
  * First retrieve the oauth token using input code
  */
 try {
-    $ch = curl_init($config['sso']['accessTokenUrl']);
+    $ch = curl_init($sso['accessTokenUrl']);
     curl_setopt($ch, CURLOPT_POST, true);
     //curl_setopt($ch, CURLOPT_CAPATH, CACERT_PATH);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query(array(
-        'grant_type' => "authorization_code",
-        'code' => $code,
-        'redirect_uri' => $redirect_uri
-    )));
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-        "Authorization: Basic " . $config['sso']['authenticationCode'],
-        "Content-Type: application/x-www-form-urlencoded",
-        "Host: " . $config['sso']['host']));
+    if ($sso['useBearer']) {
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query(array(
+            'grant_type' => "authorization_code",
+            'code' => $code,
+            'redirect_uri' => $redirect_uri
+        )));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            "Authorization: Basic " . base64_encode($sso['clientId'] . ':' . $sso['clientSecret']),
+            "Content-Type: application/x-www-form-urlencoded",
+            "Host: " . $sso['host']));
+        }
+    else {
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query(array(
+            'grant_type' => "authorization_code",
+            'code' => $code,
+            'redirect_uri' => $redirect_uri,
+            'client_id' => $sso['clientId'],
+            'client_secret' => $sso['clientSecret']
+        )));
+    }
     $jsonData = json_decode(curl_exec($ch), true);
     curl_close($ch);
 } catch (Exception $e) {
@@ -157,9 +170,8 @@ if (isset($jsonData) && $jsonData['access_token']) {
         $user = new RestoUser(new DatabaseConnector($config['general']['db']), array(
             'access_token' => $jsonData['access_token'],
             'forceAuth' => true,
-            'sso' => $config['sso']
+            'sso' => $sso
         ));
-        
     } catch (Exception $e) {
         $error = 1;
     }

@@ -62,9 +62,9 @@
         layer: null,
         
         /*
-         * SSO authentication
+         * SSO authentication services
          */
-        sso: {},
+        ssoServices: {},
         
         /*
          * User profile
@@ -88,7 +88,7 @@
             /*
              * SSO authentication server is available
              */
-            self.sso = options.sso || {};
+            self.ssoServices = options.ssoServices || {};
             
             /*
              * mapshup is defined
@@ -864,7 +864,7 @@
          */
         displayLogin: function() {
             
-            var self = this, $userPanel = $('#restoUserPanel');
+            var key, self = this, $userPanel = $('#restoUserPanel');
             
             /*
              * Remove register panel
@@ -874,7 +874,7 @@
             /*
              * Display login panel
              */
-            $userPanel.append('<div class="row" id="displayLogin"><div class="large-12 columns"><form action="#"><ul class="no-bullet"><li><input id="userEmail" type="text" placeholder="' + self.translate('_email') + '"/></li><li><input id="userPassword" type="password" placeholder="' + self.translate('_password') + '"/></li></ul><p><a class="button signIn">' + self.translate('_login') + '</a></p>' + (self.sso.ssoAuthorizeUrl ? '<p><a class="signWithOauth">' + self.translate('_signWithOauth', [self.sso.ssoServiceName]) + '</a></p>' : '') + '<p><a class="register">' + self.translate('_createAccount') + '</a></p></form></div></div>');
+            $userPanel.append('<div class="row" id="displayLogin"><div class="large-12 columns"><form action="#"><ul class="no-bullet"><li><input id="userEmail" type="text" placeholder="' + self.translate('_email') + '"/></li><li><input id="userPassword" type="password" placeholder="' + self.translate('_password') + '"/></li></ul><p><a class="button signIn">' + self.translate('_login') + '</a></p><div class="signWithOauth"></div><p><a class="register">' + self.translate('_createAccount') + '</a></p></form></div></div>');
             $('#userEmail').focus();
             $('#userPassword').keypress(function (e) {
                 if (e.which === 13) {
@@ -922,26 +922,31 @@
             });
             
             /*
-             * Sign in using SSO Oauth server - e.g. Theia server
+             * Sign in using SSO Oauth server - e.g. Google
              */
-            $('.signWithOauth').click(function(e) {
-                
-                /*
-                 * Open SSO authentication window
-                 */
-                var popup = window.open(self.sso.ssoAuthorizeUrl, 'Theia', 'dependent=yes, menubar=yes, toolbar=yes');
-                
-                /*
-                 * Load user profile after popup has been closed
-                 */
-                var fct = setInterval(function() {
-                    if (popup.closed) {
-                        clearInterval(fct);
-                        window.location.reload();
-                    }
-                }, 200);
-                
-            });
+            for (key in self.ssoServices) {
+                (function(key) { 
+                    $('.signWithOauth').append('<p><a id="_oauth' + key + '">' + self.translate('_signWithOauth', [key]) + '</a></p>');
+                    $('#_oauth' + key).click(function(e) {
+
+                        /*
+                         * Open SSO authentication window
+                         */
+                        var popup = window.open(self.ssoServices[key].authorizeUrl, key, 'dependent=yes, menubar=yes, toolbar=yes');
+
+                        /*
+                         * Load user profile after popup has been closed
+                         */
+                        var fct = setInterval(function() {
+                            if (popup.closed) {
+                                clearInterval(fct);
+                                window.location.reload();
+                            }
+                        }, 200);
+
+                    });
+                })(key);
+            }
         },
         
         /**
