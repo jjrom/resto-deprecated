@@ -84,6 +84,7 @@ class DefaultController extends RestoController {
         'count?',
         'startIndex?',
         'language?',
+        'geo:geometry?', // Geometry in WKT
         'geo:box?', // Bounding Box
         'geo:name?', // Location name
         'geo:lon?', // Longitude

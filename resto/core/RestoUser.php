@@ -195,10 +195,18 @@ class RestoUser {
          * Unknown collection or no rights on collection
          *   => apply default rights
          */
-        if (!isset($collection) || !isset($this->rights['collections'][$collection]) || !isset($this->rights['collections'][$collection][$method])) {
+        if (!isset($collection) || !isset($this->rights['collections'][$collection])) {
             return isset($action) && in_array($action, $validActions) ? $this->rights['default'][$action] : $this->rights['default'][$method];
         }
-
+        
+        /*
+         * Method is not defined for collection
+         *   => apply default rights
+         */
+        if (!isset($action) && !isset($this->rights['collections'][$collection][$method])) {
+            return $this->rights['default'][$method];
+        }
+        
         /*
          * Action cases
          */
@@ -209,7 +217,6 @@ class RestoUser {
                 return $this->rights['default'][$action];
             }
         }
-
         return $this->rights['collections'][$collection][$method];
     }
 

@@ -1,20 +1,19 @@
 {
     "groupid": "default",
-    "rights":{
-        "get": {
-            "search": {
-                "enabled": true,
-                "include": {
-                    "keywords":[
-                        "country:france"
-                    ],
-                    "startDate": "2011-01-01T00:00:00",
-                    "completionDate": "2014-01-01T00:00:00"
-                },
-                "exclude": {
-                    "geometry": {
-                        "type": "Polygon",
-                        "coordinates": [[
+    "rights": {
+        "search": {
+            "enabled": true,
+            "include": {
+                "keywords": [
+                    "country:france"
+                ],
+                "startDate": "2011-01-01T00:00:00",
+                "completionDate": "2014-01-01T00:00:00"
+            },
+            "exclude": {
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [[
                             [
                                 -151.94440577845,
                                 -16.250438048434
@@ -36,24 +35,8 @@
                                 -16.250438048434
                             ]
                         ]]
-                    }
                 }
-            },
-            "download": {
-                "enabled": false
-            },
-            "visualize": {
-                "enabled": true
             }
-        },
-        "post": {
-            "enabled": false
-        },
-        "put": {
-            "enabled": false
-        },
-        "delete": {
-            "enabled": true
         }
     }
 }

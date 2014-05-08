@@ -67,6 +67,11 @@ abstract class RestoController {
         'language' => array(
             'osKey' => 'lang'
         ),
+        'geo:geometry' => array(
+            'key' => 'geometry',
+            'osKey' => 'geometry',
+            'operation' => 'intersects'
+        ),
         'geo:box' => array(
             'key' => 'geometry',
             'osKey' => 'box',
@@ -748,6 +753,7 @@ abstract class RestoController {
          * Spatial filter preseance is
          *  - geo:lon / geo:lat
          *  - geo:name
+         *  - geo:geometry
          *  - geo:box
          */
         if ($filterName === 'geo:box') {
@@ -881,8 +887,11 @@ abstract class RestoController {
                         return null;
                     }
                     else {
-                        return 'ST_' . $operation . '(' . $this->getModelName($this->description['searchFiltersDescription'][$filterName]['key']) . ", ST_GeomFromText('" . pg_escape_string('POLYGON((' . $lonmin . ' ' . $latmin . ',' . $lonmin . ' ' . $latmax . ',' . $lonmax . ' ' . $latmax . ',' . $lonmax . ' ' . $latmin . ',' . $lonmin . ' ' . $latmin . '))') . "', 4326))";
+                        return ($exclusion ? 'NOT ' : '') . 'ST_intersects(' . $this->getModelName($this->description['searchFiltersDescription'][$filterName]['key']) . ", ST_GeomFromText('" . pg_escape_string('POLYGON((' . $lonmin . ' ' . $latmin . ',' . $lonmin . ' ' . $latmax . ',' . $lonmax . ' ' . $latmax . ',' . $lonmax . ' ' . $latmin . ',' . $lonmin . ' ' . $latmin . '))') . "', 4326))";
                     }
+                }
+                else if ($filterName === 'geo:geometry') {
+                    return ($exclusion ? 'NOT ' : '') . 'ST_intersects(' . $this->getModelName($this->description['searchFiltersDescription'][$filterName]['key']) . ", ST_GeomFromText('" . pg_escape_string($requestParams[$filterName]) . "', 4326))";
                 }
                 
             }
@@ -943,7 +952,7 @@ abstract class RestoController {
                     return 'ST_distance(' . $this->getModelName($this->description['searchFiltersDescription'][$filterName]['key']) . ', ST_GeomFromText(\'' . pg_escape_string('POINT(' . $lon . ' ' . $lat . ')') . '\', 4326)) < ' . $radius;
                 }
                 
-                return 'ST_intersects(' . $this->getModelName($this->description['searchFiltersDescription'][$filterName]['key']) . ", ST_GeomFromText('" . pg_escape_string('POLYGON((' . $lonmin . ' ' . $latmin . ',' . $lonmin . ' ' . $latmax . ',' . $lonmax . ' ' . $latmax . ',' . $lonmax . ' ' . $latmin . ',' . $lonmin . ' ' . $latmin . '))') . "', 4326))";
+                return ($exclusion ? 'NOT ' : '') . 'ST_intersects(' . $this->getModelName($this->description['searchFiltersDescription'][$filterName]['key']) . ", ST_GeomFromText('" . pg_escape_string('POLYGON((' . $lonmin . ' ' . $latmin . ',' . $lonmin . ' ' . $latmax . ',' . $lonmax . ' ' . $latmax . ',' . $lonmax . ' ' . $latmin . ',' . $lonmin . ' ' . $latmin . '))') . "', 4326))";
             
             }
             /*
@@ -1124,10 +1133,12 @@ abstract class RestoController {
                             );
                         }
                         /*
-                         * TODO for geometry !
+                         * Geometry in WKT
                          */
                         else if ($key === 'geometry') {
-
+                            $arr = array(
+                                $modelKey => geoJSONGeometryToWKT($value)
+                            );
                         }
                         else {
                             /*

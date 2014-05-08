@@ -148,6 +148,7 @@ class SpotController extends RestoController {
         'count?',
         'startIndex?',
         'language?',
+        'geo:geometry?',
         'geo:box?',
         'geo:name?',
         'geo:lon?',
