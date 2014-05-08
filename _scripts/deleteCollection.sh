@@ -63,3 +63,4 @@ then
 else
     curl --get -X DELETE -d "physical=$PHYSICAL" http://$AUTH@localhost/resto/$COLLECTION
 fi
+echo ""

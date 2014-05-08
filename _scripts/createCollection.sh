@@ -61,3 +61,4 @@ then
 else
     curl -X POST -F "file[]=@$JSON" http://$AUTH@localhost/resto/
 fi
+echo ""

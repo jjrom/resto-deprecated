@@ -67,3 +67,4 @@ then
 else
     curl -X PUT -d @$JSON http://$AUTH@localhost/resto/$COLLECTION
 fi
+echo ""

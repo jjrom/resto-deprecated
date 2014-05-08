@@ -67,3 +67,4 @@ then
 else
     curl -X POST -F "file[]=@$FILE" http://$AUTH@localhost/resto/$COLLECTION
 fi
+echo ""

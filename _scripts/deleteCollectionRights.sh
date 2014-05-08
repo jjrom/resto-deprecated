@@ -66,3 +66,4 @@ then
 else
     curl --get -X DELETE -d "groupid=$GROUPID" http://$AUTH@localhost/resto/$COLLECTION/'$rights'
 fi
+echo ""
