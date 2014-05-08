@@ -134,10 +134,7 @@ $templateName = 'default';
                     translation:<?php echo json_encode($this->description['dictionary']->getTranslation()) ?>,
                     restoUrl: '<?php echo $this->request['restoUrl'] ?>',
                     collection:'<?php echo $this->request['collection'] ?>',
-                    sso:{
-                        ssoAuthorizeUrl:'<?php echo $this->R->ssoAuthorizeUrl ?>',
-                        ssoServiceName:'<?php echo $this->R->ssoServiceName ?>'
-                    }
+                    ssoServices:<?php echo json_encode($this->R->ssoServices) ?>
                 });
 
             });
