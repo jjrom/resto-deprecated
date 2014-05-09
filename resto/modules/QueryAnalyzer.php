@@ -67,7 +67,7 @@ class QueryAnalyzer {
      */
     final private function getSimilar($s) {
         
-        $bestPercentage = 80;
+        $bestPercentage = 90;
         $similar = null;
         $keywords = $this->dictionary->getKeywords();
         foreach(array_keys($keywords) as $category) {
