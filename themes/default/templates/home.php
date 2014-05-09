@@ -66,6 +66,7 @@ $user = $this->R->getUser();
         <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/externals/mjquery/mjquery.ui.js"></script>
         <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/externals/swipebox/js/jquery.swipebox.min.js"></script>
         <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/externals/history/jquery.history.js"></script>
+        <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/externals/visible/jquery.visible.min.js"></script>
         <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/resto.js"></script>
         <script type="text/javascript">
             $(document).ready(function() {

@@ -484,16 +484,26 @@
          * Add map bounding box in EPSG:4326 to all element with a 'resto-updatebbox' class
          */
         updateBBOX: function() {
-            var box;
+            var box;    
             if (window.M && window.M.Map.map) {
-                box = window.M.Map.Util.p2d(window.M.Map.map.getExtent()).toBBOX();
-                $('.resto-updatebbox').each(function() {
-                    $(this).attr('href', window.M.Util.extendUrl($(this).attr('href'), {
-                        box: box
-                    }));
-                });
+                if ($('#mapshup').visible()) {
+                    box = window.M.Map.Util.p2d(window.M.Map.map.getExtent()).toBBOX();
+                    $('.resto-updatebbox').each(function() {
+                        $(this).attr('href', window.M.Util.extendUrl($(this).attr('href'), {
+                            box: box
+                        }));
+                    });
+                }
+                else {
+                    $('.resto-updatebbox').each(function() {
+                        $(this).attr('href', window.M.Util.extendUrl($(this).attr('href'), {
+                            box:null
+                        }));
+                    });
+                }
             }
         },
+        
         /**
          * Return textual resolution from value in meters
          * 
