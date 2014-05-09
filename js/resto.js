@@ -182,17 +182,6 @@
             });
 
             /*
-             * Clear button on search bar
-             */
-            $(document).on('input', '.clearable', function() {
-                $(this)[this.value ? 'addClass' : 'removeClass']('x');
-            }).on('mousemove', '.x', function(e) {
-                $(this)[this.offsetWidth - 18 < e.clientX - this.getBoundingClientRect().left ? 'addClass' : 'removeClass']('onX');
-            }).on('click', '.onX', function() {
-                $(this).removeClass('x onX').val('');
-            });
-
-            /*
              * Set the toolbar actions
              */
             self.updateRestoToolbar();
