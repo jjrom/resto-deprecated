@@ -3,7 +3,7 @@
     /*
      * !!! CHANGE THIS !!!
      */
-    c["general"].rootUrl = 'http://localhost/resto/';
+    c["general"].rootUrl = '//localhost/resto/';
     
     /*
      * !! DO NOT EDIT UNDER THIS LINE !!
