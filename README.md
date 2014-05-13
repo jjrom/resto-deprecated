@@ -240,7 +240,7 @@ Create an admin user within the database
         $PASSWORD=nimda
 
         psql -d resto << EOF
-        INSERT INTO admin.users (userid,groups,username,password,activationcode,activated,registrationdate) VALUES ('admin','admin','admin',md5('$PASSWORD'),md5('$PASSWORD' || now()), TRUE, now());
+        INSERT INTO admin.users (email,groups,username,password,activationcode,activated,registrationdate) VALUES ('admin','admin','admin',md5('$PASSWORD'),md5('$PASSWORD' || now()), TRUE, now());
         EOF
 
 
