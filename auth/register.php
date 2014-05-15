@@ -188,17 +188,19 @@ try {
     $username = pg_escape_string(trim($params['username']));
     $givenname = isset($params['givenname']) ? pg_escape_string(trim($params['givenname'])) : '';
     $lastname = isset($params['lastname']) ? pg_escape_string(trim($params['lastname'])) : '';
-    
-    $results = pg_query($dbh, 'INSERT INTO admin.users (email,groups,username,givenname,lastname,password,activationcode,activated,registrationdate) VALUES (\'' . $email . '\',\'' . $groups . '\',\'' . $username . '\',\'' . $givenname . '\',\'' . $lastname . '\',\'' . $password . '\',\'' . $activationcode . '\', FALSE, now()) RETURNING userid');
+     
+    $results = pg_query($dbh, 'INSERT INTO admin.users (email,groups,username,givenname,lastname,password,activationcode,activated,registrationdate) VALUES (\'' . $email . '\',\'' . $groups . '\',\'' . $username . '\',\'' . $givenname . '\',\'' . $lastname . '\',\'' . $password . '\',\'' . $activationcode . '\', ' . ($config['general']['useActivationCode'] ? 'FALSE' : 'TRUE') .  ', now()) RETURNING userid');
     if (!$results) {
         pg_close($dbh);
         throw new Exception('Database connection error', 500);
     }
     $result = pg_fetch_array($results);
     if (isset($result) && $result['userid']) {
-        if (!sendActivationMail($email, isset($config['general']['activationEmail']) ? $config['general']['activationEmail'] : null, $result['userid'], $activationcode)) {
-            pg_query($dbh, 'DELETE FROM admin.users WHERE userid =  ' . $result['userid']);
-            throw new Exception('Problem sending activation code', 500);
+        if ($config['general']['useActivationCode']) {
+            if (!sendActivationMail($email, isset($config['general']['activationEmail']) ? $config['general']['activationEmail'] : null, $result['userid'], $activationcode)) {
+                pg_query($dbh, 'DELETE FROM admin.users WHERE userid =  ' . $result['userid']);
+                throw new Exception('Problem sending activation code', 500);
+            }
         }
         echoResult(200, 'OK', array(
             'status' => 'OK',
