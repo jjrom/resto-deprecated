@@ -197,6 +197,7 @@ try {
     $result = pg_fetch_array($results);
     if (isset($result) && $result['userid']) {
         if (!sendActivationMail($email, isset($config['general']['activationEmail']) ? $config['general']['activationEmail'] : null, $result['userid'], $activationcode)) {
+            pg_query($dbh, 'DELETE FROM admin.users WHERE userid =  ' . $result['userid']);
             throw new Exception('Problem sending activation code', 500);
         }
         echoResult(200, 'OK', array(
