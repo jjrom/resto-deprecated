@@ -630,10 +630,14 @@ class QueryAnalyzer {
             }
             /*
              * Year and month
+             * 
+             * Note: use mktime instead of cal_days_in_month for PHP server not compiled
+             * with --enable-calendar
              */
             else if (!isset($day)) {
                 $params['time:start'] = $year . '-' . $month . '-01' . 'T00:00:00';
-                $params['time:end'] = $year . '-' . $month . '-' . cal_days_in_month(CAL_GREGORIAN, intval($month), intval($year)) . 'T23:59:59';
+                //$params['time:end'] = $year . '-' . $month . '-' . cal_days_in_month(CAL_GREGORIAN, intval($month), intval($year)) . 'T23:59:59';
+                $params['time:end'] = $year . '-' . $month . '-' . date('d', mktime(0, 0, 0, intval($month) + 1, 0, intval($year))) . 'T23:59:59';
             }
             /*
              * Year, month and day
