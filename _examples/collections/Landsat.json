@@ -4,10 +4,20 @@
     "status": "public",
     "createdb": true,
     "osDescription": {
+        "fr": {
+            "ShortName": "Landsat",
+            "LongName": "Images Landsat Niveau 2A",
+            "Description": "Images de r&eacute;flectance Landsat (Level 2A) trait&eacute;es par le <a href=\"http://www.theia-land.fr\">p&ocirc;le Theia</a> pour l'Agence Spatiale Fran&ccedil;aise (<a href=\"http://www.cnes.fr\">CNES</a>). La cha&icirc;ne de traitement L2A Muscate est issue du prototype MACCS d&eacute;velopp&eacute; par le CNES et con&ccedil;cue au CESBIO. Les donn&eacute;es LANDSAT 8 L1T sont librement accessibles et fournies par <a href=\"http://earthexplorer.usgs.gov\">l'USGS</a>",
+            "Tags": "landsat niveau2A reflectance muscate CNES",
+            "Developper": "J\u00e9r\u00f4me Gasperi",
+            "Contact": "jerome.gasperi@cnes.fr",
+            "Query": "France",
+            "Attribution": "CNES. Copyright 2014, All Rights Reserved"
+        },
         "en": {
             "ShortName": "Landsat",
             "LongName": "Landsat Level2A images",
-            "Description": "Reflectance Landsat images (Level 2A) processed by the French Space Agency (CNES) Muscate processing chain",
+            "Description": "Reflectance Landsat images (Level 2A) processed by the <a href=\"http://www.theia-land.fr\">Theia Land Data Center</a> for the French Space Agency (<a href=\"http://www.cnes.fr\">CNES</a>) Muscate processing center using the MACCS prototype L2A chain developped by CNES and designed by CESBIO. LANDSAT 8 L1T Input data come from <a href=\"http://earthexplorer.usgs.gov\">USGS</a>, that we would like to thank for releasing freely the LANDSAT 8 datasets",
             "Tags": "landsat level2A reflectance muscate CNES",
             "Developper": "J\u00e9r\u00f4me Gasperi",
             "Contact": "jerome.gasperi@cnes.fr",
