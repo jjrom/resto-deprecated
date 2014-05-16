@@ -36,10 +36,12 @@
 #  knowledge of the CeCILL-B license and that you accept its terms.
 #  
 HTTPS=0
-usage="## Post a resource to collection\n\n  Usage $0 -c <Collection name> -f <Resource description file> -u <username:password> [-s (use https if set)]\n"
+HOST=localhost
+usage="## Post a resource to collection\n\n  Usage $0 -c <Collection name> -f <Resource description file> -u <username:password> [-s (use https if set)  -H server (default localhost)]\n"
 while getopts "sf:c:u:h" options; do
     case $options in
         u ) AUTH=`echo $OPTARG`;;
+        H ) HOST=`echo $OPTARG`;;
         f ) FILE=`echo $OPTARG`;;
         s ) HTTPS=1;;
         c ) COLLECTION=`echo $OPTARG`;;
@@ -63,8 +65,8 @@ fi
 
 if [ "$HTTPS" = "1" ]
 then
-    curl -k -X POST -F "file[]=@$FILE" https://$AUTH@localhost/resto/$COLLECTION
+    curl -k -X POST -F "file[]=@$FILE" https://$AUTH@$HOST/resto/$COLLECTION
 else
-    curl -X POST -F "file[]=@$FILE" http://$AUTH@localhost/resto/$COLLECTION
+    curl -X POST -F "file[]=@$FILE" http://$AUTH@$HOST/resto/$COLLECTION
 fi
 echo ""

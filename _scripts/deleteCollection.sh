@@ -37,10 +37,12 @@
 #  
 HTTPS=0
 PHYSICAL=0
-usage="\n## Delete a collection from RESTo database\n\n  Usage $0 -c <Collection name> -u <username:password> [-p (if set physically delete collection) -s (use https if set)]\n\n  !!!! WARNING - IF -p OPTION IS SET, THE COLLECTION DATABASE AND ALL ITS CONTENT WILL BE DELETED !!!!\n"
+HOST=localhost
+usage="\n## Delete a collection from RESTo database\n\n  Usage $0 -c <Collection name> -u <username:password> [-p (if set physically delete collection) -s (use https if set) -H server (default localhost)]\n\n  !!!! WARNING - IF -p OPTION IS SET, THE COLLECTION DATABASE AND ALL ITS CONTENT WILL BE DELETED !!!!\n"
 while getopts "spc:u:h" options; do
     case $options in
         u ) AUTH=`echo $OPTARG`;;
+        H ) HOST=`echo $OPTARG`;;
         c ) COLLECTION=`echo $OPTARG`;;
         p ) PHYSICAL=1;;
         s ) HTTPS=1;;
@@ -59,8 +61,8 @@ fi
 
 if [ "$HTTPS" = "1" ]
 then
-    curl -k --get -X DELETE -d "physical=$PHYSICAL" https://$AUTH@localhost/resto/$COLLECTION
+    curl -k --get -X DELETE -d "physical=$PHYSICAL" https://$AUTH@$HOST/resto/$COLLECTION
 else
-    curl --get -X DELETE -d "physical=$PHYSICAL" http://$AUTH@localhost/resto/$COLLECTION
+    curl --get -X DELETE -d "physical=$PHYSICAL" http://$AUTH@$HOST/resto/$COLLECTION
 fi
 echo ""

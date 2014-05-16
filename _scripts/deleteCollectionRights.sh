@@ -36,10 +36,12 @@
 #  knowledge of the CeCILL-B license and that you accept its terms.
 #  
 HTTPS=0
-usage="\n## Delete rights from collection for a given groupid\n\n  Usage $0 -c <Collection name> -g <groupid> -u <username:password> [-s (use https if set)]\n\n"
+HOST=localhost
+usage="\n## Delete rights from collection for a given groupid\n\n  Usage $0 -c <Collection name> -g <groupid> -u <username:password> [-s (use https if set) -H server (default localhost)]\n\n"
 while getopts "sg:c:u:h" options; do
     case $options in
         u ) AUTH=`echo $OPTARG`;;
+        H ) HOST=`echo $OPTARG`;;
         c ) COLLECTION=`echo $OPTARG`;;
         g ) GROUPID=`echo $OPTARG`;;
         s ) HTTPS=1;;
@@ -62,8 +64,8 @@ then
 fi
 if [ "$HTTPS" = "1" ]
 then
-    curl -k --get -X DELETE -d "groupid=$GROUPID" https://$AUTH@localhost/resto/$COLLECTION/'$rights'
+    curl -k --get -X DELETE -d "groupid=$GROUPID" https://$AUTH@$HOST/resto/$COLLECTION/'$rights'
 else
-    curl --get -X DELETE -d "groupid=$GROUPID" http://$AUTH@localhost/resto/$COLLECTION/'$rights'
+    curl --get -X DELETE -d "groupid=$GROUPID" http://$AUTH@$HOST/resto/$COLLECTION/'$rights'
 fi
 echo ""

@@ -36,10 +36,12 @@
 #  knowledge of the CeCILL-B license and that you accept its terms.
 #  
 HTTPS=0
-usage="## Create a new collection within RESTo database\n\n  Usage $0 -f <Collection description file (i.e. JSON file)>  -u <username:password> [-s (use https if set)]\n"
-while getopts "sf:u:h" options; do
+HOST=localhost
+usage="## Create a new collection within RESTo database\n\n  Usage $0 -f <Collection description file (i.e. JSON file)>  -u <username:password> [-s (use https if set) -H server (default localhost)]\n"
+while getopts "sf:u:H:h" options; do
     case $options in
         u ) AUTH=`echo $OPTARG`;;
+        H ) HOST=`echo $OPTARG`;;
         f ) JSON=`echo $OPTARG`;;
         s ) HTTPS=1;;
         h ) echo -e $usage;;
@@ -57,8 +59,8 @@ fi
 
 if [ "$HTTPS" = "1" ]
 then
-    curl -k -X POST -F "file[]=@$JSON" https://$AUTH@localhost/resto/
+    curl -k -X POST -F "file[]=@$JSON" https://$AUTH@$HOST/resto/
 else
-    curl -X POST -F "file[]=@$JSON" http://$AUTH@localhost/resto/
+    curl -X POST -F "file[]=@$JSON" http://$AUTH@$HOST/resto/
 fi
 echo ""

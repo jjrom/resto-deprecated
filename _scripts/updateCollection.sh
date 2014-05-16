@@ -36,10 +36,12 @@
 #  knowledge of the CeCILL-B license and that you accept its terms.
 #  
 HTTPS=0
-usage="## Update a collection\n\n  Usage $0 -c <Collection name> -f <Collection description file (i.e. Text file with data=xxx where xxx is the encodeURIComponent of the JSON collection description)>  -u <username:password> [-s (use https if set)]\n"
-while getopts "c:sf:u:h" options; do
+HOST=localhost
+usage="## Update a collection\n\n  Usage $0 -c <Collection name> -f <Collection description file (i.e. Text file with data=xxx where xxx is the encodeURIComponent of the JSON collection description)>  -u <username:password> [-s (use https if set) -H server (default localhost)]\n"
+while getopts "c:sf:u:hH:" options; do
     case $options in
         c ) COLLECTION=`echo $OPTARG`;;
+        H ) HOST=`echo $OPTARG`;;
         u ) AUTH=`echo $OPTARG`;;
         f ) JSON=`echo $OPTARG`;;
         s ) HTTPS=1;;
@@ -63,8 +65,8 @@ fi
 
 if [ "$HTTPS" = "1" ]
 then
-    curl -k -X PUT -d @$JSON https://$AUTH@localhost/resto/$COLLECTION
+    curl -k -X PUT -d @$JSON https://$AUTH@$HOST/resto/$COLLECTION
 else
-    curl -X PUT -d @$JSON http://$AUTH@localhost/resto/$COLLECTION
+    curl -X PUT -d @$JSON http://$AUTH@$HOST/resto/$COLLECTION
 fi
 echo ""
