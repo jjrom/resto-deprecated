@@ -249,6 +249,7 @@ class QueryAnalyzer {
      *      <after> "date"
      *      
      *      <between> "date" <and> "date"
+     *      <between> "month" <and> "month" (year)
      *      "quantity" <between> "numeric" <and> "numeric" ("unit")
      *      <between> "numeric" <and> "numeric" "unit" (of) "quantity"
      * 
@@ -774,6 +775,7 @@ class QueryAnalyzer {
      * Process modifier 'between'
      * 
      *      <between> "date" <and> "date"
+     *      <between> "month" <and> "month" (year)
      *      "quantity" <between> "numeric" <and> "numeric" "unit"
      *      <between> "numeric" <and> "numeric" "unit" (of) "quantity"
      * 
@@ -791,6 +793,25 @@ class QueryAnalyzer {
         if ($i + 3 < $l && isISO8601($searchTerms[$i + 1]) && $this->dictionary->getModifier($searchTerms[$i + 2]) === 'and' && isISO8601($searchTerms[$i + 3])) {
             $params['time:start'] = toISO8601($searchTerms[$i + 1]);
             $params['time:end'] = toISO8601($searchTerms[$i + 3]);
+            array_push($toRemove, $searchTerms[$i + 1]);
+            array_push($toRemove, $searchTerms[$i + 2]);
+            array_push($toRemove, $searchTerms[$i + 3]);
+        }
+        /*
+         * <between> "month" <and> "month" (year)
+         */
+        else if ($i + 3 < $l && $this->dictionary->getMonth($searchTerms[$i + 1]) && $this->dictionary->getModifier($searchTerms[$i + 2]) === 'and' && $this->dictionary->getMonth($searchTerms[$i + 3])) {
+            
+            /*
+             * Year is specified otherwise take current year
+             */
+            $year = date("Y");
+            if ($i + 4 < $l && strlen($searchTerms[$i + 4]) === 4 && $this->isNumeric($searchTerms[$i + 4])) {
+                $year = $searchTerms[$i + 4];
+                array_push($toRemove, $searchTerms[$i + 4]);
+            }
+            $params['time:start'] = $year . '-' . $this->dictionary->getMonth($searchTerms[$i + 1]) . '-01' . 'T00:00:00';
+            $params['time:end'] = $year . '-' . $this->dictionary->getMonth($searchTerms[$i + 3]) . '-' . date('d', mktime(0, 0, 0, intval($this->dictionary->getMonth($searchTerms[$i + 3])) + 1, 0, intval($year))) . 'T23:59:59';
             array_push($toRemove, $searchTerms[$i + 1]);
             array_push($toRemove, $searchTerms[$i + 2]);
             array_push($toRemove, $searchTerms[$i + 3]);
@@ -1036,7 +1057,7 @@ class QueryAnalyzer {
                 $params['time:end'] = $year . '-12-31' . 'T23:59:59';
             } else if ($unit === 'months') {
                 $params['time:start'] = $pYear . '-' . $pMonth . '-01' . 'T00:00:00';
-                $params['time:end'] = $year . '-' . $month . '-' . cal_days_in_month(CAL_GREGORIAN, intval($month), intval($year)) . 'T23:59:59';
+                $params['time:end'] = $year . '-' . $month . '-' . date('d', mktime(0, 0, 0, intval($month) + 1, 0, intval($year))) . 'T23:59:59';
             } else if ($unit === 'days') {
                 $params['time:start'] = $pYear . '-' . $pMonth . '-' . $pDay . 'T00:00:00';
                 $params['time:end'] = $year . '-' . $month . '-' . $day . 'T23:59:59';
