@@ -78,7 +78,7 @@ postgis=`echo $ROOTDIR/postgis.sql`
 projections=`echo $ROOTDIR/spatial_ref_sys.sql`
 
 # Make db POSTGIS compliant
-createdb $DB -U $SUPERUSER
+createdb $DB -U $SUPERUSER -E UTF8
 createlang -U $SUPERUSER plpgsql $DB
 psql -d $DB -U $SUPERUSER -f $postgis
 psql -d $DB -U $SUPERUSER -f $projections
