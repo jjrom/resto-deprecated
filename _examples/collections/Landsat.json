@@ -11,7 +11,7 @@
             "Tags": "landsat niveau2A reflectance muscate CNES",
             "Developper": "J\u00e9r\u00f4me Gasperi",
             "Contact": "jerome.gasperi@cnes.fr",
-            "Query": "France",
+            "Query": "Images sur la France entre octobre et decembre 2013",
             "Attribution": "CNES. Copyright 2014, All Rights Reserved"
         },
         "en": {
@@ -21,7 +21,7 @@
             "Tags": "landsat level2A reflectance muscate CNES",
             "Developper": "J\u00e9r\u00f4me Gasperi",
             "Contact": "jerome.gasperi@cnes.fr",
-            "Query": "France",
+            "Query": "Images acquired in France between october and december 2013",
             "Attribution": "CNES. Copyright 2014, All Rights Reserved"
         }
     },
