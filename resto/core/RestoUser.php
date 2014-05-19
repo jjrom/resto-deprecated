@@ -308,7 +308,7 @@ class RestoUser {
             if (!$userInfo || !$userInfo[$this->sso['uidKey']]) {
                 $_SESSION['profile'] = array(
                     'userid' => -1,
-                    'groupid' => 'default'
+                    'groupid' => 'unregistered'
                 );
                 $this->profile = $_SESSION['profile'];
                 return true;
@@ -371,7 +371,7 @@ class RestoUser {
         else {
             $_SESSION['profile'] = array(
                 'userid' => -1,
-                'groupid' => 'default'
+                'groupid' => 'unregistered'
             );
         }
         pg_close($dbh);
