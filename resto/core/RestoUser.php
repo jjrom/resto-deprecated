@@ -53,7 +53,7 @@ class RestoUser {
      */
     private $profile = array(
         'userid' => -1,
-        'groupid' => 'default'
+        'groupid' => 'unregistered'
     );
     
     /*
@@ -70,6 +70,17 @@ class RestoUser {
      * Default groups rights
      */
     private $defaultRights = array(
+        'unregistered' => array(
+            'get' => true,
+            'post' => false,
+            'put' => false,
+            'delete' => false,
+            'search' => true,
+            'visualize' => false,
+            'download' => false,
+            'tag' => false,
+            'rights' => false
+        ),
         'default' => array(
             'get' => true,
             'post' => false,
@@ -83,8 +94,8 @@ class RestoUser {
                     )
                 )
             ),*/
-            'visualize' => false,
-            'download' => false,
+            'visualize' => true,
+            'download' => true,
             'tag' => false,
             'rights' => false
         ),
