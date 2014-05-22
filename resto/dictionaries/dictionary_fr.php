@@ -373,9 +373,11 @@ return array(
         'landuse' => array(
             'artificiel' => 'urban',
             'urbain' => 'urban',
+            'urbaine' => 'urban',
             'ville' => 'urban',
             'zone cultive' => 'cultivated',
-            'cultive' => 'cultivated',
+            'cultivee' => 'cultivated',
+            'cultivees' => 'cultivated',
             'foret' => 'forest',
             'forets' => 'forest',
             'herbace' => 'herbaceous',
