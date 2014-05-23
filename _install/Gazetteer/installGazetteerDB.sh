@@ -144,12 +144,12 @@ CREATE INDEX idx_geoname_geom ON gazetteer.geoname USING gist(geom);
 
 -- Text search
 ALTER TABLE gazetteer.geoname ADD COLUMN searchname VARCHAR(200);
-UPDATE gazetteer.geoname SET searchname = lower(replace(replace(replace(asciiname, '`', ''), '-', ''), ' ', ''));
+UPDATE gazetteer.geoname SET searchname = lower(replace(replace(asciiname, '-', ''), ' ', ''));
 CREATE INDEX idx_geoname_searchname ON gazetteer.geoname (searchname);
 CREATE INDEX idx_geoname_country ON gazetteer.geoname (country);
 
 ALTER TABLE gazetteer.alternatename ADD COLUMN searchname VARCHAR(200);
-UPDATE gazetteer.alternatename SET searchname = lower(replace(replace(replace(alternatename, '`', ''), '-', ''), ' ', ''));
+UPDATE gazetteer.alternatename SET searchname = lower(replace(replace(alternatename, '-', ''), ' ', ''));
 CREATE INDEX idx_alternatename_searchname ON gazetteer.alternatename (searchname);
 CREATE INDEX idx_alternatename_isolanguage ON gazetteer.alternatename (isolanguage);
 
