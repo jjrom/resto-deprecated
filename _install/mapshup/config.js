@@ -11,8 +11,8 @@
     c["general"].serverRootUrl = null;
     c["general"].proxyUrl = null;
     c["general"].confirmDeletion = false;
-    c["general"].themePath = "/js/externals/mapshup/theme/default";
-    c["i18n"].path = "/js/externals/mapshup/i18n";
+    c["general"].themePath = "/js/css";
+    c["i18n"].path = "/js/i18n";
     c["general"].displayContextualMenu = true;
     c["general"].displayCoordinates = true;
     c["general"].displayScale = false;

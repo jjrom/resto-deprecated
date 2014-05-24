@@ -67,6 +67,7 @@ if [ -d "$TARGETDIR" ]; then
 fi
 
 mkdir $TARGETDIR
+echo ' ==> Copy files to $TARGETDIR directory'
 cp -Rf $SRCDIR/.htaccess $SRCDIR/favicon.ico $SRCDIR/index.php $SRCDIR/themes $SRCDIR/js $SRCDIR/resto $SRCDIR/auth $TARGETDIR
 echo ' ==> Successfully install RESTo to $TARGETDIR directory'
 echo ' ==> Now, do not forget to check $TARGETDIR/resto/resto.ini configuration !'
