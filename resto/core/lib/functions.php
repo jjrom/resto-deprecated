@@ -66,10 +66,12 @@ function updateUrl($url, $mod) {
         $value = isset($tmp[1]) ? $tmp[1] : null;
         if (array_key_exists($key, $mod)) {
             if($mod[$key]) {
-                $url = preg_replace('/' . urlencode($key) . '=' . urlencode($value) . '/', urlencode($key) . '=' . urlencode($mod[$key]), $url);
+                $url = str_replace(urlencode($key) . '=' . urlencode($value), urlencode($key) . '=' . urlencode($mod[$key]), $url);
+                //$url = preg_replace('/' . urlencode($key) . '=' . urlencode($value) . '/', urlencode($key) . '=' . urlencode($mod[$key]), $url);
             }
             else {
-                $url = preg_replace('/&?' . urlencode($key) . '=' . urlencode($value) . '/', '', $url);
+                $url = preg_replace('&?' . urlencode($key) . '=' . urlencode($value), '', $url);
+                //$url = preg_replace('/&?' . urlencode($key) . '=' . urlencode($value) . '/', '', $url);
             }
         }
     }
