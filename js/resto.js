@@ -128,34 +128,6 @@
             }
 
             /*
-             * State change - Ajax call to RESTo backend server
-             */
-            window.History.Adapter.bind(window, 'statechange', function() {
-
-                // Be sure that json is called !
-                var state = window.History.getState(), url = self.updateURL(state.cleanUrl, {format: 'json'});
-
-                self.showMask();
-
-                $.ajax({
-                    url: url,
-                    async: true,
-                    dataType: 'json',
-                    success: function(json) {
-                        self.hideMask();
-                        self.updatePage(json, {
-                            updateMap:true,
-                            centerMap:(state.data && state.data.centerMap) || (json.query && json.query.hasLocation) ? true : false
-                        });
-                    },
-                    error: function(e) {
-                        self.hideMask();
-                        self.message("Connection error");
-                    }
-                });
-            });
-
-            /*
              * Update bbox parameter in href attributes of all element with 'resto-updatebbox' class
              */
             if (window.M) {
@@ -187,14 +159,6 @@
             self.updateRestoToolbar();
 
             /*
-             * Initialize page with no mapshup refresh
-             */
-            self.updatePage(options.data, {
-                updateMap:false,
-                centerMap:options.data && options.data.query 
-            });
-
-            /*
              * Set the admin actions
              */
             self.Admin.updateAdminActions(options.collection);
@@ -203,6 +167,48 @@
              * Force focus on search input form
              */
             $('#search').focus();
+
+        },
+        
+        /**
+         * Bind history state change
+         * 
+         * @param {function} callback // callback function to call on state change
+         * 
+         */
+        onHistoryChange: function(callback) {
+            
+            var self = this;
+            
+            /*
+             * State change - Ajax call to RESTo backend server
+             */
+            window.History.Adapter.bind(window, 'statechange', function() {
+
+                // Be sure that json is called !
+                var state = window.History.getState(), url = self.updateURL(state.cleanUrl, {format: 'json'});
+
+                self.showMask();
+
+                $.ajax({
+                    url: url,
+                    async: true,
+                    dataType: 'json',
+                    success: function(json) {
+                        self.hideMask();
+                        if (typeof callback === 'function') {
+                            callback(json, {
+                                updateMap:true,
+                                centerMap:(state.data && state.data.centerMap) || (json.query && json.query.hasLocation) ? true : false
+                            });
+                        }
+                    },
+                    error: function(e) {
+                        self.hideMask();
+                        self.message("Connection error");
+                    }
+                });
+            });
 
         },
         
@@ -544,117 +550,6 @@
         },
 
         /**
-         * Update getCollection page
-         * 
-         * @param {array} json
-         * @param {boolean} options 
-         *          {
-         *              updateMap: // true to update map content
-         *              centerMap: // true to center map on content
-         *          }
-         * 
-         */
-        updatePage: function(json, options) {
-
-            var foundFilters, key, self = this;
-
-            json = json || {};
-            options = options || {};
-            
-            /*
-             * Update mapshup view
-             */
-            if (window.M && options.updateMap) {
-
-                /*
-                 * Layer already exist => reload content
-                 * i.e. remove old features and insert new ones
-                 */
-                if (self.layer) {
-                    self.layer.destroyFeatures();
-                    window.M.Map.layerTypes['GeoJSON'].load({
-                        data: json,
-                        layerDescription: self.layer['_M'].layerDescription,
-                        layer: self.layer,
-                        zoomOnNew: options.centerMap ? 'always' : false
-                    });
-                }
-                /*
-                 * Layer does not exist => create it
-                 */
-                else {
-                    self.initSearchLayer(json, options.centerMap);
-                }
-            }
-
-            /*
-             * Update search input form
-             */
-            if ($('#search').length > 0) {
-                $('#search').val(json.query ? json.query.original.searchTerms : '');
-            }
-
-            /*
-             * Update query analysis result
-             */
-            if (json.query && json.query.real) {
-                foundFilters = "";
-                for (key in json.query.real) {
-                    if (json.query.real[key]) {
-                        if (key !== 'language') {
-                            foundFilters += '<b>' + key + '</b> ' + json.query.real[key] + '</br>';
-                        }
-                    }
-                }
-                if (foundFilters) {
-                    $('.resto-queryanalyze').html('<div class="resto-query">' + foundFilters + '</div>');
-                }
-                else {
-                    $('.resto-queryanalyze').html('<div class="resto-query"><span class="resto-warning">' + self.translate('_notUnderstood') + '</span></div>');
-                }
-            }
-            else if (json.missing) {
-                $('.resto-queryanalyze').html('<div class="resto-query"><span class="resto-warning">Missing mandatory search filters - ' + json.missing.concat() + '</span></div>');
-            }
-
-            /*
-             * Update result
-             */
-            self.updateResultEntries(json);
-
-            /*
-             * Constraint search to map extent
-             */
-            self.updateBBOX();
-
-            /*
-             * Set swipebox for quicklooks
-             */
-            $('a.resto-quicklook').swipebox();
-
-            /*
-             * Click on ajaxified element call href url through Ajax
-             */
-            $('.resto-ajaxified').each(function() {
-                $(this).click(function(e) {
-                    e.preventDefault();
-                    window.History.pushState({
-                        randomize: window.Math.random(),
-                        centerMap:$(this).hasClass('centerMap')
-                    }, null, $(this).attr('href'));
-                });
-            });
-
-            /*
-             * Click on postToMapshup element send request to mapshup
-             */
-            $('.resto-addLayer').click(function(e) {
-                e.preventDefault();
-                self.addLayer($(this).attr('data'));
-            });
-
-        },
-        /**
          * Set mapshup toolbar
          */
         updateMapshupToolbar: function() {
@@ -725,9 +620,6 @@
                     }
                 }
             });
-        },
-        updateResultEntries: function(json) {
-            // Should be defined in theme.js
         },
         /**
          * Launch an ajax call
