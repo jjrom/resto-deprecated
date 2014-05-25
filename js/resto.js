@@ -1024,9 +1024,12 @@
                 else if (files.length > 1) {
                     window.R.message("Error : drop only one file at a time");
                 }
+                /* 
+                 * Apparently "application/json" mimeType is not detected on Windows
                 else if (type === 'collection' && files[0].type.toLowerCase() !== "application/json") {
                     window.R.message("Error : drop a json file");
                 }
+                */
                 /*
                  * User dropped a file
                  */
