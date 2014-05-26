@@ -46,3 +46,7 @@ echo ' ==> Compress dependencies.css file with Yahoo! CSS compressor'
 java -jar _compressors/css_compressor.jar ../js/css/dependencies.css > ../js/css/dependencies.min.css
 rm -Rf ../js/css/dependencies.css
 
+echo ' ==> Copy images to ../js/img/'
+cp -R js/swipebox/img/* ../js/css/img
+
+
