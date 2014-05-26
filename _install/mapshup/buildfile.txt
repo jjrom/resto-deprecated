@@ -66,7 +66,7 @@ lib/plugins/Distance.js
 #lib/plugins/Export.js // NOTOUCH
 #lib/plugins/FeatureEdition.js
 #lib/plugins/Flickr.js
-lib/plugins/Geonames.js
+#lib/plugins/Geonames.js
 #lib/plugins/GetFeatureInfo.js
 #lib/plugins/GetLandCover.js
 #lib/plugins/GoogleEarth.js // NOTOUCH
@@ -76,7 +76,7 @@ lib/plugins/Geonames.js
 #lib/plugins/LayersManager.js
 #lib/plugins/LocateMe
 #lib/plugins/Logger.js
-#lib/plugins/Navigation.js
+lib/plugins/Navigation.js
 #lib/plugins/Print
 #lib/plugins/Routing.js
 #lib/plugins/Search.js

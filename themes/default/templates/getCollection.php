@@ -8,7 +8,6 @@ $templateName = 'default';
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title><?php echo strip_tags($this->R->getTitle()); ?></title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
         <link rel="shortcut icon" href="<?php echo $this->request['restoUrl'] ?>/favicon.ico" />
-        <!-- mapshup : start -->
         <link rel="stylesheet" type="text/css" href="<?php echo $this->request['restoUrl'] ?>/js/css/dependencies.min.css" />
         <link rel="stylesheet" href="<?php echo $this->request['restoUrl'] ?>/themes/<?php echo $templateName ?>/style.css" type="text/css" />
         <link rel="search" type="application/opensearchdescription+xml" href="<?php echo $collectionUrl ?>$describe" hreflang="<?php echo $this->request['language'] ?>" title="<?php echo $this->description['name']; ?>" />
@@ -37,11 +36,9 @@ $templateName = 'default';
                 </ul>
             </nav>
         </header>
-
         <div class="row" style="height:50px;">
             <div class="large-12 columns"></div>
         </div>
-
         <!-- Collection title and description -->
         <div class="row">
             <div class="large-6 columns">
@@ -53,9 +50,9 @@ $templateName = 'default';
                 </p>
             </div>
         </div>
-
+        <!-- Search bar -->
         <div class="row">
-            <div class="large-12 columns resto-search">
+            <div class="large-12 columns resto-search center">
                 <form id="resto-searchform" action="<?php echo $collectionUrl ?>">
                     <input type="hidden" name="format" value="html" />
                     <?php
@@ -63,37 +60,13 @@ $templateName = 'default';
                         echo '<input type="hidden" name="' . $this->description['searchFiltersDescription']['language']['osKey'] . '" value="' . $this->request['language'] . '" />';
                     }
                     ?>
-                    <input type="search" id="search" name="<?php echo $this->description['searchFiltersDescription']['searchTerms']['osKey'] ?>" value="<?php echo str_replace('"', '&quot;', stripslashes($this->request['params'][$this->description['searchFiltersDescription']['searchTerms']['osKey']])); ?>" placeholder="<?php echo $this->description['dictionary']->translate('_placeHolder', $this->description['os']['Query']); ?>"/>
+                    <input type="search" id="search" name="<?php echo $this->description['searchFiltersDescription']['searchTerms']['osKey'] ?>" value="<?php echo str_replace('"', '&quot;', stripslashes($this->request['params'][$this->description['searchFiltersDescription']['searchTerms']['osKey']])); ?>" placeholder="<?php echo $this->description['dictionary']->translate('_placeHolder', $this->description['os']['Query']); ?>"/><span class="button zoom fa fa-search" title="search"></span>
                 </form>
             </div>
         </div>
         <!-- mapshup display -->
         <div id="mapshup" class="noResizeHeight"></div>
-
-        <!-- mapshup display -->
-        <!--<div id="mapshup" class="noResizeHeight fixed"></div>
-        <div id="mapshup-tools" class="fixed"></div>
-        <div class="row mapshup-block-fixed">
-            <div class="large-12 columns"></div>
-        </div>
-        <div class="row mobile-block-fixed">
-            <div class="large-12 columns"></div>
-        </div>-->
-
-
-        <!--
-         <div class="resto-search">
-            <form id="resto-searchform" action="<?php echo $collectionUrl ?>">
-                <input type="hidden" name="format" value="html" />
-        <?php
-        if ($this->request['language']) {
-            echo '<input type="hidden" name="' . $this->description['searchFiltersDescription']['language']['osKey'] . '" value="' . $this->request['language'] . '" />';
-        }
-        ?>
-                <input type="search" id="search" name="<?php echo $this->description['searchFiltersDescription']['searchTerms']['osKey'] ?>" value="<?php echo str_replace('"', '&quot;', stripslashes($this->request['params'][$this->description['searchFiltersDescription']['searchTerms']['osKey']])); ?>" placeholder="<?php echo $this->description['dictionary']->translate('_placeHolder', $this->description['os']['Query']); ?>"/>
-            </form>
-        </div>
-        -->
+        <!-- Administration -->
         <?php if ($this->R->getUser()->canPost($this->request['collection'])) { ?>
             <div class="row fullWidth resto-admin">
                 <div class="large-12 columns center">
@@ -101,43 +74,28 @@ $templateName = 'default';
                 </div>
             </div>
         <?php } ?>
-
-        <!-- query analyze result -->
+        <!-- Query analyze result -->
         <?php if ($this->request['special']['_showQuery']) { ?>
             <div class="resto-queryanalyze fixed"></div>
         <?php } ?>
-
-        <!-- Collection title and description -->
-        <!--
-        <div class="row">
-            <div class="large-12 columns">
-                <h1><?php echo $this->description['os']['ShortName']; ?></h1>
-                <div class="resto-description">
-        <?php echo $this->description['os']['Description']; ?>
-                </div>
-            </div>
-        </div>
-        -->
-
+        <!-- Pagination -->
         <div class="row">
             <div class="large-12 columns">
                 <ul class="small-block-grid-1 medium-block-grid-3 large-block-grid-4 resto-pagination center"></ul>
             </div>
         </div>
-
         <!-- Search result -->
         <div class="row">
             <div class="large-12 columns">
                 <ul class="small-block-grid-1 medium-block-grid-3 large-block-grid-4 resto-content center"></ul>
             </div>
         </div>
-
+        <!-- Pagination -->
         <div class="row">
             <div class="large-12 columns">
                 <ul class="small-block-grid-1 medium-block-grid-3 large-block-grid-4 resto-pagination center"></ul>
             </div>
         </div>
-
         <!-- Footer -->
         <div class="row">
             <div class="small-12 columns">

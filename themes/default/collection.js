@@ -124,11 +124,6 @@
         self.updateBBOX();
 
         /*
-         * Set swipebox for quicklooks
-         */
-        $('a.resto-quicklook').swipebox();
-
-        /*
          * Click on ajaxified element call href url through Ajax
          */
         $('.resto-ajaxified').each(function() {
@@ -141,14 +136,6 @@
             });
         });
 
-        /*
-         * Click on postToMapshup element send request to mapshup
-         */
-        $('.resto-addLayer').click(function(e) {
-            e.preventDefault();
-            self.addLayer($(this).attr('data'));
-        });
-
     };
 
     /**
@@ -158,7 +145,7 @@
      */
     window.R.updateGetCollectionResultEntries = function(json) {
 
-        var i, l, j, k, thumbnail, quicklook, feature, key, keyword, keywords, type, $content, $actions, value, title, addClass, platform, results, resolution, self = window.R;
+        var i, l, j, k, thumbnail, feature, key, keyword, keywords, type, $content, $actions, value, title, addClass, platform, results, resolution, self = window.R;
 
         json = json || {};
 
@@ -222,20 +209,10 @@
             feature = json.features[i];
 
             /*
-             * Quicklook and thumbnail
+             * Thumbnail
              */
-            thumbnail = feature.properties['thumbnail'];
-            quicklook = feature.properties['quicklook'];
-            if (!thumbnail && quicklook) {
-                thumbnail = quicklook;
-            }
-            else if (!thumbnail && !quicklook) {
-                thumbnail = self.restoUrl + '/css/default/img/noimage.png';
-            }
-            if (!quicklook) {
-                quicklook = thumbnail;
-            }
-
+            thumbnail = feature.properties['thumbnail'] || feature.properties['quicklook'] || self.restoUrl + '/css/default/img/noimage.png';
+            
             /*
              * Display structure
              *  
@@ -261,24 +238,26 @@
             if (feature.properties.keywords && feature.properties.keywords[feature.properties['platform']]) {
                 platform = '<a href="' + self.updateURL(feature.properties.keywords[feature.properties['platform']]['href'], {format: 'html'}) + '" class="resto-ajaxified resto-updatebbox resto-keyword resto-keyword-platform" title="' + self.translate('_thisResourceWasAcquiredBy', [feature.properties['platform']]) + '">' + feature.properties['platform'] + '</a> ';
             }
-            $content.append('<li><div class="resto-entry" id="rid' + i + '" fid="' + feature.id + '"><div class="padded-bottom"><span class="platform">' + platform + (platform && feature.properties['instrument'] ? "/" + feature.properties['instrument'] : "") + '</span> | <span class="timestamp">' + feature.properties['startDate'] + '</span></div><span class="resto-thumbnail"><a href="' + quicklook + '" class="resto-quicklook" title="' + feature.id + '"><img class="resto-image" src="' + thumbnail + '"/></a></span><div class="resto-actions"></div><div class="resto-keywords"></div></div></li>');
+            
+            /*
+             * Resource page
+             */
+            var resourceUrl = '#';
+            if ($.isArray(feature.properties['links'])) {
+                for (j = 0, k = feature.properties['links'].length; j < k; j++) {
+                    if (feature.properties['links'][j]['type'] === 'text/html') {
+                        resourceUrl = feature.properties['links'][j]['href'];
+                    }
+                }
+            }
+            
+            $content.append('<li><div class="resto-entry" id="rid' + i + '" fid="' + feature.id + '"><div class="padded-bottom"><span class="platform">' + platform + (platform && feature.properties['instrument'] ? "/" + feature.properties['instrument'] : "") + '</span> | <span class="timestamp">' + feature.properties['startDate'] + '</span></div><div><a href="' + resourceUrl + '" title="' + self.translate('_viewMetadata', [feature.id]) + '"><img class="resto-image" src="' + thumbnail + '"/></a></div><div class="resto-actions"></div><div class="resto-keywords"></div></div></li>');
             $actions = $('.resto-actions', $('#rid' + i));
 
             /*
              * Zoom on feature
              */
-            $actions.append('<a class="fa fa-bullseye centerOnFeature" href="#" title="' + self.translate('_centerOnFeature') + ' "></a>');
-
-            /*
-             * Metadata
-             */
-            if ($.isArray(feature.properties['links'])) {
-                for (j = 0, k = feature.properties['links'].length; j < k; j++) {
-                    if (feature.properties['links'][j]['type'] === 'text/html') {
-                        $actions.append('<a class="fa fa-file-o" href="' + feature.properties['links'][j]['href'] + '" title="' + self.translate('_viewMetadata') + ' "></a>');
-                    }
-                }
-            }
+            $actions.append('<a class="fa fa-map-marker showOnMap" href="#" title="' + self.translate('_showOnMap') + '"></a>');
 
             /*
              * Services
@@ -292,28 +271,13 @@
                     $actions.append('<a class="fa fa-cloud-download" href="' + feature.properties['services']['download']['url'] + '"' + (feature.properties['services']['download']['mimeType'] === 'text/html' ? ' target="_blank"' : '') + ' title="' + self.translate('_download') + '"></a>');
                 }
 
-                /*
-                 * View
-                 */
-                if (feature.properties['services']['browse'] && feature.properties['services']['browse']['layer']) {
-                    if (window.M) {
-                        var message = {
-                            title: feature.id,
-                            type: feature.properties['services']['browse']['layer']['type'],
-                            layers: feature.properties['services']['browse']['layer']['layers'],
-                            url: feature.properties['services']['browse']['layer']['url'].replace('%5C', ''),
-                            zoomOnNew: 'always'
-                        };
-                        $actions.append('<a class="fa fa-eye resto-addLayer" data="' + encodeURI(JSON.stringify(message)) + '" href="#" title="' + self.translate('_viewMapshupFullResolution') + '"></a>');
-                    }
-                }
             }
 
             /*
-             * Center on feature
+             * Show feature on map
              */
             (function($div) {
-                $('.centerOnFeature', $div).click(function(e) {
+                $('.showOnMap', $div).click(function(e) {
                     e.preventDefault();
                     var f = window.M.Map.Util.getFeature(window.M.Map.Util.getLayerByMID('__resto__'), $div.attr('fid'));
                     if (f) {
@@ -323,6 +287,9 @@
                             $(this).removeClass('selected');
                         });
                         $div.addClass('selected');
+                        $('html, body').animate({
+                            scrollTop: ($('#mapshup').offset().top - 50)
+                        }, 500);
                     }
                 });
             })($('#rid' + i));

@@ -153,7 +153,7 @@ nav a:active {
     /*
      * Hide mapshup for small screens
      */
-    .resto-queryanalyze, .mapshup-block-fixed, .resto-addLayer, .centerOnFeature {
+    .resto-queryanalyze, .mapshup-block-fixed, .resto-addLayer, .showOnMap {
         display:none;
     }
     #mapshup.fixed, #mapshup-tools.fixed {
@@ -165,6 +165,10 @@ nav a:active {
         left:10%;
         width:80%;
         z-index:30000;
+    }
+    
+    .button.zoom {
+        display:none;
     }
 }
 
@@ -340,6 +344,13 @@ a.resto-keyword-herbaceous  {
     max-width:600px;
     text-align:left;
 }
+/* Navigation */
+#mapshup .tbnwh {
+    top:15px;
+    background-color:#E4E4E4;
+    color:#000;
+    border:1px solid #fff;
+}
 
 /*
  * home and admin
@@ -441,6 +452,10 @@ a.resto-keyword-herbaceous  {
     width:250px;
 }
 
+.button.zoom {
+    font-size:1.5rem;
+    padding:12px 20px 13px 20px;
+}
 .button.admin {
     font-size:0.5em;
     padding:15px;
@@ -468,8 +483,7 @@ a.resto-keyword-herbaceous  {
 .resto-admin a:hover {
     color:#000;
 }
-.resto-admin textarea {
-	width: 80%;
-	height: 120px;
-	padding: 5px;
+input[type="search"] {
+    display:inline;
+    width:80%;
 }

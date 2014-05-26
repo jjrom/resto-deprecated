@@ -96,11 +96,6 @@
             if (window.M) {
 
                 /*
-                 * Set mapshup-tools
-                 */
-                self.updateMapshupToolbar();
-
-                /*
                  * mapshup bug ?
                  * Force map size refresh when user scroll RESTo page
                  */
@@ -110,7 +105,7 @@
                         window.M.events.trigger('resizeend');
                     }, 150);
                 });
-
+              
                 /*
                  * Display GeoJSON data within mapshup on startup
                  * 
@@ -120,7 +115,46 @@
                 if (options.data) {
                     var fct = setInterval(function() {
                         if (window.M.Map.map && window.M.isLoaded) {
+                            
                             self.initSearchLayer(options.data, options.data.query && options.data.query.hasLocation ? true : false);
+                            
+                            /*
+                             * Display full size WMS
+                             */
+                            if (options.singleResource) {
+                                if (self.layer) {
+                                    window.M.Map.zoomTo(self.layer.getDataExtent(), false);
+                                    if ($.isArray(options.data.features) && options.data.features[0]) {
+                                        if (options.data.features[0].properties['services']['browse'] && options.data.features[0].properties['services']['browse']['layer']) {
+                                            M.Map.addLayer({
+                                                title: options.data.features[0].id,
+                                                type: options.data.features[0].properties['services']['browse']['layer']['type'],
+                                                layers: options.data.features[0].properties['services']['browse']['layer']['layers'],
+                                                url: options.data.features[0].properties['services']['browse']['layer']['url'].replace('%5C', '')
+                                            });
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            /*
+                             * Add "Center on layer" action
+                             */
+                            (new M.Toolbar({
+                                position: 'nw',
+                                orientation: 'h'
+                            })).add({
+                                title: '<span class="fa fa-map-marker"></span>',
+                                tt: "Center",
+                                onoff: false,
+                                onactivate: function(scope, item) {
+                                    item.activate(false);
+                                    if (self.layer && self.layer.features && self.layer.features.length > 0) {
+                                        window.M.Map.zoomTo(self.layer.getDataExtent(), false);
+                                    }
+                                }
+                            });
+                    
                             clearInterval(fct);
                         }
                     }, 500);
@@ -549,78 +583,6 @@
             return 'http://www.gravatar.com/avatar/' + (emailhash ? emailhash : '') + '?d=mm' + (!size || !$.isNumeric(size) ? '' : '&s=' + size);
         },
 
-        /**
-         * Set mapshup toolbar
-         */
-        updateMapshupToolbar: function() {
-
-            var self = this, $tools = $('#mapshup-tools');
-
-            $('ul', $tools.html('<ul></ul>'))
-                    .append('<li class="zoom fa fa-search-plus" title="' + self.translate('_zoom') + '"></li>')
-                    .append('<li class="unZoom fa fa-search-minus" title="' + self.translate('_unZoom') + '"></li>')
-                    .append('<li class="centerOnLayer fa fa-bullseye" title="' + self.translate('_centerOnLayer') + '"></li>')
-                    .append('<li class="globalView fa fa-globe" title="' + self.translate('_globalMapView') + '"></li>')
-                    .append('<li class="hideLayer fa fa-eye" title="' + self.translate('_hideLayer') + '"></li>');
-
-            /*
-             * Zoom
-             */
-            $('.zoom', $tools).click(function(e) {
-                e.preventDefault();
-                window.M.Map.map.setCenter(window.M.Map.map.getCenter(), window.M.Map.map.getZoom() + 1);
-            });
-
-            /*
-             * unZoom
-             */
-            $('.unZoom', $tools).click(function(e) {
-                e.preventDefault();
-                window.M.Map.map.setCenter(window.M.Map.map.getCenter(), Math.max(window.M.Map.map.getZoom() - 1, window.M.Map.lowestZoomLevel));
-            });
-
-            /*
-             * Center on layer
-             */
-            $('.centerOnLayer', $tools).click(function(e) {
-                e.preventDefault();
-                if (self.layer && self.layer.features && self.layer.features.length > 0) {
-                    window.M.Map.zoomTo(self.layer.getDataExtent(), false);
-                }
-                else {
-                    window.M.Map.setCenter(window.M.Map.Util.d2p(new OpenLayers.LonLat(0, 40)), 1, true);
-                }
-            });
-
-            /*
-             * Map global view
-             */
-            $('.globalView', $tools).click(function(e) {
-                e.preventDefault();
-                window.M.Map.setCenter(window.M.Map.Util.d2p(new OpenLayers.LonLat(0, 40)), 1, true);
-            });
-
-            /*
-             * Hide / Show layer
-             */
-            $('.hideLayer', $tools).click(function(e) {
-                e.preventDefault();
-                if (self.layer) {
-                    if (self.layer.getVisibility()) {
-                        window.M.Map.Util.setVisibility(self.layer, false);
-                        $('.hideLayer', $tools)
-                                .attr('title', self.translate('_showLayer'))
-                                .addClass('black');
-                    }
-                    else {
-                        window.M.Map.Util.setVisibility(self.layer, true);
-                        $('.hideLayer', $tools)
-                                .attr('title', self.translate('_hideLayer'))
-                                .removeClass('black');
-                    }
-                }
-            });
-        },
         /**
          * Launch an ajax call
          * This function relies on jquery $.ajax function
