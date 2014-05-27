@@ -1929,7 +1929,7 @@ abstract class RestoController {
         $properties['services'] = array();
 
         /*
-         * WMS url (product full resolution visualization) if user has rights !
+         * WMS url (product full resolution visualization)
          * 
          * Notes :
          * 
@@ -1954,7 +1954,7 @@ abstract class RestoController {
          */
         if (isset($product['wms'])) {
             $wms = $this->getModelValue('wms', array($product['wms'], str_replace(' ', ',', substr(substr($product['bbox3857'], 0, strlen($product['bbox3857']) - 1), 4))));
-            if ($wms && $this->R->getUser()->getRights($this->description['name'], 'get', 'visualize') === true) {
+            if ($wms) {
                 $properties['services']['browse'] = array(
                     'title' => 'Display full resolution product on map',
                     'layer' => array(
@@ -1969,10 +1969,10 @@ abstract class RestoController {
         }
         
         /*
-         * Download url if user has rights !
+         * Always return download url
          */
         $archive = $this->getModelValue('archive', $product['archive']);
-        if (isset($archive) && $this->R->getUser()->getRights($this->description['name'], 'get', 'download') === true) {
+        if (isset($archive)) {
             $properties['services']['download'] = array(
                 'url' => isUrl($archive) ? $archive : $this->request['restoUrl'] . $this->request['collection'] . '/' . $product['identifier'] . '/$download',
                 'mimeType' => $this->getModelValue('mimetype', isset($product['mimetype']) ? $product['mimetype'] : null)

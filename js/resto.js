@@ -72,6 +72,11 @@
         userProfile: null,
         
         /*
+         * User rights for collection
+         */
+        userRights: null,
+        
+        /*
          * Initialize RESTo
          * 
          * @param {Object} options
@@ -302,6 +307,7 @@
                 dataType:'json',
                 success: function(json) {
                     self.userProfile = json;
+                    self.userRights = self.userProfile['collections'] && self.userProfile['collections'][self.collection] ? $.extend(self.userProfile['rights']['default'], self.userProfile['collections'][self.collection]) : self.userProfile['rights']['default']; 
                     self.updateConnectionInfo();
                     self.hideMask();
                 },

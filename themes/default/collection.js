@@ -260,17 +260,12 @@
             $actions.append('<a class="fa fa-map-marker showOnMap" href="#" title="' + self.translate('_showOnMap') + '"></a>');
 
             /*
-             * Services
+             * Download
              */
-            if (feature.properties['services']) {
-
-                /*
-                 * Download
-                 */
-                if (feature.properties['services']['download'] && feature.properties['services']['download']['url']) {
+            if (feature.properties['services'] && feature.properties['services']['download'] && feature.properties['services']['download']['url']) {
+                //if (self.userRights && self.userRights['download']) {
                     $actions.append('<a class="fa fa-cloud-download" href="' + feature.properties['services']['download']['url'] + '"' + (feature.properties['services']['download']['mimeType'] === 'text/html' ? ' target="_blank"' : '') + ' title="' + self.translate('_download') + '"></a>');
-                }
-
+                //}
             }
 
             /*
