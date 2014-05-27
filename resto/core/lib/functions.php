@@ -569,6 +569,7 @@ function toAtom($response, $dictionary, $version = '1.0', $encoding = 'UTF-8') {
     $xml->writeAttribute('xmlns:eo', 'http://a9.com/-/opensearch/extensions/eo/1.0/');
     $xml->writeAttribute('xmlns:metalink', 'urn:ietf:params:xml:ns:metalink');
     $xml->writeAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+    $xml->writeAttribute('xmlns:media', 'http://search.yahoo.com/mrss/');
 
     /*
      * Element 'title' 
@@ -755,6 +756,34 @@ function toAtom($response, $dictionary, $version = '1.0', $encoding = 'UTF-8') {
         $xml->writeAttribute('metalink:priority', 50);
         $xml->writeAttribute('href', $product['properties']['services']['download']['url']);
         $xml->endElement(); // link
+        
+        /*
+         * Quicklook / Thumbnail
+         */
+        if (isset($product['properties']['thumbnail']) || isset($product['properties']['quicklook'])) {
+            $xml->startElement('media:group');
+            if (isset($product['properties']['thumbnail'])) {
+                $xml->startElement('media:content');
+                $xml->writeAttribute('url', $product['properties']['thumbnail']);
+                $xml->writeAttribute('medium', 'image');
+                $xml->endElement();
+                $xml->startElement('media:category');
+                $xml->writeAttribute('scheme', 'http://www.opengis.net/spec/EOMPOM/1.0');
+                $xml->text('THUMBNAIL');
+                $xml->endElement();
+            }
+            if (isset($product['properties']['quicklook'])) {
+                $xml->startElement('media:content');
+                $xml->writeAttribute('url', $product['properties']['quicklook']);
+                $xml->writeAttribute('medium', 'image');
+                $xml->endElement();
+                $xml->startElement('media:category');
+                $xml->writeAttribute('scheme', 'http://www.opengis.net/spec/EOMPOM/1.0');
+                $xml->text('QUICKLOOK');
+                $xml->endElement();
+            }
+            $xml->endElement();
+        }
 
         /*
          * Element 'summary' - HTML description
