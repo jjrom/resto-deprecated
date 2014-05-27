@@ -104,7 +104,7 @@ if (!$_SESSION['profile']) {
     echoResult(200, 'OK', array('userid' => -1));
 }
 else {
-    echoResult(200, 'OK', $_SESSION['profile']);
+    echoResult(200, 'OK', array_merge($_SESSION['profile'], array('rights' => $_SESSION['rights'])));
 }
 
 ob_end_flush();
