@@ -191,7 +191,12 @@
                  */
                 window.History.pushState({randomize: window.Math.random()}, null, '?' + $(this).serialize() + (window.M && $('#mapshup').visible() ? '&box=' + window.M.Map.Util.p2d(M.Map.map.getExtent()).toBBOX() : ''));
             });
-
+            
+            $("#searchsubmit").click(function(e) {
+                e.preventDefault();
+                $("#resto-searchform").submit();
+            });
+            
             /*
              * Set the toolbar actions
              */
