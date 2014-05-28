@@ -22,7 +22,7 @@ $templateName = 'default';
     <body>
 
         <header>
-            <span id="logo"><a title="<?php echo $this->description['dictionary']->translate('_home'); ?>" href="<?php echo $this->request['restoUrl'] ?>">RESTo</a> | <?php echo $this->description['os']['ShortName']; ?></span>
+            <span id="logo"><a title="<?php echo $this->description['dictionary']->translate('_home'); ?>" href="<?php echo $this->request['restoUrl'] ?>"><?php echo $this->R->getTitle(); ?></a> | <?php echo $this->description['os']['ShortName']; ?></span>
             <nav>
                 <ul class="no-bullet">
                     <li title="<?php echo $this->description['dictionary']->translate('_shareOn', 'Facebook'); ?>" class="fa fa-facebook link shareOnFacebook"></li>

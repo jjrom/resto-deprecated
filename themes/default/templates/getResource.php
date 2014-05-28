@@ -40,7 +40,7 @@
     <body>
 
         <header>
-            <span id="logo"><a title="<?php echo $this->description['dictionary']->translate('_home'); ?>" href="<?php echo $this->request['restoUrl'] ?>">RESTo</a><!-- | <?php echo $this->description['os']['ShortName']; ?>--></span>
+            <span id="logo"><a title="<?php echo $this->description['dictionary']->translate('_home'); ?>" href="<?php echo $collectionUrl ?>"><?php echo $this->description['os']['ShortName']; ?></a><!-- | <?php echo $this->description['os']['ShortName']; ?>--></span>
             <nav>
                 <ul>
                     <li title="<?php echo $this->description['dictionary']->translate('_shareOn', 'Facebook'); ?>" class="fa fa-facebook link shareOnFacebook"></li>
