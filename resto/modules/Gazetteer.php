@@ -387,9 +387,9 @@ class Gazetteer {
         
         /*
          * Convert $toponym to a searchable name
-         * i.e. no accents, no space, no '-' and lower case
+         * i.e. no accents and lower case
          */
-        $toponym = trim(strtolower(str_replace(array('\'', ',', ';', '-', ' '), '', asciify($toponym))));
+        $toponym = trim(strtolower(str_replace(array('\'', ',', ';'), '', asciify($toponym))));
         
         /*
          * Constrain search on country name
@@ -425,19 +425,19 @@ class Gazetteer {
         /*
          * First search in english
          */
-        $toponyms = pg_query($this->dbh, 'SELECT name, country as countrycode, latitude, longitude, population FROM ' . $this->schema . '.geoname WHERE searchname =\'' . pg_escape_string(str_replace(array('', '-'), array('', ''), $toponym)) . '\'' . $where . $bboxConstraint . ' ORDER BY population DESC');
+        $toponyms = pg_query($this->dbh, 'SELECT name, country as countrycode, latitude, longitude, fclass, fcode, population FROM ' . $this->schema . '.geoname WHERE searchname =\'' . pg_escape_string($toponym) . '\'' . $where . $bboxConstraint);
         
         if (!$toponyms) {
-            return $result;
+            return $this->order($result);
         }
 
         /*
          * No result - check in native language within alternatename table
          */
         if (pg_num_rows($toponyms) === 0 && $lang !== 'en') {
-            $toponyms = pg_query($this->dbh, 'SELECT name, country as countrycode, latitude, longitude, population FROM ' . $this->schema . '.geoname WHERE geonameid = ANY((SELECT array(SELECT geonameid FROM ' . $this->schema . '.alternatename WHERE searchname =\'' . pg_escape_string(str_replace(array('', '-'), array('', ''), $toponym)) . '\'  AND isolanguage=\'' . $lang . '\'))::integer[])' . $where . ' ORDER BY population DESC');
+            $toponyms = pg_query($this->dbh, 'SELECT name, country as countrycode, latitude, longitude, fclass, fcode, population FROM ' . $this->schema . '.geoname WHERE geonameid = ANY((SELECT array(SELECT geonameid FROM ' . $this->schema . '.alternatename WHERE searchname =\'' . pg_escape_string($toponym) . '\'  AND isolanguage=\'' . $lang . '\'))::integer[])' . $where);
             if (!$toponyms) {
-                return $result;
+                return $this->order($result);
             }
         }
         
@@ -445,9 +445,9 @@ class Gazetteer {
          * No result - check without bbox
          */
         if (pg_num_rows($toponyms) === 0 && $bboxConstraint) {
-            $toponyms = pg_query($this->dbh, 'SELECT name, country as countrycode, latitude, longitude, population FROM ' . $this->schema . '.geoname WHERE searchname =\'' . pg_escape_string(str_replace(array('', '-'), array('', ''), $toponym)) . '\'' . $where . ' ORDER BY population DESC');
+            $toponyms = pg_query($this->dbh, 'SELECT name, country as countrycode, latitude, longitude, fclass, fcode, population FROM ' . $this->schema . '.geoname WHERE searchname =\'' . pg_escape_string($toponym) . '\'' . $where);
             if (!$toponyms) {
-                return $result;
+                return $this->order($result);
             }
         }
         /*
@@ -463,9 +463,22 @@ class Gazetteer {
             array_push($result, $toponym);
         }
 
-        return $result;
+        return $this->order($result);
     }
-
+    
+    /**
+     * Reorder toponyms entry following convention
+     * (see http://www.geonames.org/export/codes.html for class and code explanation)
+     * 
+     *      - fclass priority chain is P, A, the rest 
+     *      - for 'P', fcode priority chain is PPLC, PPLA, PPLA2, PPLA3, PPLA4, PPL, the rest
+     *      
+     * @param {Array} $toponyms
+     */
+    final private function order($toponyms) {
+        return $toponyms;
+    }
+    
     /**
      * Return country code for a given country
      * 

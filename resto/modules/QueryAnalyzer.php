@@ -433,7 +433,7 @@ class QueryAnalyzer {
             if ($this->dictionary->getModifier($searchTerms[$i])) {
 
                 $modifier = $this->dictionary->getModifier($searchTerms[$i]);
-
+                
                 /*
                  * <without> "keyword"
                  * Add a "-" character in front of the term
