@@ -61,12 +61,20 @@
         <!-- Collection title and description -->
         <div class="row">
             <div class="large-6 columns">
-                <h1><?php echo $this->description['os']['ShortName']; ?></h1>
+                <h1 class="grey"><?php echo $this->description['os']['ShortName']; ?></h1>
             </div>
-            <div class="large-6 columns">
+            <div class="large-6 columns grey">
                 <p>
                     <?php echo $this->description['os']['Description']; ?>
                 </p>
+            </div>
+        </div>
+        
+        <!-- Title -->
+        <div class="row padded">
+            <div class="large-12 columns center">
+                <h3><?php echo $this->description['dictionary']->translate('_resourceSummary', $product['properties']['platform'], $product['properties']['resolution'], substr($product['properties']['startDate'],0, 10)); ?></h3>
+                <h7 title="<?php echo $product['id']; ?>" style="overflow: hidden;"><?php echo $product['id']; ?></h7>
             </div>
         </div>
         
@@ -89,7 +97,7 @@
         </div>
         
         <!-- Location content (Landcover) -->
-        <div class="row resto-resource fullWidth resto-resource-location">
+        <div class="row resto-resource fullWidth resto-resource-dark">
             <div class="large-6 columns">
                 <h1><span class="right"><?php echo $this->description['dictionary']->translate('_location'); ?></span></h1>
             </div>
@@ -112,7 +120,7 @@
         </div>
         
         <!-- Thematic content (Landcover) -->
-        <div class="row resto-resource fullWidth resto-resource-landuse">
+        <div class="row resto-resource fullWidth resto-resource-light">
             <div class="large-6 columns">
                 <h1><span class="right"><?php echo $this->description['dictionary']->translate('_landUse'); ?></span></h1>
             </div>

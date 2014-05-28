@@ -62,6 +62,9 @@ body {
 .orange {
     color: orange;
 }
+.grey {
+    color:#ccc;
+}
 .bggreen {
     background-color: green;
 }
@@ -338,12 +341,12 @@ a.resto-keyword-herbaceous  {
 .resto-resource {
     padding:3% 10%;
 }
-.resto-resource-landuse {
+.resto-resource-dark {
     background-color: #000;
     color:#fff;
     font-size:3em;
 }
-.resto-resource-location {
+.resto-resource-light {
     background-color: #fff;
     color:#000;
     font-size:3em;

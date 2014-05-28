@@ -648,8 +648,6 @@ return array(
         '_unZoom' => 'Dézoomer',
         '_centerOnLayer' => 'Centrer la vue sur le résultat de recherche',
         '_globalMapView' => 'Centrer la vue sur la Terre',
-        '_hideLayer' => 'Masquer la couche de résultat de recherche',
-        '_showLayer' => 'Afficher la couche de résultat de recherche',
         '_showOnMap' => 'Voir sur la carte',
         '_addCollection' => 'Ajouter une collection',
         '_update' => 'Modifier',
@@ -669,6 +667,7 @@ return array(
         '_signWithOauth' => 'S\'identifier avec un compte {a:1}',
         '_addResource' => 'Ajouter une resource',
         '_dropResource' => 'Déposer un fichier de métadonnées',
-        '_resultFor' => 'R&eacute;sultats correspondants &agrave; &#34;{a:1}&#34;'
+        '_resultFor' => 'R&eacute;sultats correspondants &agrave; &#34;{a:1}&#34;',
+        '_resourceSummary' => 'Image {a:1} ({a:2} m) acquise le {a:3}'
     )
 );

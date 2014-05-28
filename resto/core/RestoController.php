@@ -2078,7 +2078,7 @@ abstract class RestoController {
 
                 $name = substr($key, strlen($splitted[0]) + 1);
             }
-            $translated = $this->description['dictionary']->translate($name, true);
+            $translated = ucwords($this->description['dictionary']->translate($name));
             
             $keywords[$translated] = array();
             $keywords[$translated]['id'] = $name;

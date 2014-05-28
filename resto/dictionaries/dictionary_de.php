@@ -614,8 +614,6 @@ return array(
         '_unZoom' => 'Unzoom map',
         '_centerOnLayer' => 'Center view on search result',
         '_globalMapView' => 'Center on whole earth',
-        '_hideLayer' => 'Hide search result layer',
-        '_showLayer' => 'Show search result layer',
         '_showOnMap' => 'View on map',
         '_dropCollection' => 'Drop a collection description file',
         '_email' => 'Email',
@@ -629,6 +627,7 @@ return array(
         '_signWithOauth' => 'Sign in with {a:1} account',
         '_addResource' => 'Add a resource',
         '_dropResource' => 'Drop a resource metadata file',
-        '_resultFor' => 'Search results for &#34;{a:1}&#34;'
+        '_resultFor' => 'Search results for &#34;{a:1}&#34;',
+        '_resourceSummary' => '{a:1} image ({a:2} m) acquired on {a:3}'
     )
 );
