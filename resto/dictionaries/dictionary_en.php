@@ -150,7 +150,8 @@ return array(
     'quantities' => array(
         'resolution' => 'resolution',
         'orbit' => 'orbit',
-        'cloud' => 'cloud'
+        'cloud' => 'cloud',
+        'clouds' => 'cloud'
     ),
     /*
      * Keywords

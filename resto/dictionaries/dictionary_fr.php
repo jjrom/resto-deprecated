@@ -165,6 +165,7 @@ return array(
         'resolution' => 'resolution',
         'orbite' => 'orbit',
         'nuage' => 'cloud',
+        'nuages' => 'cloud',
         'nuageuse' => 'cloud'
     ),
     /*
