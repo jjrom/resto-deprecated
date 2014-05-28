@@ -126,17 +126,19 @@
                             /*
                              * Display full size WMS
                              */
-                            if (options.singleResource) {
+                            if (options.issuer === 'getResource') {
                                 if (self.layer) {
                                     window.M.Map.zoomTo(self.layer.getDataExtent(), false);
-                                    if ($.isArray(options.data.features) && options.data.features[0]) {
-                                        if (options.data.features[0].properties['services']['browse'] && options.data.features[0].properties['services']['browse']['layer']) {
-                                            M.Map.addLayer({
-                                                title: options.data.features[0].id,
-                                                type: options.data.features[0].properties['services']['browse']['layer']['type'],
-                                                layers: options.data.features[0].properties['services']['browse']['layer']['layers'],
-                                                url: options.data.features[0].properties['services']['browse']['layer']['url'].replace('%5C', '')
-                                            });
+                                    if (self.userRights && self.userRights['visualize']) {
+                                        if ($.isArray(options.data.features) && options.data.features[0]) {
+                                            if (options.data.features[0].properties['services']['browse'] && options.data.features[0].properties['services']['browse']['layer']) {
+                                                M.Map.addLayer({
+                                                    title: options.data.features[0].id,
+                                                    type: options.data.features[0].properties['services']['browse']['layer']['type'],
+                                                    layers: options.data.features[0].properties['services']['browse']['layer']['layers'],
+                                                    url: options.data.features[0].properties['services']['browse']['layer']['url'].replace('%5C', '')
+                                                });
+                                            }
                                         }
                                     }
                                 }
@@ -211,6 +213,50 @@
              * Force focus on search input form
              */
             $('#search').focus();
+            
+            /*
+             * init(options) was called by getCollection
+             */
+            if (options.issuer === 'getCollection') {
+                
+                /*
+                 * Bind history change with update collection action
+                 */
+                self.onHistoryChange(self.updateGetCollection);
+                
+            }
+            
+            /*
+             * Display profile or login action
+             * depending if connected or not 
+             */
+            self.ajax({
+                url: self.restoUrl + 'auth/getProfile.php',
+                dataType: 'json',
+                success: function(json) {
+
+                    /*
+                     * Initialize page with no mapshup refresh
+                     */
+                    self.userProfile = json;
+                    self.userRights = self.userProfile['collections'] && self.userProfile['collections'][self.collection] ? $.extend(self.userProfile['rights']['default'], self.userProfile['collections'][self.collection]) : self.userProfile['rights']['default'];
+                    
+                    if (options.issuer === 'getCollection') {
+                        self.updateGetCollection(options.data, {
+                            updateMap: false,
+                            centerMap: options.data && options.data.query
+                        });
+                    }
+                    
+                    self.updateConnectionInfo();
+                    self.hideMask();
+
+                },
+                error: function(e) {
+                    self.hideMask();
+                }
+               });
+        
 
         },
         
@@ -303,24 +349,6 @@
                 return false;
             });
 
-            /*
-             * Display profile or login action
-             * depending if connected or not 
-             */
-            self.ajax({
-                url: self.restoUrl + 'auth/getProfile.php',
-                dataType:'json',
-                success: function(json) {
-                    self.userProfile = json;
-                    self.userRights = self.userProfile['collections'] && self.userProfile['collections'][self.collection] ? $.extend(self.userProfile['rights']['default'], self.userProfile['collections'][self.collection]) : self.userProfile['rights']['default']; 
-                    self.updateConnectionInfo();
-                    self.hideMask();
-                },
-                error: function(e) {
-                    self.hideMask();
-                }
-            });
-            
             /*
              * Display user panel
              */
@@ -849,13 +877,13 @@
             });
             
             $('.signIn').click(function(e){
-                e.preventDefault;
+                e.preventDefault();
                 self.displayLogin();
                 return false;
             });
             
             $('.register').click(function(e){
-                e.preventDefault;
+                e.preventDefault();
                 var username = $('#userName').val(), password1 = $('#userPassword1').val(), password2 = $('#userPassword2').val(), email = $('#userEmail').val();
                 if (!email || !self.isEmailAdress(email)) {
                     self.message('Email is not valid');
@@ -917,7 +945,352 @@
             var pattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,4}$/;
             return pattern.test(str);
             
+        },
+        
+       /**
+        * Update getCollection page
+        * 
+        * @param {array} json
+        * @param {boolean} options 
+        *          {
+        *              updateMap: // true to update map content
+        *              centerMap: // true to center map on content
+        *          }
+        * 
+        */
+        updateGetCollection: function(json, options) {
+
+            var foundFilters, key, self = window.R;
+
+            json = json || {};
+            options = options || {};
+
+            /*
+             * Update mapshup view
+             */
+            if (window.M && options.updateMap) {
+
+                /*
+                 * Layer already exist => reload content
+                 * i.e. remove old features and insert new ones
+                 */
+                if (self.layer) {
+                    self.layer.destroyFeatures();
+                    window.M.Map.layerTypes['GeoJSON'].load({
+                        data: json,
+                        layerDescription: self.layer['_M'].layerDescription,
+                        layer: self.layer,
+                        zoomOnNew: options.centerMap ? 'always' : false
+                    });
+                }
+                /*
+                 * Layer does not exist => create it
+                 */
+                else {
+                    self.initSearchLayer(json, options.centerMap);
+                }
+            }
+
+            /*
+             * Update search input form
+             */
+            if ($('#search').length > 0) {
+                $('#search').val(json.query ? json.query.original.searchTerms : '');
+            }
+
+            /*
+             * Update query analysis result
+             */
+            if (json.query && json.query.real) {
+                foundFilters = "";
+                for (key in json.query.real) {
+                    if (json.query.real[key]) {
+                        if (key !== 'language') {
+                            foundFilters += '<b>' + key + '</b> ' + json.query.real[key] + '</br>';
+                        }
+                    }
+                }
+                if (foundFilters) {
+                    $('.resto-queryanalyze').html('<div class="resto-query">' + foundFilters + '</div>');
+                }
+                else {
+                    $('.resto-queryanalyze').html('<div class="resto-query"><span class="resto-warning">' + self.translate('_notUnderstood') + '</span></div>');
+                }
+            }
+            else if (json.missing) {
+                $('.resto-queryanalyze').html('<div class="resto-query"><span class="resto-warning">Missing mandatory search filters - ' + json.missing.concat() + '</span></div>');
+            }
+
+            /*
+             * Update result
+             */
+            self.updateGetCollectionResultEntries(json);
+
+            /*
+             * Constraint search to map extent
+             */
+            self.updateBBOX();
+
+            /*
+             * Click on ajaxified element call href url through Ajax
+             */
+            $('.resto-ajaxified').each(function() {
+                $(this).click(function(e) {
+                    e.preventDefault();
+                    window.History.pushState({
+                        randomize: window.Math.random(),
+                        centerMap: $(this).hasClass('centerMap')
+                    }, null, $(this).attr('href'));
+                });
+            });
+
+        },
+
+        /**
+         * Update GetCollection result entries after a search
+         * 
+         * @param {array} json
+         */
+        updateGetCollectionResultEntries: function(json) {
+
+            var i, l, j, k, thumbnail, feature, key, keyword, keywords, type, $content, $actions, value, title, addClass, platform, results, resolution, self = this;
+
+            json = json || {};
+
+            /*
+             * Update pagination
+             */
+            var first = '', previous = '', next = '', last = '', pagination = '', selfUrl = '#';
+
+            if (json.missing) {
+                pagination = '';
+            }
+            else if (json.totalResults === 0) {
+                pagination = self.translate('_noResult');
+            }
+            else {
+
+                if ($.isArray(json.links)) {
+                    for (i = 0, l = json.links.length; i < l; i++) {
+                        if (json.links[i]['rel'] === 'first') {
+                            first = ' <a class="resto-ajaxified" href="' + self.updateURL(json.links[i]['href'], {format: 'html'}) + '">' + self.translate('_firstPage') + '</a> ';
+                        }
+                        if (json.links[i]['rel'] === 'previous') {
+                            previous = ' <a class="resto-ajaxified" href="' + self.updateURL(json.links[i]['href'], {format: 'html'}) + '">' + self.translate('_previousPage') + '</a> ';
+                        }
+                        if (json.links[i]['rel'] === 'next') {
+                            next = ' <a class="resto-ajaxified" href="' + self.updateURL(json.links[i]['href'], {format: 'html'}) + '">' + self.translate('_nextPage') + '</a> ';
+                        }
+                        if (json.links[i]['rel'] === 'last') {
+                            last = ' <a class="resto-ajaxified" href="' + self.updateURL(json.links[i]['href'], {format: 'html'}) + '">' + self.translate('_lastPage') + '</a> ';
+                        }
+                        if (json.links[i]['rel'] === 'self') {
+                            selfUrl = json.links[i]['href'];
+                        }
+                    }
+                }
+
+                if (json.totalResults === 1) {
+                    pagination += self.translate('_oneResult', [json.totalResults]);
+                }
+                else if (json.totalResults > 1) {
+                    pagination += self.translate('_multipleResult', [json.totalResults]);
+                }
+
+                pagination += json.startIndex ? first + previous + self.translate('_pagination', [json.startIndex, json.lastIndex]) + next + last : '';
+
+            }
+
+            /*
+             * Update each pagination element
+             */
+            $('.resto-pagination').each(function() {
+                $(this).html(pagination);
+            });
+
+            /*
+             * Iterate on features and update result container
+             */
+            $content = $('.resto-content').empty();
+            for (i = 0, l = json.features.length; i < l; i++) {
+
+                feature = json.features[i];
+
+                /*
+                 * Thumbnail
+                 */
+                thumbnail = feature.properties['thumbnail'] || feature.properties['quicklook'] || self.restoUrl + '/css/default/img/noimage.png';
+
+                /*
+                 * Display structure
+                 *  
+                 *  <div class="resto-entry" id="">
+                 *      <div class="padded-bottom">
+                 *         Platform / startDate
+                 *      </div>
+                 *      <span class="thumbnail/>
+                 *      <div class="resto-actions">
+                 *          ...
+                 *      </div>
+                 *      <div class="resto-keywords">
+                 *          ...
+                 *      </div> 
+                 *  </div>
+                 * 
+                 */
+
+                /*
+                 * Satellite
+                 */
+                platform = feature.properties['platform'];
+                if (feature.properties.keywords && feature.properties.keywords[feature.properties['platform']]) {
+                    platform = '<a href="' + self.updateURL(feature.properties.keywords[feature.properties['platform']]['href'], {format: 'html'}) + '" class="resto-ajaxified resto-updatebbox resto-keyword resto-keyword-platform" title="' + self.translate('_thisResourceWasAcquiredBy', [feature.properties['platform']]) + '">' + feature.properties['platform'] + '</a> ';
+                }
+
+                /*
+                 * Resource page
+                 */
+                var resourceUrl = '#';
+                if ($.isArray(feature.properties['links'])) {
+                    for (j = 0, k = feature.properties['links'].length; j < k; j++) {
+                        if (feature.properties['links'][j]['type'] === 'text/html') {
+                            resourceUrl = feature.properties['links'][j]['href'];
+                        }
+                    }
+                }
+
+                $content.append('<li><div class="resto-entry" id="rid' + i + '" fid="' + feature.id + '"><div class="padded-bottom"><span class="platform">' + platform + (platform && feature.properties['instrument'] ? "/" + feature.properties['instrument'] : "") + '</span> | <span class="timestamp">' + feature.properties['startDate'] + '</span></div><div><a href="' + resourceUrl + '" title="' + self.translate('_viewMetadata', [feature.id]) + '"><img class="resto-image" src="' + thumbnail + '"/></a></div><div class="resto-actions"></div><div class="resto-keywords"></div></div></li>');
+                $actions = $('.resto-actions', $('#rid' + i));
+
+                /*
+                 * Zoom on feature
+                 */
+                $actions.append('<a class="fa fa-map-marker showOnMap" href="#" title="' + self.translate('_showOnMap') + '"></a>');
+
+                /*
+                 * Download
+                 */
+                if (feature.properties['services'] && feature.properties['services']['download'] && feature.properties['services']['download']['url']) {
+                    if (self.userRights && self.userRights['download']) {
+                        $actions.append('<a class="fa fa-cloud-download" href="' + feature.properties['services']['download']['url'] + '"' + (feature.properties['services']['download']['mimeType'] === 'text/html' ? ' target="_blank"' : '') + ' title="' + self.translate('_download') + '"></a>');
+                    }
+                }
+
+                /*
+                 * Show feature on map
+                 */
+                (function($div) {
+                    $('.showOnMap', $div).click(function(e) {
+                        e.preventDefault();
+                        var f = window.M.Map.Util.getFeature(window.M.Map.Util.getLayerByMID('__resto__'), $div.attr('fid'));
+                        if (f) {
+                            window.M.Map.zoomTo(f.geometry.getBounds(), false);
+                            window.M.Map.featureInfo.hilite(f);
+                            $('.resto-entry').each(function() {
+                                $(this).removeClass('selected');
+                            });
+                            $div.addClass('selected');
+                            $('html, body').animate({
+                                scrollTop: ($('#mapshup').offset().top - 50)
+                            }, 500);
+                        }
+                    });
+                })($('#rid' + i));
+
+                /*
+                 * Keywords are splitted in different types 
+                 * 
+                 *  - type = landuse (forest, water, etc.)
+                 *  - type = country/continent/city
+                 *  - type = platform/instrument
+                 *  - type = date
+                 *  - type = null and keyword start with a '#' = tags
+                 *  
+                 */
+                if (feature.properties.keywords) {
+                    results = [];
+                    keywords = {
+                        landuse: {
+                            title: '_landUse',
+                            keywords: []
+                        },
+                        location: {
+                            title: '_location',
+                            keywords: []
+                        },
+                        tag: {
+                            title: '_tags',
+                            keywords: []
+                        },
+                        resolution: {
+                            title: '_resolution',
+                            keywords: []
+                        },
+                        other: {
+                            title: '_other',
+                            keywords: []
+                        }
+                    };
+                    for (key in feature.properties.keywords) {
+
+                        keyword = feature.properties.keywords[key];
+                        value = key;
+                        title = "";
+                        addClass = null;
+                        if (keyword.type === 'landuse') {
+                            type = 'landuse';
+                            value = value + ' (' + Math.round(keyword.value) + '%)';
+                            addClass = ' resto-updatebbox resto-keyword-' + keyword.id;
+                            title = self.translate('_thisResourceContainsLanduse', [keyword.value, key]);
+                        }
+                        else if (keyword.type === 'country' || keyword.type === 'continent') {
+                            type = 'location';
+                            addClass = ' centerMap';
+                            title = self.translate('_thisResourceIsLocated', [key]);
+                        }
+                        else if (keyword.type === 'city') {
+                            type = 'location';
+                            addClass = ' centerMap';
+                            title = self.translate('_thisResourceContainsCity', [key]);
+                        }
+                        else if (keyword.type === 'platform' || keyword.type === 'instrument') {
+                            continue;
+                        }
+                        else if (keyword.type === 'date') {
+                            continue;
+                        }
+                        else if (key.indexOf("#") === 0) {
+                            type = 'tag';
+                            addClass = ' resto-updatebbox';
+                        }
+                        else {
+                            type = 'other';
+                            addClass = ' resto-updatebbox';
+                        }
+                        keywords[type]['keywords'].push('<a href="' + self.updateURL(feature.properties.keywords[key]['href'], {format: 'html'}) + '" class="resto-ajaxified resto-keyword' + (feature.properties.keywords[key]['type'] ? ' resto-keyword-' + feature.properties.keywords[key]['type'].replace(' ', '') : '') + (addClass ? addClass : '') + '" title="' + title + '">' + value + '</a> ');
+                    }
+
+                    /*
+                     * Resolution
+                     */
+                    if (feature.properties['resolution']) {
+                        resolution = self.getResolution(feature.properties['resolution']);
+                        keywords['resolution']['keywords'].push(feature.properties['resolution'] + 'm - <a href="' + self.updateURL(selfUrl, {q: self.translate(resolution), format: 'html'}) + '" class="resto-ajaxified resto-updatebbox resto-keyword resto-keyword-resolution" title="' + self.translate(resolution) + '">' + resolution + '</a>');
+                    }
+
+                    for (key in keywords) {
+                        if (keywords[key]['keywords'].length > 0) {
+                            results.push('<td class="title">' + self.translate(keywords[key]['title']) + '</td><td class="values">' + keywords[key]['keywords'].join(', ') + '</td>');
+                        }
+                    }
+
+                    $('.resto-keywords', $('#rid' + i)).html('<table>' + results.join('</tr>') + '</table>');
+                }
+
+            }
+
         }
+        
     };
 
     /**

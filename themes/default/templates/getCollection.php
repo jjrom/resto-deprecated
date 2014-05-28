@@ -16,7 +16,6 @@ $templateName = 'default';
         <![endif]-->
         <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/dependencies.min.js"></script>
         <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/resto.js"></script>
-        <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/themes/<?php echo $templateName ?>/collection.js"></script>
         <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/themes/<?php echo $templateName ?>/config.js"></script>
     </head>
     <?php flush(); ?>
@@ -107,8 +106,6 @@ $templateName = 'default';
         <script type="text/javascript">
             $(document).ready(function() {
 
-                var data = <?php echo json_encode($this->response) ?>;
-
                 /*
                  * Initialize mapshup
                  */
@@ -120,25 +117,13 @@ $templateName = 'default';
                  * Initialize RESTo
                  */
                 R.init({
+                    issuer:'getCollection',
                     language: '<?php echo $this->request['language']; ?>',
-                    data: data,
+                    data: <?php echo json_encode($this->response) ?>,
                     translation:<?php echo json_encode($this->description['dictionary']->getTranslation()) ?>,
                     restoUrl: '<?php echo $this->request['restoUrl'] ?>',
                     collection: '<?php echo $this->request['collection'] ?>',
                     ssoServices:<?php echo json_encode($this->R->ssoServices) ?>
-                });
-
-                /*
-                 * Bind history change with update collection action
-                 */
-                R.onHistoryChange(R.updateGetCollection);
-
-                /*
-                 * Initialize page with no mapshup refresh
-                 */
-                R.updateGetCollection(data, {
-                    updateMap: false,
-                    centerMap: data && data.query
                 });
 
             });

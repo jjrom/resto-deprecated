@@ -33,7 +33,7 @@
         <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/modernizr.min.js"></script>
         <![endif]-->
         <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/dependencies.min.js"></script>
-        <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/resto.js"></script>
+        <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/resto.min.js"></script>
         <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/themes/<?php echo $templateName ?>/config.js"></script>
     </head>
     <?php flush();?>
@@ -137,9 +137,7 @@
         </div>
         <script type="text/javascript">
             $(document).ready(function() {
-                
-                var data = <?php echo json_encode($this->response) ?>;
-                
+               
                 /*
                  * Initialize mapshup
                  */
@@ -151,12 +149,12 @@
                  * Initialize RESTo
                  */
                 R.init({
+                    issuer:'getResource',
                     language: '<?php echo $this->request['language']; ?>',
-                    data:data,
+                    data:<?php echo json_encode($this->response) ?>,
                     translation:<?php echo json_encode($this->description['dictionary']->getTranslation()) ?>,
                     restoUrl: '<?php echo $this->request['restoUrl'] ?>',
-                    ssoServices:<?php echo json_encode($this->R->ssoServices) ?>,
-                    singleResource:true
+                    ssoServices:<?php echo json_encode($this->R->ssoServices) ?>
                 });
                 
             });

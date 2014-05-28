@@ -31,6 +31,9 @@ echo ' ==> Compress dependencies.js file with google closure compressor'
 java -jar _compressors/js_compressor.jar ../js/dependencies.js > ../js/dependencies.min.js
 rm -Rf ../js/dependencies.js
 
+echo ' ==> Compress resto.js file with google closure compressor'
+java -jar _compressors/js_compressor.jar ../js/resto.js > ../js/resto.min.js
+
 echo ' ==> Copy fontawesome to ../js'
 cp -R js/fontawesome/fonts ../js
 
@@ -48,5 +51,4 @@ rm -Rf ../js/css/dependencies.css
 
 #echo ' ==> Copy images to ../js/img/'
 #cp -R js/swipebox/img/* ../js/css/img
-
 

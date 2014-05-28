@@ -14,7 +14,7 @@ $user = $this->R->getUser();
         <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/modernizr/modernizr.min.js"></script>
         <![endif]-->
         <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/dependencies.min.js"></script>
-        <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/resto.js"></script>
+        <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/resto.min.js"></script>
     </head>
     <?php flush();?>
     <body>
