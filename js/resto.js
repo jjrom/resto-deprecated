@@ -409,7 +409,7 @@
          * 
          */
         translate: function(str, values) {
-
+            
             if (!this.translation || !this.translation[str]) {
                 return str;
             }
@@ -997,7 +997,12 @@
             if ($('#search').length > 0) {
                 $('#search').val(json.query ? json.query.original.searchTerms : '');
             }
-
+            
+            /*
+             * Update result summary
+             */
+            $('#resultsummary').html(self.translate('_resultFor', [(json.query.original.searchTerms ? '<font class="red">' + json.query.original.searchTerms + '</font>' : '')]));
+            
             /*
              * Update query analysis result
              */

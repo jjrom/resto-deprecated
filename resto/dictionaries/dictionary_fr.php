@@ -668,6 +668,7 @@ return array(
         '_back' => 'Retour',
         '_signWithOauth' => 'S\'identifier avec un compte {a:1}',
         '_addResource' => 'Ajouter une resource',
-        '_dropResource' => 'Déposer un fichier de métadonnées'
+        '_dropResource' => 'Déposer un fichier de métadonnées',
+        '_resultFor' => 'R&eacute;sultats correspondants &agrave; &#34;{a:1}&#34;'
     )
 );

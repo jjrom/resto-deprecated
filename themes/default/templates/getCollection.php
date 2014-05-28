@@ -50,7 +50,7 @@ $templateName = 'default';
             </div>
         </div>
         <!-- Search bar -->
-        <div class="row">
+        <div class="row padded">
             <div class="large-12 columns resto-search center">
                 <form id="resto-searchform" action="<?php echo $collectionUrl ?>">
                     <input type="hidden" name="format" value="html" />
@@ -77,6 +77,12 @@ $templateName = 'default';
         <?php if ($this->request['special']['_showQuery']) { ?>
             <div class="resto-queryanalyze fixed"></div>
         <?php } ?>
+        <!-- Result -->
+        <div class="row padded">
+            <div class="large-12 columns center">
+                <h3 id="resultsummary"></h3>
+            </div>
+        </div>    
         <!-- Pagination -->
         <div class="row">
             <div class="large-12 columns">

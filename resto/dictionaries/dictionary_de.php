@@ -628,6 +628,7 @@ return array(
         '_back' => 'Back',
         '_signWithOauth' => 'Sign in with {a:1} account',
         '_addResource' => 'Add a resource',
-        '_dropResource' => 'Drop a resource metadata file'
+        '_dropResource' => 'Drop a resource metadata file',
+        '_resultFor' => 'Search results for &#34;{a:1}&#34;'
     )
 );
