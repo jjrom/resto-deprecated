@@ -15,7 +15,7 @@ $templateName = 'default';
         <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/modernizr.min.js"></script>
         <![endif]-->
         <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/dependencies.min.js"></script>
-        <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/resto.js"></script>
+        <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/js/resto.min.js"></script>
         <script type="text/javascript" src="<?php echo $this->request['restoUrl'] ?>/themes/<?php echo $templateName ?>/config.js"></script>
     </head>
     <?php flush(); ?>
