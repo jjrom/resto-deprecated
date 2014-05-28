@@ -83,16 +83,20 @@
         
         <!-- Quicklook and metadata -->
         <div class="row resto-resource">
-            <div class="large-6 columns">
-                <span class="resto-thumbnail"><a href="<?php echo $quicklook;?>" class="resto-quicklook" title="<?php echo $product['id'];?>"><img class="resto-image" src="<?php echo $thumbnail;?>"/></a></span>
+            <div class="large-6 columns center">
+                <img title="<?php echo $product['id'];?>" class="resto-image" src="<?php echo $quicklook;?>"/>
             </div>
             <div class="large-6 columns">
-                <!--<?php 
-                $platform = $product['properties']['platform'];
-                if (isset($platform) && $product['properties']['keywords'] && $product['properties']['keywords'][$platform]) {
-                    //$platform = '<a href="' + self.updateURL(feature.properties.keywords[feature.properties['platform']]['href'], {format: 'html'}) + '" class="resto-ajaxified resto-updatebbox resto-keyword resto-keyword-platform" title="' + self.translate('_thisResourceWasAcquiredBy', [feature.properties['platform']]) + '">' + feature.properties['platform'] + '</a> ';
-                }
-                ?>-->
+                <table style="width:100%;">
+                    <?php
+                    $excluded = array('quicklook', 'thumbnail', 'links', 'services', 'keywords', 'updated', 'productId');
+                    foreach(array_keys($product['properties']) as $key) {
+                        if (!in_array($key, $excluded) && isset($product['properties'][$key])) {
+                            echo '<tr><td>' . $this->description['dictionary']->translate($key) . '</td><td>' . $product['properties'][$key] . '</td></tr>';
+                        }
+                    }
+                    ?>
+                </table>
             </div>
         </div>
         
