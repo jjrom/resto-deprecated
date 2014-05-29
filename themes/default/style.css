@@ -90,6 +90,17 @@ body {
 .row.padded {
     padding:2% 10%;
 }
+.row.dark {
+    color:#fff;
+    background-color: #000;
+}
+.row.dark h1 {
+    color:#ccc;
+}
+.row.light {
+    background-color: #fff;
+    color:#000;
+}
 /*
  * Responsive topbar
  */
@@ -340,15 +351,6 @@ a.resto-keyword-herbaceous  {
 }
 .resto-resource {
     padding:3% 10%;
-}
-.resto-resource-dark {
-    background-color: #000;
-    color:#fff;
-    font-size:3em;
-}
-.resto-resource-light {
-    background-color: #fff;
-    color:#000;
     font-size:3em;
 }
 .resto-collection {

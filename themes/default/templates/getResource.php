@@ -63,7 +63,7 @@
             <div class="large-6 columns">
                 <h1 class="grey"><?php echo $this->description['os']['ShortName']; ?></h1>
             </div>
-            <div class="large-6 columns grey">
+            <div class="large-6 columns">
                 <p>
                     <?php echo $this->description['os']['Description']; ?>
                 </p>
@@ -101,7 +101,7 @@
         </div>
         
         <!-- Location content (Landcover) -->
-        <div class="row resto-resource fullWidth resto-resource-dark">
+        <div class="row resto-resource fullWidth dark">
             <div class="large-6 columns">
                 <h1><span class="right"><?php echo $this->description['dictionary']->translate('_location'); ?></span></h1>
             </div>
@@ -124,7 +124,7 @@
         </div>
         
         <!-- Thematic content (Landcover) -->
-        <div class="row resto-resource fullWidth resto-resource-light">
+        <div class="row resto-resource fullWidth light">
             <div class="large-6 columns">
                 <h1><span class="right"><?php echo $this->description['dictionary']->translate('_landUse'); ?></span></h1>
             </div>
