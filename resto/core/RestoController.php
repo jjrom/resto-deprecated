@@ -801,6 +801,19 @@ abstract class RestoController {
                 }
 
                 /*
+                 * time:start
+                 */
+                if ($filterName === 'time:start') {
+                    return $this->getModelName($this->description['searchFiltersDescription']['time:start']['key']) . ' >= \'' . pg_escape_string($requestParams['time:start']) . '\'';
+                }
+                
+                /*
+                 * time:end
+                 */
+                if ($filterName === 'time:end') {
+                    return $this->getModelName($this->description['searchFiltersDescription']['time:end']['key']) . ' <= \'' . pg_escape_string($requestParams['time:end']) . '\'';
+                }
+                /*
                  * time:start and time:end cannot be processed separately
                  * 
                  * The following schema show cases where input (time:start/time:end) pairs 
@@ -827,24 +840,22 @@ abstract class RestoController {
                  * 
                  *                        time:start      time:end
                  *                            X===============X
-                 */
-                if ($requestParams['time:start'] && $requestParams['time:end']) {
+                 *
+                else if ($requestParams['time:start'] && $requestParams['time:end']) {
                     
-                    /*
-                     * time:start and time:end are linked to two differents colums in database
-                     */
+                    //time:start and time:end are linked to two differents colums in database
                     if (($this->getModelName($this->description['searchFiltersDescription']['time:start']['key']) !== $this->getModelName($this->description['searchFiltersDescription']['time:end']['key']))) {
                         return '((' . $this->getModelName($this->description['searchFiltersDescription']['time:start']['key']) . ' >= \'' . pg_escape_string($requestParams['time:start']) . '\' AND ' . $this->getModelName($this->description['searchFiltersDescription']['time:start']['key']) . ' <= \'' . pg_escape_string($requestParams['time:end']) . '\')'
                                 . ' OR (' . $this->getModelName($this->description['searchFiltersDescription']['time:start']['key']) . ' <= \'' . pg_escape_string($requestParams['time:start']) . '\' AND ' . $this->getModelName($this->description['searchFiltersDescription']['time:end']['key']) . ' >= \'' . pg_escape_string($requestParams['time:end']) . '\')'
                                 . ' OR (' . $this->getModelName($this->description['searchFiltersDescription']['time:start']['key']) . ' <= \'' . pg_escape_string($requestParams['time:start']) . '\' AND ' . $this->getModelName($this->description['searchFiltersDescription']['time:end']['key']) . ' <= \'' . pg_escape_string($requestParams['time:end']) . '\' AND ' . $this->getModelName($this->description['searchFiltersDescription']['time:end']['key']) . ' >= \'' . pg_escape_string($requestParams['time:start']) . '\'))';
                     }
-                    /*
-                     * time:start and time:end are linked to the same colum in database
-                     */
+                    //time:start and time:end are linked to the same colum in database
                     else {
                         return '(' . $this->getModelName($this->description['searchFiltersDescription']['time:start']['key']) . ' >= \'' . pg_escape_string($requestParams['time:start']) . '\' AND ' . $this->getModelName($this->description['searchFiltersDescription']['time:end']['key']) . ' <= \'' . pg_escape_string($requestParams['time:end']) . '\')';
                     }
                 }
+                
+                */
             }
 
             /*
@@ -1107,14 +1118,7 @@ abstract class RestoController {
          */
         $filters = array();
         for ($i = 0, $l = count($this->description['searchFiltersList']); $i < $l; $i++) {
-
-            /*
-             * time:end is processed along with time:start
-             * (see $this->prepareFilterQuery(...) function
-             */
-            if (rtrim($this->description['searchFiltersList'][$i], '?') !== 'time:end') {
-                array_push($filters, $this->prepareFilterQuery($this->request['realParams'], $this->description['searchFiltersList'][$i]));
-            }
+            array_push($filters, $this->prepareFilterQuery($this->request['realParams'], $this->description['searchFiltersList'][$i]));
         }
         
         /**
