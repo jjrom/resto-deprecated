@@ -166,7 +166,9 @@ return array(
         'orbite' => 'orbit',
         'nuage' => 'cloud',
         'nuages' => 'cloud',
-        'nuageuse' => 'cloud'
+        'nuageuse' => 'cloud',
+        'neige' => 'snow',
+        'neigeuse' => 'snow'
     ),
     /*
      * Keywords

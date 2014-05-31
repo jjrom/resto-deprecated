@@ -151,7 +151,8 @@ return array(
         'resolution' => 'resolution',
         'orbit' => 'orbit',
         'cloud' => 'cloud',
-        'clouds' => 'cloud'
+        'clouds' => 'cloud',
+        'snow' => 'snow'
     ),
     /*
      * Keywords

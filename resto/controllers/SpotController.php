@@ -159,7 +159,8 @@ class SpotController extends RestoController {
         'eo:platformShortName?',
         'eo:productType?',
         'eo:resolution?',
-        'eo:cloudCover?'
+        'eo:cloudCover?',
+        'eo:snowCover?'
     );
 
     /*
@@ -172,6 +173,15 @@ class SpotController extends RestoController {
             'operation' => 'interval',
             'quantity' => array(
                 'value' => 'cloud',
+                'unit' => '%'
+            )
+        ),
+        'eo:snowCover' => array(
+            'key' => 'snowCover',
+            'osKey' => 'snowCover',
+            'operation' => 'interval',
+            'quantity' => array(
+                'value' => 'snow',
                 'unit' => '%'
             )
         )
