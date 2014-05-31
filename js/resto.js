@@ -490,6 +490,9 @@
         },
         /**
          * Initialize search result layer
+         * 
+         * @param {object} json - GeoJSON FeatureCollection
+         * @param {boolean} centerMap - if true, force map centering on FeatureCollection 
          */
         initSearchLayer: function(json, centerMap) {
             this.layer = this.addLayer({
