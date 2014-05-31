@@ -1329,6 +1329,8 @@
         
         /**
          * Update admin actions
+         * 
+         * @param {string} collection name
          */
         updateAdminActions: function(collection) {
 
