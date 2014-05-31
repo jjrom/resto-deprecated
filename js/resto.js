@@ -47,6 +47,11 @@
         VERSION_NUMBER: 'RESTo 1.0',
         
         /*
+         * Issuer : 'getCollection' or 'getResource'
+         */
+        issuer:'getCollection',
+        
+        /*
          * Translation array
          */
         translation: {},
@@ -89,6 +94,7 @@
 
             self.translation = options.translation || {};
             self.restoUrl = options.restoUrl;
+            self.issuer = options.issuer;
             
             /*
              * SSO authentication server is available
@@ -126,7 +132,7 @@
                             /*
                              * Display full size WMS
                              */
-                            if (options.issuer === 'getResource') {
+                            if (self.issuer === 'getResource') {
                                 if (self.layer) {
                                     window.M.Map.zoomTo(self.layer.getDataExtent(), false);
                                     if (self.userRights && self.userRights['visualize']) {
@@ -217,7 +223,7 @@
             /*
              * init(options) was called by getCollection
              */
-            if (options.issuer === 'getCollection') {
+            if (self.issuer === 'getCollection') {
                 
                 /*
                  * Bind history change with update collection action
@@ -241,7 +247,7 @@
                     self.userProfile = json;
                     self.userRights = self.userProfile['collections'] && self.userProfile['collections'][self.collection] ? $.extend(self.userProfile['rights']['default'], self.userProfile['collections'][self.collection]) : self.userProfile['rights']['default'];
                     
-                    if (options.issuer === 'getCollection') {
+                    if (self.issuer === 'getCollection') {
                         self.updateGetCollection(options.data, {
                             updateMap: false,
                             centerMap: options.data && options.data.query
@@ -493,6 +499,7 @@
                 zoomOnNew: centerMap ? 'always' : false,
                 MID: '__resto__',
                 color: '#FFF1FB',
+                selectable:this.issuer === 'getCollection' ? true : false,
                 featureInfo: {
                     noMenu: true,
                     onSelect: function(f) {
@@ -535,6 +542,20 @@
                             $(this).removeClass('selected');
                         });
                     }
+                },
+                ol:{
+                    styleMap:new OpenLayers.StyleMap({
+                        "default": new OpenLayers.Style(OpenLayers.Util.applyDefaults({
+                            fillOpacity: this.issuer === 'getCollection' ? 0.2 : 0.001,
+                            strokeColor: "#ffff00",
+                            strokeWidth: 1,
+                            fillColor: "#fff"
+                        })),
+                        "select": {
+                            strokeColor:"#ffa500",
+                            fillOpacity:this.issuer === 'getCollection' ? 0.7 : 0.001
+                        }
+                    })
                 }
             });
 

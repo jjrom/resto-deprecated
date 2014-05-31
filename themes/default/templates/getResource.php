@@ -61,7 +61,7 @@
         <!-- Collection title and description -->
         <div class="row">
             <div class="large-6 columns">
-                <h1 class="grey"><?php echo $this->description['os']['ShortName']; ?></h1>
+                <h1><?php echo $this->description['os']['ShortName']; ?></h1>
             </div>
             <div class="large-6 columns">
                 <p>
