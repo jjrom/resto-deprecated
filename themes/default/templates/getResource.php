@@ -60,21 +60,28 @@
         
         <!-- Collection title and description -->
         <div class="row">
-            <div class="large-6 columns">
-                <h1><?php echo $this->description['os']['ShortName']; ?></h1>
+            <div class="large-6 columns center">
+                <h1>&nbsp;</h1>
+                <h2><?php echo $this->description['dictionary']->translate('_resourceSummary', $product['properties']['platform'], $product['properties']['resolution'], substr($product['properties']['startDate'],0, 10)); ?></h2>
+                <h7 title="<?php echo $product['id']; ?>" style="overflow: hidden;"><?php echo $product['id']; ?></h7>
+                <?php
+                    if ($product['properties']['services'] && $product['properties']['services']['download'] && $product['properties']['services']['download']['url']) {
+                        if ($this->R->getUser()->getRights($this->request['collection'], 'get', 'download')) {
+                ?>
+                <p class="center padded-top">
+                    <a class="fa fa-4x fa-cloud-download" href="<?php echo $product['properties']['services']['download']['url']; ?>" <?php echo $product['properties']['services']['download']['mimeType'] === 'text/html' ? 'target="_blank"' : ''; ?> title="<?php echo $this->description['dictionary']->translate('_download'); ?>"></a> 
+                </p>
+                <?php
+                      } 
+                    }
+                ?>
+                <h1>&nbsp;</h1>
             </div>
-            <div class="large-6 columns">
+            <div class="large-6 columns grey">
+                <h3><?php echo $this->description['os']['ShortName']; ?></h3>
                 <p>
                     <?php echo $this->description['os']['Description']; ?>
                 </p>
-            </div>
-        </div>
-        
-        <!-- Title -->
-        <div class="row padded">
-            <div class="large-12 columns center">
-                <h3><?php echo $this->description['dictionary']->translate('_resourceSummary', $product['properties']['platform'], $product['properties']['resolution'], substr($product['properties']['startDate'],0, 10)); ?></h3>
-                <h7 title="<?php echo $product['id']; ?>" style="overflow: hidden;"><?php echo $product['id']; ?></h7>
             </div>
         </div>
         
