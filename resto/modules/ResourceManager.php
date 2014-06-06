@@ -182,12 +182,39 @@ class ResourceManager {
                  */
                 $keys = array();
                 $values = array();
+                $propertyTags = array();
                 foreach ($properties as $key => $value) {
                     $columnName = getModelName($this->description['model'], $key);
                     if ($columnName) {
-                        array_push($keys, pg_escape_string($columnName));
-                        $columnType = getRESToType(getModelType($this->description['model'], $key));
-                        array_push($values, $columnType === 'numeric' ? pg_escape_string($value) : '\'' . pg_escape_string($value) . '\'');
+                        
+                        /*
+                         * Special case for keywords
+                         * 
+                         * It is assumed that $value has the same structure as
+                         * the output keywords property i.e. 
+                         *   
+                         *      $value = array(
+                         *          "name1" => array(
+                         *              "id" => id,
+                         *              "type" => type,
+                         *              "value" => value
+                         *          ),
+                         *          "name2" => array(
+                         *              ...
+                         *          ),
+                         *          ...
+                         *      )
+                         */
+                        if ($key === 'keywords') {
+                            foreach (array_values($value) as $keywords) {
+                                array_push($propertyTags, $this->quoteForHstore($keywords['type'] . ':' . $keywords['id']) . '=>' . (isset($keywords['value']) ? '"' . $keywords['value'] . '"' : 'NULL'));
+                            }
+                        }
+                        else {
+                            array_push($keys, pg_escape_string($columnName));
+                            $columnType = getRESToType(getModelType($this->description['model'], $key));
+                            array_push($values, $columnType === 'numeric' ? pg_escape_string($value) : '\'' . pg_escape_string($value) . '\'');
+                        }
                     }
                 }
                 
@@ -210,7 +237,7 @@ class ResourceManager {
                  * Tag metadata
                  */
                 if ($this->iTag) {
-                    $tags = '\'' . pg_escape_string(join(',', $this->getTags($wkt))) . '\'';
+                    $tags = '\'' . pg_escape_string(join(',', array_merge($this->getTags($wkt), $propertyTags))) . '\'';
                     if ($tags) {
                         array_push($keys, getModelName($this->description['model'], 'keywords'));
                         array_push($values, $tags);

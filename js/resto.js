@@ -1423,7 +1423,7 @@
                                 self.addCollection($.parseJSON(e.target.result));
                             }
                             else {
-                                self.addResource(e.target.result, collection);
+                                self.addResource($.parseJSON(e.target.result), collection);
                             }
                         }
                         catch (e) {
@@ -1492,7 +1492,7 @@
                     type: 'POST',
                     dataType: "json",
                     data: {
-                        data: encodeURIComponent(resource)
+                        data: encodeURIComponent(JSON.stringify(resource))
                     },
                     success: function(obj, textStatus, XMLHttpRequest) {
                         if (XMLHttpRequest.status === 200) {

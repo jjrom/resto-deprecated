@@ -1013,13 +1013,14 @@ function getFiles($options) {
          */
         if ($options['mimeType'] === Resto::$contentTypes['json']) {
             try {
+                
                 /*
                  * Decode json data
                  */
                 if ($isFile) {
                     $json = json_decode(join('', file($tmpFiles[$i])), true);
                 } else {
-                    $json = json_decode($tmpFiles[$i], true);
+                    $json = json_decode(urldecode($tmpFiles[$i]), true);
                 }
             } catch (Exception $e) {
                 throw new Exception('Invalid posted file(s)', 500);
