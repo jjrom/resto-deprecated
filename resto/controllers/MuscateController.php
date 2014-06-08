@@ -140,6 +140,7 @@ class MuscateController extends RestoController {
         'count?',
         'startIndex?',
         'language?',
+        'geo:uid?', // Identifier
         'geo:geometry?', // Geometry in WKT
         'geo:box?', // Bounding Box
         'geo:name?', // Location name
