@@ -581,7 +581,9 @@ function toAtom($response, $dictionary, $version = '1.0', $encoding = 'UTF-8') {
      * Element 'subtitle' 
      *  constructed from $response['title']
      */
-    $subtitle = $dictionary->translate($response['totalResults'] === 1 ? '_oneResult' : '_multipleResult', $response['totalResults']);
+    if (isset($response['totalResults'])) {
+        $subtitle = $dictionary->translate($response['totalResults'] === 1 ? '_oneResult' : '_multipleResult', $response['totalResults']);
+    }
     $previous = isset($response['links']['previous']) ? '<a href="' . updateURL($response['links']['previous'], array('format' => 'atom')) . '">' . $dictionary->translate('_previousPage') . '</a>&nbsp;' : '';
     $next = isset($response['links']['next']) ? '&nbsp;<a href="' . updateURL($response['links']['next'], array('format' => 'atom')) . '">' . $dictionary->translate('_nextPage') . '</a>' : '';
     $subtitle .= isset($response['startIndex']) ? '&nbsp;|&nbsp;' . $previous . $dictionary->translate('_pagination', $response['startIndex'], $response['lastIndex']) . $next : '';
@@ -665,7 +667,12 @@ function toAtom($response, $dictionary, $version = '1.0', $encoding = 'UTF-8') {
          * 
          */
         $xml->writeElement('id', $product['id']);
-
+        
+        /*
+         * Local identifier - i.e. last part of uri
+         */
+        $xml->writeElement('dc:identifier', $product['id']);
+        
         /*
          * Element 'title'
          *  read from $product['properties']['title']

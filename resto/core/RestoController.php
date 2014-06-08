@@ -67,6 +67,11 @@ abstract class RestoController {
         'language' => array(
             'osKey' => 'lang'
         ),
+        'geo:uid' => array(
+            'key' => 'identifier',
+            'osKey' => 'identifier',
+            'operation' => '='
+        ),
         'geo:geometry' => array(
             'key' => 'geometry',
             'osKey' => 'geometry',
@@ -1505,7 +1510,7 @@ abstract class RestoController {
             'type' => 'FeatureCollection',
             'title' => $query['searchTerms'],
             'id' => UUIDv5(Resto::UUID, $this->request['collection'] . ':' . implode($query)),
-            'totalResults' => $total,
+            'totalResults' => $total !== -1 ? $total : null,
             'startIndex' => $startIndex,
             'lastIndex' => $lastIndex,
             'query' => array(
