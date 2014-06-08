@@ -342,6 +342,15 @@ class ResourceManager {
          *  ],
          *  "continents":[
          *      "Europe"
+         *  ],
+         *  "regions":[
+         *      "Rh\u00f4ne-Alpes"
+         *  ],
+         *  "states": [
+         *      {
+         *          "name": "Aoste",
+         *          "pcover": 37.16
+         *      }
          *  ]
          */
         $pairs = array();
@@ -355,6 +364,12 @@ class ResourceManager {
             }
             foreach (array_values($properties['political']['cities']) as $city) {
                 array_push($pairs, $this->quoteForHstore('city:' . $city) . '=>NULL');
+            }
+            foreach (array_values($properties['political']['regions']) as $region) {
+                array_push($pairs, $this->quoteForHstore('region:' . $region) . '=>NULL');
+            }
+            foreach (array_values($properties['political']['states']) as $state) {
+                array_push($pairs, $this->quoteForHstore('state:' . $state['name']) . '=>"' . $state['pcover'] . '"');
             }
         }
         if ($properties['landCover']) {
