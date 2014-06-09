@@ -371,7 +371,16 @@ class Gazetteer {
         
         $result = array();
         $where = '';
-
+        
+        /*
+         * Order toponyms entry following convention
+         * (see http://www.geonames.org/export/codes.html for class and code explanation)
+         * 
+         *      - fclass priority chain is P, A, the rest 
+         *      - for 'P', fcode priority chain is PPLC, PPLA, PPLA2, PPLA3, PPLA4, PPL, the rest
+         */
+        $orderBy = ' ORDER BY CASE fclass WHEN \'P\' then 1 WHEN \'A\' THEN 2 ELSE 3 END, CASE fcode WHEN \'PPLC\' then 1 WHEN \'PPLA\' then 2 WHEN \'PPLA2\' then 3 WHEN \'PPLA4\' then 4 WHEN \'PPL\' then 5 ELSE 6 END';
+        
         if (!$this->dbh || !$toponym) {
             return $result;
         }
@@ -421,23 +430,23 @@ class Gazetteer {
                 $bboxConstraint = " AND ST_intersects(geom, ST_GeomFromText('" . pg_escape_string('POLYGON((' . $lonmin . ' ' . $latmin . ',' . $lonmin . ' ' . $latmax . ',' . $lonmax . ' ' . $latmax . ',' . $lonmax . ' ' . $latmin . ',' . $lonmin . ' ' . $latmin . '))') . "', 4326))";
             }
         }
-
+        
         /*
          * First search in english
          */
-        $toponyms = pg_query($this->dbh, 'SELECT name, country as countrycode, latitude, longitude, fclass, fcode, population FROM ' . $this->schema . '.geoname WHERE searchname =\'' . pg_escape_string($toponym) . '\'' . $where . $bboxConstraint);
+        $toponyms = pg_query($this->dbh, 'SELECT name, country as countrycode, latitude, longitude, fclass, fcode, population FROM ' . $this->schema . '.geoname WHERE searchname =\'' . pg_escape_string($toponym) . '\'' . $where . $bboxConstraint . $orderBy);
         
         if (!$toponyms) {
-            return $this->order($result);
+            return $result;
         }
 
         /*
          * No result - check in native language within alternatename table
          */
         if (pg_num_rows($toponyms) === 0 && $lang !== 'en') {
-            $toponyms = pg_query($this->dbh, 'SELECT name, country as countrycode, latitude, longitude, fclass, fcode, population FROM ' . $this->schema . '.geoname WHERE geonameid = ANY((SELECT array(SELECT geonameid FROM ' . $this->schema . '.alternatename WHERE searchname =\'' . pg_escape_string($toponym) . '\'  AND isolanguage=\'' . $lang . '\'))::integer[])' . $where);
+            $toponyms = pg_query($this->dbh, 'SELECT name, country as countrycode, latitude, longitude, fclass, fcode, population FROM ' . $this->schema . '.geoname WHERE geonameid = ANY((SELECT array(SELECT geonameid FROM ' . $this->schema . '.alternatename WHERE searchname =\'' . pg_escape_string($toponym) . '\'  AND isolanguage=\'' . $lang . '\'))::integer[])' . $where . $orderBy);
             if (!$toponyms) {
-                return $this->order($result);
+                return $this->$result;
             }
         }
         
@@ -445,9 +454,9 @@ class Gazetteer {
          * No result - check without bbox
          */
         if (pg_num_rows($toponyms) === 0 && $bboxConstraint) {
-            $toponyms = pg_query($this->dbh, 'SELECT name, country as countrycode, latitude, longitude, fclass, fcode, population FROM ' . $this->schema . '.geoname WHERE searchname =\'' . pg_escape_string($toponym) . '\'' . $where);
+            $toponyms = pg_query($this->dbh, 'SELECT name, country as countrycode, latitude, longitude, fclass, fcode, population FROM ' . $this->schema . '.geoname WHERE searchname =\'' . pg_escape_string($toponym) . '\'' . $where . $orderBy);
             if (!$toponyms) {
-                return $this->order($result);
+                return $result;
             }
         }
         /*
@@ -463,20 +472,7 @@ class Gazetteer {
             array_push($result, $toponym);
         }
 
-        return $this->order($result);
-    }
-    
-    /**
-     * Reorder toponyms entry following convention
-     * (see http://www.geonames.org/export/codes.html for class and code explanation)
-     * 
-     *      - fclass priority chain is P, A, the rest 
-     *      - for 'P', fcode priority chain is PPLC, PPLA, PPLA2, PPLA3, PPLA4, PPL, the rest
-     *      
-     * @param {Array} $toponyms
-     */
-    final private function order($toponyms) {
-        return $toponyms;
+        return $result;
     }
     
     /**
