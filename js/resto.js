@@ -127,7 +127,8 @@
                     var fct = setInterval(function() {
                         if (window.M.Map.map && window.M.isLoaded) {
                             
-                            self.initSearchLayer(options.data, options.data.query && options.data.query.hasLocation ? true : false);
+                            //self.initSearchLayer(options.data, options.data.query && options.data.query.hasLocation ? true : false);
+                            self.initSearchLayer(options.data, true);
                             
                             /*
                              * Display full size WMS
