@@ -351,6 +351,10 @@ a.resto-keyword-herbaceous  {
     margin-right: auto;
     max-width: initial;
 }
+.resto-wikipedia {
+    padding:3% 10%;
+    font-size:12px;
+}
 .resto-resource {
     padding:3% 10%;
     font-size:3em;

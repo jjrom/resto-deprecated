@@ -75,7 +75,7 @@ class Wikipedia {
      * Return the first nbOfResults wikipedia articles
      * within a given bbox order by relevance
      *
-     * @param String $bbox bbox to constraint search
+     * @param String $polygon WKT Polygon to constraint search
      * @param String $lang lang
      * @param String $nbOfResults number of results
      *
@@ -83,32 +83,23 @@ class Wikipedia {
      *
      */
 
-    final public function getEntries($bbox = '-180,-90,180,90', $lang = 'en', $nbOfResults = 10) {
+    final public function getEntries($polygon, $lang = 'en', $nbOfResults = 10) {
 
         $result = array();
 
         if (!$this->dbh) {
             return $result;
         }
-
-        /*
-         * Constrain search on bbox
-         */
-        $lonmin = -180;
-        $lonmax = 180;
-        $latmin = -90;
-        $latmax = 90;
-        $coords = explode(',', $bbox);
-        if (count($coords) === 4) {
-            $lonmin = is_numeric($coords[0]) ? $coords[0] : $lonmin;
-            $latmin = is_numeric($coords[1]) ? $coords[1] : $latmin;
-            $lonmax = is_numeric($coords[2]) ? $coords[2] : $lonmax;
-            $latmax = is_numeric($coords[3]) ? $coords[3] : $latmax;
+        
+        $where = '';
+        if ($polygon) {
+            $where = 'WHERE ST_intersects(geom, ST_GeomFromText(\'' . pg_escape_string($polygon) . '\', 4326))';
         }
+        
         /*
          * Search in input language
          */
-        $entries = pg_query($this->dbh, 'SELECT title, summary FROM ' . $this->schema . '.wk, ' . $this->schema . '.geoname_ds WHERE lang = \'' . pg_escape_string($lang) . '\' AND wikipediaid IN (SELECT wikipediaid FROM ' . $this->schema . '.wikipedia WHERE ST_intersects(geom, ST_GeomFromText(\'' . pg_escape_string('POLYGON((' . $lonmin . ' ' . $latmin . ',' . $lonmin . ' ' . $latmax . ',' . $lonmax . ' ' . $latmax . ',' . $lonmax . ' ' . $latmin . ',' . $lonmin . ' ' . $latmin . '))') . '\', 4326)) ORDER BY relevance DESC) LIMIT ' . $nbOfResults);
+        $entries = pg_query($this->dbh, 'SELECT title, summary FROM ' . $this->schema . '.wk WHERE lang = \'' . pg_escape_string($lang) . '\' AND wikipediaid IN (SELECT wikipediaid FROM ' . $this->schema . '.wikipedia ' . $where . ' ORDER BY relevance DESC) LIMIT ' . $nbOfResults);
 
         if (!$entries) {
             return $result;
@@ -118,7 +109,7 @@ class Wikipedia {
          * Retrieve first result
          */
         while ($entry = pg_fetch_assoc($entries)) {
-            $entry['url'] = 'http://' . $lang . '.wikipedia.com/' . rawurlencode($entry['title']);
+            $entry['url'] = '//' . $lang . '.wikipedia.com/wiki/' . rawurlencode($entry['title']);
             array_push($result, $entry);
         }
 

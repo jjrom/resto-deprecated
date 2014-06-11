@@ -20,6 +20,12 @@
     if (!isset($quicklook)) {
         $quicklook = $thumbnail;
     }
+    
+    if (class_exists('Wikipedia')) {
+        $wikipedia = new Wikipedia($this->R);
+        $wikipediaEntries = $wikipedia->getEntries(geoJSONGeometryToWKT($product['geometry']), $this->request['language'], 10);
+    }
+    
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
     <head>
@@ -146,6 +152,22 @@
             </div>
         </div>
         
+        <!-- Wikipedia -->
+        <div class="row resto-resource fullWidth dark">
+            <div class="large-6 columns">
+                <h1 class="right"><?php echo $this->description['dictionary']->translate('_poi'); ?></h1>
+            </div>
+            <div class="large-6 columns">
+                <?php
+                if (is_array($wikipediaEntries) && count($wikipediaEntries) > 0) {
+                    foreach ($wikipediaEntries as $wikipediaEntry) {
+                ?>
+                <h2><a href="<?php echo $wikipediaEntry['url']; ?>"><?php echo $wikipediaEntry['title']; ?></a></h2>
+                <p><?php echo $wikipediaEntry['summary']; ?></p>
+                <?php }} ?>
+            </div>
+        </div>
+        
         <!-- Footer -->
         <div class="row">
             <div class="small-12 columns">
@@ -175,7 +197,6 @@
                     restoUrl: '<?php echo $this->request['restoUrl'] ?>',
                     ssoServices:<?php echo json_encode($this->R->ssoServices) ?>
                 });
-                
             });
         </script>
     </body>

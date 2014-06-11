@@ -464,7 +464,8 @@ return array(
         '_addResource' => 'Add a resource',
         '_dropResource' => 'Drop a resource metadata file',
         '_resultFor' => 'Search results for &#34;{a:1}&#34;',
-        '_resourceSummary' => '{a:1} image ({a:2} m) acquired on {a:3}'
+        '_resourceSummary' => '{a:1} image ({a:2} m) acquired on {a:3}',
+        '_poi' => 'Points of interest'
     )
     
 );
