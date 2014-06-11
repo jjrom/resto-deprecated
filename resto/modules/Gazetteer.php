@@ -432,24 +432,29 @@ class Gazetteer {
         }
         
         /*
-         * First search in english
+         * First search in native language within alternatename table
          */
-        $toponyms = pg_query($this->dbh, 'SELECT name, country as countrycode, latitude, longitude, fclass, fcode, population FROM ' . $this->schema . '.geoname WHERE searchname =\'' . pg_escape_string($toponym) . '\'' . $where . $bboxConstraint . $orderBy);
+        if ($lang !== 'en') {
+            $toponyms = pg_query($this->dbh, 'SELECT name, country as countrycode, latitude, longitude, fclass, fcode, population FROM ' . $this->schema . '.geoname WHERE geonameid = ANY((SELECT array(SELECT geonameid FROM ' . $this->schema . '.alternatename WHERE searchname =\'' . pg_escape_string($toponym) . '\'  AND isolanguage=\'' . $lang . '\'))::integer[])' . $where . $orderBy);
+            if (!$toponyms) {
+                return $result;
+            }
+        }
+        
+        /*
+         * No result - search in english
+         */
+        if ($lang === 'en' || pg_num_rows($toponyms) === 0) {
+            $toponyms = pg_query($this->dbh, 'SELECT name, country as countrycode, latitude, longitude, fclass, fcode, population FROM ' . $this->schema . '.geoname WHERE searchname =\'' . pg_escape_string($toponym) . '\'' . $where . $bboxConstraint . $orderBy);
+            if (!$toponyms) {
+                return $result;
+            }
+        }
         
         if (!$toponyms) {
             return $result;
         }
 
-        /*
-         * No result - check in native language within alternatename table
-         */
-        if (pg_num_rows($toponyms) === 0 && $lang !== 'en') {
-            $toponyms = pg_query($this->dbh, 'SELECT name, country as countrycode, latitude, longitude, fclass, fcode, population FROM ' . $this->schema . '.geoname WHERE geonameid = ANY((SELECT array(SELECT geonameid FROM ' . $this->schema . '.alternatename WHERE searchname =\'' . pg_escape_string($toponym) . '\'  AND isolanguage=\'' . $lang . '\'))::integer[])' . $where . $orderBy);
-            if (!$toponyms) {
-                return $this->$result;
-            }
-        }
-        
         /*
          * No result - check without bbox
          */
