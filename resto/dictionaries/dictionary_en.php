@@ -55,6 +55,7 @@ return array(
         'containing' => 'with',
         'with' => 'with',
         'without' => 'without',
+        'no' => 'without',
         'less' => 'lesser',
         'lesser' => 'lesser',
         'lower' => 'lesser',
