@@ -420,7 +420,7 @@ return array(
         '_thisResourceIsLocated' => 'Images located in {a:1}',
         '_thisResourceContainsCity' => 'Images around {a:1}',
         '_thisResourceWasAcquiredBy' => 'Images acquired by {a:1} satellite',
-        '_landUse' => 'Land cover',
+        '_landUse' => 'Land use',
         '_location' => 'Location',
         '_platform' => 'Satellite',
         '_tags' => 'Tags',

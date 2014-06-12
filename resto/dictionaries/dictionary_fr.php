@@ -634,7 +634,7 @@ return array(
         '_thisResourceIsLocated' => 'Images situ&eacute;e en {a:1}',
         '_thisResourceContainsCity' => 'Images autour de {a:1}',
         '_thisResourceWasAcquiredBy' => 'Images acquises par le satellite {a:1}',
-        '_landUse' => 'Composition',
+        '_landUse' => 'Occupation du sol',
         '_location' => 'Localisation',
         '_platform' => 'Satellite',
         '_tags' => 'Tags',

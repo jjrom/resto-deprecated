@@ -602,7 +602,7 @@ return array(
         '_thisResourceIsLocated' => 'This image is located in {a:1}',
         '_thisResourceContainsCity' => 'This image contains the city of {a:1}',
         '_thisResourceWasAcquiredBy' => 'This image was aquired by {a:1} satellite',
-        '_landUse' => 'Land cover',
+        '_landUse' => 'Land use',
         '_location' => 'Location',
         '_platform' => 'Satellite',
         '_tags' => 'Tags',
