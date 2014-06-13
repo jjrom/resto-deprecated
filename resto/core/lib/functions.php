@@ -768,25 +768,41 @@ function toAtom($response, $dictionary, $version = '1.0', $encoding = 'UTF-8') {
          * Quicklook / Thumbnail
          */
         if (isset($product['properties']['thumbnail']) || isset($product['properties']['quicklook'])) {
+            
+            /*
+             * rel=icon
+             */
+            if (isset($product['properties']['quicklook'])) {
+                $xml->startElement('link');
+                $xml->writeAttribute('rel', 'icon');
+                //$xml->writeAttribute('type', 'TODO');
+                $xml->writeAttribute('title', 'Browse image URL for ' . $product['id'] . ' product');
+                $xml->writeAttribute('href', $product['properties']['quicklook']);
+                $xml->endElement(); // link
+            }
+            
+            /*
+             * media:group
+             */
             $xml->startElement('media:group');
             if (isset($product['properties']['thumbnail'])) {
                 $xml->startElement('media:content');
                 $xml->writeAttribute('url', $product['properties']['thumbnail']);
                 $xml->writeAttribute('medium', 'image');
-                $xml->endElement();
                 $xml->startElement('media:category');
                 $xml->writeAttribute('scheme', 'http://www.opengis.net/spec/EOMPOM/1.0');
                 $xml->text('THUMBNAIL');
+                $xml->endElement();
                 $xml->endElement();
             }
             if (isset($product['properties']['quicklook'])) {
                 $xml->startElement('media:content');
                 $xml->writeAttribute('url', $product['properties']['quicklook']);
                 $xml->writeAttribute('medium', 'image');
-                $xml->endElement();
                 $xml->startElement('media:category');
                 $xml->writeAttribute('scheme', 'http://www.opengis.net/spec/EOMPOM/1.0');
                 $xml->text('QUICKLOOK');
+                $xml->endElement();
                 $xml->endElement();
             }
             $xml->endElement();
