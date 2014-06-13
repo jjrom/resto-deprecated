@@ -1373,7 +1373,7 @@ abstract class RestoController {
             if (!$dbh) {
                 throw new Exception('Database connection error', 500);
             }
-            $products = pg_query($dbh, $prepared['query']);
+            $products = pg_query($dbh, utf8_encode($prepared['query']));
             if (!$products) {
                 pg_close($dbh);
                 throw new Exception('Database connection error', 500);
