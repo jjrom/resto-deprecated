@@ -975,7 +975,10 @@ abstract class RestoController {
              * hstore case - i.e. searchTerms in keywords column
              */
             else if ($operation === 'hstore') {
+                $key = $this->getModelName($this->description['searchFiltersDescription'][$filterName]['key']);
                 $terms = array();
+                $with = array();
+                $without = array();
                 $splitted = explode(' ', $requestParams[$filterName]);
                 for ($i = 0, $l = count($splitted); $i < $l; $i++) {
 
@@ -984,12 +987,18 @@ abstract class RestoController {
                      * If keyword contain a + then transform it into a ' '
                      */
                     $s = ($exclusion ? '-' : '') . $splitted[$i];
-                    $not = '';
                     if (substr($s, 0, 1) === '-') {
-                        $not = ' NOT ';
-                        $s = substr($s, 1);
+                        array_push($without, "'" . pg_escape_string(str_replace('-', ' ', substr($s, 1))) . "'");
                     }
-                    array_push($terms, $not . $this->getModelName($this->description['searchFiltersDescription'][$filterName]['key']) . "?'" . pg_escape_string(str_replace('-', ' ', $s)) . "'");
+                    else {
+                        array_push($with, "'" . pg_escape_string(str_replace('-', ' ', $s)) . "'");
+                    }
+                }
+                if (count($without) > 0) {
+                    array_push($terms, 'NOT ' . $key . "?&ARRAY[" . join(',', $without) . "]");
+                }
+                if (count($with) > 0) {
+                    array_push($terms, $key . "?&ARRAY[" . join(',', $with) . "]");
                 }
                 return join(' AND ', $terms);
             }
