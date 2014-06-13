@@ -317,10 +317,25 @@ class QueryAnalyzer {
         }
         
         /*
+         * Add a space between a numeric value and '%' character
+         */
+        $searchTerms = $this->stripArray($searchTerms, $toRemove);
+        $correctedSearchTerms = '';
+        for ($i = 0, $l = count($searchTerms); $i < $l; $i++) {
+            $splitted = explode('%', $searchTerms[$i]);
+            if (count($splitted) === 2 && is_numeric($splitted[0])) {
+                $correctedSearchTerms .= ' ' . $splitted[0] . ' %';
+            }
+            else {
+                $correctedSearchTerms .= ' ' . $searchTerms[$i];
+            }
+        }
+        
+        /*
          * Update searchTerms passed by reference in the function
          * Split searchTerms on (" ", "'", ";") characters
          */
-        $searchTerms = preg_split('/ /', str_replace(array('!', '?'), '', str_replace(array('\\', '\'', ';'), ' ', join(' ', $this->stripArray($searchTerms, $toRemove)))));
+        $searchTerms = preg_split('/ /', str_replace(array('!', '?'), '', str_replace(array('\\', '\'', ';'), ' ', $correctedSearchTerms)));
         function trimComma(&$value) {
             $value = strtolower(rtrim($value, ','));
         }
