@@ -490,7 +490,7 @@ class Resto {
                         $this->response = $collectionManager->update();
                     }
                     else {
-                        throw new Exception('Forbidden', 403);
+                        throw new Exception('Not Implemented', 501);
                     }
                 }
                 else if ($this->request['method'] === 'delete' && $this->request['identifier'] !== '$rights') {
@@ -499,7 +499,7 @@ class Resto {
                         $this->response = $collectionManager->delete();
                     }
                     else {
-                        throw new Exception('Forbidden', 403);
+                        throw new Exception('Not Implemented', 501);
                     }
                 }
                 /*

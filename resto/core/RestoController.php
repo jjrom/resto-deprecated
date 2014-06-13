@@ -437,7 +437,7 @@ abstract class RestoController {
              * POST on /collection/identifier/$tags is processed by ResourceTagger module
              */
             if (!class_exists('ResourceTagger')) {
-                throw new Exception('Forbidden', 403);
+                throw new Exception('Not Implemented', 501);
             }
             
             /*
@@ -466,7 +466,7 @@ abstract class RestoController {
                      * POST on /collection/$tags is processed by ResourceTagger module
                      */
                     if (!class_exists('ResourceTagger')) {
-                        throw new Exception('Forbidden', 403);
+                        throw new Exception('Not Implemented', 501);
                     }
 
                     /*
@@ -488,7 +488,7 @@ abstract class RestoController {
                      * POST on /collection/$rights is processed by RightsManager module
                      */
                     if (!class_exists('RightsManager')) {
-                        throw new Exception('Forbidden', 403);
+                        throw new Exception('Not Implemented', 501);
                     }
 
                     /*
@@ -510,7 +510,7 @@ abstract class RestoController {
             else {
 
                 if (!class_exists('ResourceManager')) {
-                    throw new Exception('Forbidden', 403);
+                    throw new Exception('Not Implemented', 501);
                 }
 
                 $resourceManager = new ResourceManager($this);
@@ -562,7 +562,7 @@ abstract class RestoController {
                 $this->response = $rightsManager->delete();
             }
             else {
-                throw new Exception('Forbidden', 403);
+                throw new Exception('Not Implemented', 501);
             }
         }
         /*
