@@ -1404,6 +1404,15 @@ abstract class RestoController {
          */
         while ($product = pg_fetch_assoc($products)) {
             
+            /*
+             * Add constant values
+             */
+            foreach (array_keys($this->description['model']) as $key) {
+                if (!$this->getModelName($key)) {
+                    $product[$key] = $this->getModelValue($key);
+                }
+            }
+            
             $product['links'] = array();
             
             /*
@@ -1679,7 +1688,7 @@ abstract class RestoController {
          * No result - return empty product
          */
         if (!$product) {
-
+            
             $this->response = array(
                 'type' => 'FeatureCollection',
                 'totalResults' => 0,
@@ -1700,7 +1709,16 @@ abstract class RestoController {
                 'features' => array()
             );
         } else {
-
+            
+            /*
+             * Add constant values
+             */
+            foreach (array_keys($this->description['model']) as $key) {
+                if (!$this->getModelName($key)) {
+                    $product[$key] = $this->getModelValue($key);
+                }
+            }
+            
             /*
              * Prepare keyword urls
              */
