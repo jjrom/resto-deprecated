@@ -47,7 +47,7 @@ $user = $this->R->getUser();
                 <div class="row fullWidth resto-collection" id="_<?php echo $key;?>"> 
                     <div class="large-12 columns <?php echo $left ? 'left' : 'right' ?>">
                         <h1>
-                            <a class="fa fa-search" href="<?php echo $this->request['restoUrl'] . $key ?>">  <?php echo $collection['os']['ShortName']; ?></a><br/>
+                            <a class="fa fa-search" href="<?php echo $this->request['restoUrl'] . $key . '/?lang=' . $this->request['language']; ?>">  <?php echo $collection['os']['ShortName']; ?></a><br/>
                             <?php if ($user->canPut($key)) { ?><a class="fa fa-edit button bggreen updateCollection admin" href="#" collection="<?php echo $key; ?>" title="<?php echo $this->description['dictionary']->translate('_update'); ?>"></a><?php } ?>
                             <?php if ($user->canDelete($key)) { ?><a class="fa fa-moon-o button bgorange deactivateCollection admin" href="#" collection="<?php echo $key; ?>" title="<?php echo $this->description['dictionary']->translate('_deactivate'); ?>"></a><?php } ?>
                             <?php if ($user->canDelete($key)) { ?><a class="fa fa-trash-o button bgred removeCollection admin" href="#" collection="<?php echo $key; ?>" title="<?php echo $this->description['dictionary']->translate('_remove'); ?>"></a><?php } ?>
