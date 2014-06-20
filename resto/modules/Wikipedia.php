@@ -110,7 +110,7 @@ class Wikipedia {
          */
         while ($entry = pg_fetch_assoc($entries)) {
             $entry['url'] = '//' . $lang . '.wikipedia.com/wiki/' . rawurlencode($entry['title']);
-            array_push($result, $entry);
+            $result[] = $entry;
         }
 
         return $result;

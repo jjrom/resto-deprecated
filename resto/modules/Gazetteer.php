@@ -474,7 +474,7 @@ class Gazetteer {
                 $toponym['country'] = $country['name'];
             }*/
             $toponym['country'] = ucwords(array_search($toponym['countrycode'], $this->countries));
-            array_push($result, $toponym);
+            $result[] = $toponym;
         }
 
         return $result;

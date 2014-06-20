@@ -319,7 +319,7 @@ class CollectionManager {
                 }
             }
             foreach ($creationFields as $field => $type) {
-                array_push($table, $field . ' ' . $type);
+                $table[] = $field . ' ' . $type;
             }
 
             /*
@@ -693,8 +693,8 @@ class CollectionManager {
                 '\'' . pg_escape_string($lang) . '\''
             );
             foreach (array_keys($description) as $key) {
-                array_push($osFields, strtolower($key));
-                array_push($osValues, '\'' . pg_escape_string($description[$key]) . '\'');
+                $osFields[] = strtolower($key);
+                $osValues[] = '\'' . pg_escape_string($description[$key]) . '\'';
             }
             pg_query($this->dbh, 'INSERT INTO admin.osdescriptions (' . join(',', $osFields) . ') VALUES(' . join(',', $osValues) . ')');
         }

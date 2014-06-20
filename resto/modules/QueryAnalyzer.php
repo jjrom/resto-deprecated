@@ -312,7 +312,7 @@ class QueryAnalyzer {
                         break;
                     }
                 }
-                array_push($toRemove, $searchTerms[$i]);
+                $toRemove[] = $searchTerms[$i];
             }
         }
         
@@ -387,14 +387,14 @@ class QueryAnalyzer {
              */
             if ($this->dictionary->getPlatform($searchTerms[$i]) !== null) {
                 $params['eo:platformShortName'] = $this->dictionary->getPlatform($searchTerms[$i]);
-                array_push($toRemove, $searchTerms[$i]);
+                $toRemove[] = $searchTerms[$i];
             }
             /*
              * Instruments is an indexed array
              */
             else if ($this->dictionary->getInstrument($searchTerms[$i]) !== null) {
                 $params['eo:instrument'] = $this->dictionary->getInstrument($searchTerms[$i]);
-                array_push($toRemove, $searchTerms[$i]);
+                $toRemove[] = $searchTerms[$i];
             }
             /*
              * Remove non numeric terms
@@ -409,15 +409,15 @@ class QueryAnalyzer {
                      && !$this->dictionary->getQuantity($searchTerms[$i])
                      && !$this->dictionary->getKeyword($searchTerms[$i])
                      && !$this->dictionary->isKeywordsValue($searchTerms[$i])) {
-                array_push($toRemove, $searchTerms[$i]);
-                array_push($this->unProcessed, $searchTerms[$i]);
+                $toRemove[] = $searchTerms[$i];
+                $this->unProcessed[] = $searchTerms[$i];
             }
             /*
              * Remove excluded terms
              */
             else if ($this->dictionary->isExcluded($searchTerms[$i])) {
-                array_push($toRemove, $searchTerms[$i]);
-                array_push($this->unProcessed, $searchTerms[$i]);
+                $toRemove[] = $searchTerms[$i];
+                $this->unProcessed[] = $searchTerms[$i];
             }
             
         }
@@ -465,7 +465,7 @@ class QueryAnalyzer {
                             if (isset($searchFilter)) {
                                 $params[$searchFilter['key']] = 0;
                             }
-                            array_push($toRemove, $searchTerms[$i + 1]);
+                            $toRemove[] = $searchTerms[$i + 1];
                         }
                         else {
                             $searchTerms[$i + 1] = '-' . $searchTerms[$i + 1];
@@ -478,7 +478,7 @@ class QueryAnalyzer {
                 else if ($modifier === 'before') {
                     if ($i + 1 < $l && isISO8601($searchTerms[$i + 1])) {
                         $params['time:end'] = toISO8601($searchTerms[$i + 1]);
-                        array_push($toRemove, $searchTerms[$i + 1]);
+                        $toRemove[] = $searchTerms[$i + 1];
                     }
                 }
                 /*
@@ -487,7 +487,7 @@ class QueryAnalyzer {
                 else if ($modifier === 'after') {
                     if ($i + 1 < $l && isISO8601($searchTerms[$i + 1])) {
                         $params['time:start'] = toISO8601($searchTerms[$i + 1]);
-                        array_push($toRemove, $searchTerms[$i + 1]);
+                        $toRemove[] = $searchTerms[$i + 1];
                     }
                 }
                 /*
@@ -544,10 +544,10 @@ class QueryAnalyzer {
                     $params['time:end'] = date('Y-m-d', strtotime(date('Y-m-d') . ' - 1 days')) . 'T23:59:59';
                 }
           
-                array_push($toRemove, $searchTerms[$i]);
+                $toRemove[] = $searchTerms[$i];
             }
             else if ($this->dictionary->isExcluded($searchTerms[$i])) {
-                array_push($toRemove, $searchTerms[$i]);
+                $toRemove[] = $searchTerms[$i];
             }
         }
         
@@ -575,14 +575,14 @@ class QueryAnalyzer {
              */
             if (preg_match('/^\d{4}$/i', $searchTerms[$i])) {
                 $year = $searchTerms[$i];
-                array_push($toRemove, $searchTerms[$i]);
+                $toRemove[] = $searchTerms[$i];
             }
             /*
              * Textual month
              */
             else if ($this->dictionary->getMonth($searchTerms[$i]) !== null) {
                 $month = $this->dictionary->getMonth($searchTerms[$i]);
-                array_push($toRemove, $searchTerms[$i]);
+                $toRemove[] = $searchTerms[$i];
             }
             /*
              * Day is an int value < 31
@@ -593,7 +593,7 @@ class QueryAnalyzer {
                     $d = intval($searchTerms[$i]);
                     if ($d > 0 && $d < 31) {
                         $day = $d < 10 ? '0' . $d : $d;
-                        array_push($toRemove, $searchTerms[$i]);
+                        $toRemove[] = $searchTerms[$i];
                     }
                 }
             }
@@ -627,7 +627,7 @@ class QueryAnalyzer {
                     $day = substr($searchTerms[$i], 8, 2);
                 }
 
-                array_push($toRemove, $searchTerms[$i]);
+                $toRemove[] = $searchTerms[$i];
             }
             
         }
@@ -701,17 +701,17 @@ class QueryAnalyzer {
              * Tags start with '#'
              */
             if (substr($s , 0, 1) === '#') {
-                array_push($keywords, $sign . $s);
-                array_push($toRemove, $searchTerms[$i]);
+                $keywords[] = $sign . $s;
+                $toRemove[] = $searchTerms[$i];
             }
             else {
                 $keyword = $this->dictionary->getKeyword($s);
                 if ($keyword) {
-                    array_push($keywords, $sign . $keyword['type'] . ':' . str_replace(' ', '-', $keyword['keyword']));
+                    $keywords[] = $sign . $keyword['type'] . ':' . str_replace(' ', '-', $keyword['keyword']);
                     if ($keyword['type'] === 'country') {
                         $countryName = $keyword['keyword'];
                     }
-                    array_push($toRemove, $searchTerms[$i]);
+                    $toRemove[] = $searchTerms[$i];
                 }
                 else {
 
@@ -720,11 +720,11 @@ class QueryAnalyzer {
                      */
                     $similar = $this->getSimilar($s);
                     if ($similar) {
-                        array_push($keywords, $sign . $similar['type'] . ':' . str_replace(' ', '-', $similar['keyword']));
+                        $keywords[] = $sign . $similar['type'] . ':' . str_replace(' ', '-', $similar['keyword']);
                         if ($keyword['type'] === 'country') {
                             $countryName = $keyword['keyword'];
                         }
-                        array_push($toRemove, $searchTerms[$i]);
+                        $toRemove[] = $searchTerms[$i];
                     }
                 }
             }
@@ -761,13 +761,13 @@ class QueryAnalyzer {
                     }
                 }
                 else {
-                    array_push($this->unProcessed, $searchTerms[$i]);
-                    array_push($this->remaining, $searchTerms[$i]);
+                    $this->unProcessed[] = $searchTerms[$i];
+                    $this->remaining[] = $searchTerms[$i];
                 }
             }
             else {
-                array_push($this->unProcessed, $searchTerms[$i]);
-                array_push($this->remaining, $searchTerms[$i]);
+                $this->unProcessed[] = $searchTerms[$i];
+                $this->remaining[] = $searchTerms[$i];
             }
         }
         
@@ -808,9 +808,9 @@ class QueryAnalyzer {
         if ($i + 3 < $l && isISO8601($searchTerms[$i + 1]) && $this->dictionary->getModifier($searchTerms[$i + 2]) === 'and' && isISO8601($searchTerms[$i + 3])) {
             $params['time:start'] = toISO8601($searchTerms[$i + 1]);
             $params['time:end'] = toISO8601($searchTerms[$i + 3]);
-            array_push($toRemove, $searchTerms[$i + 1]);
-            array_push($toRemove, $searchTerms[$i + 2]);
-            array_push($toRemove, $searchTerms[$i + 3]);
+            $toRemove[] = $searchTerms[$i + 1];
+            $toRemove[] = $searchTerms[$i + 2];
+            $toRemove[] = $searchTerms[$i + 3];
         }
         /*
          * <between> "month" <and> "month" (year)
@@ -823,13 +823,13 @@ class QueryAnalyzer {
             $year = date("Y");
             if ($i + 4 < $l && strlen($searchTerms[$i + 4]) === 4 && $this->isNumeric($searchTerms[$i + 4])) {
                 $year = $searchTerms[$i + 4];
-                array_push($toRemove, $searchTerms[$i + 4]);
+                $toRemove[] = $searchTerms[$i + 4];
             }
             $params['time:start'] = $year . '-' . $this->dictionary->getMonth($searchTerms[$i + 1]) . '-01' . 'T00:00:00';
             $params['time:end'] = $year . '-' . $this->dictionary->getMonth($searchTerms[$i + 3]) . '-' . date('d', mktime(0, 0, 0, intval($this->dictionary->getMonth($searchTerms[$i + 3])) + 1, 0, intval($year))) . 'T23:59:59';
-            array_push($toRemove, $searchTerms[$i + 1]);
-            array_push($toRemove, $searchTerms[$i + 2]);
-            array_push($toRemove, $searchTerms[$i + 3]);
+            $toRemove[] = $searchTerms[$i + 1];
+            $toRemove[] = $searchTerms[$i + 2];
+            $toRemove[] = $searchTerms[$i + 3];
         }
         /*
          * <between> "numeric" <and> "numeric" ("unit")
@@ -848,22 +848,22 @@ class QueryAnalyzer {
              */
             if ($i - 1 >= 0 && $this->dictionary->getQuantity($searchTerms[$i - 1])) {
                 $searchFilter = $this->getSearchFilter($this->dictionary->getQuantity($searchTerms[$i - 1]));
-                array_push($toRemove, $searchTerms[$i - 1]);
+                $toRemove[] = $searchTerms[$i - 1];
             }
             /*
              * <between> ... "quantity" 
              */
             else if ($i + 4 + $c < $l && $this->dictionary->getQuantity($searchTerms[$i + 4 + $c])) {
                 $searchFilter = $this->getSearchFilter($this->dictionary->getQuantity($searchTerms[$i + 4 + $c]));
-                array_push($toRemove, $searchTerms[$i + 4 + $c]);
+                $toRemove[] = $searchTerms[$i + 4 + $c];
             }
             /*
              * <between> ... of "quantity" 
              */
             else if ($i + 5 + $c < $l && $this->dictionary->getModifier($searchTerms[$i + 4 + $c]) && $this->dictionary->getQuantity($searchTerms[$i + 5 + $c])) {
                 $searchFilter = $this->getSearchFilter($this->dictionary->getQuantity($searchTerms[$i + 5 + $c]));
-                array_push($toRemove, $searchTerms[$i + 4 + $c]);
-                array_push($toRemove, $searchTerms[$i + 5 + $c]);
+                $toRemove[] = $searchTerms[$i + 4 + $c];
+                $toRemove[] = $searchTerms[$i + 5 + $c];
             }
            
             /*
@@ -883,12 +883,12 @@ class QueryAnalyzer {
             }
             
             if ($unit) {
-                array_push($toRemove, $searchTerms[$i + 4]);
+                $toRemove[] = $searchTerms[$i + 4];
             }
             
-            array_push($toRemove, $searchTerms[$i + 1]);
-            array_push($toRemove, $searchTerms[$i + 2]);
-            array_push($toRemove, $searchTerms[$i + 3]);
+            $toRemove[] = $searchTerms[$i + 1];
+            $toRemove[] = $searchTerms[$i + 2];
+            $toRemove[] = $searchTerms[$i + 3];
         }
         
     }
@@ -929,30 +929,30 @@ class QueryAnalyzer {
         if ($i + 2 < $l && $this->isNumeric($searchTerms[$i + 1]) && $this->dictionary->getUnit($searchTerms[$i + 2])) {
             $unit = $this->dictionary->getUnit($searchTerms[$i + 2]);
             $duration = $this->toNumeric($searchTerms[$i + 1]);
-            array_push($toRemove, $searchTerms[$i + 2]);
-            array_push($toRemove, $searchTerms[$i + 1]);
+            $toRemove[] = $searchTerms[$i + 2];
+            $toRemove[] = $searchTerms[$i + 1];
         }
         /*
          * <since> "date"
          */
         else if ($i + 1 < $l && isISO8601($searchTerms[$i + 1])) {
             $params['time:start'] = toISO8601($searchTerms[$i + 1]);
-            array_push($toRemove, $searchTerms[$i + 1]);
+            $toRemove[] = $searchTerms[$i + 1];
         }
         /*
          * <since> "month" "year"
          */
         else if ($i + 2 < $l && $this->dictionary->getMonth($searchTerms[$i + 1]) && preg_match('\d{4}$', $searchTerms[$i + 2])) {
             $params['time:start'] = $searchTerms[$i + 2] . '-' . $this->dictionary->getMonth($searchTerms[$i + 1]) . '-01' . 'T00:00:00';
-            array_push($toRemove, $searchTerms[$i + 1]);
-            array_push($toRemove, $searchTerms[$i + 2]);
+            $toRemove[] = $searchTerms[$i + 1];
+            $toRemove[] = $searchTerms[$i + 2];
         }
         /*
          * <since> "month"
          */
         else if ($i + 1 < $l && $this->dictionary->getMonth($searchTerms[$i + 1])) {
             $params['time:start'] = date('Y') . '-' . $this->dictionary->getMonth($searchTerms[$i + 1]) . '-01' . 'T00:00:00';
-            array_push($toRemove, $searchTerms[$i + 1]);
+            $toRemove[] = $searchTerms[$i + 1];
         }
         /*
          * <since> "numeric" <last> "(year|day|month)"
@@ -960,8 +960,8 @@ class QueryAnalyzer {
         else if ($i + 3 < $l && $this->dictionary->getNumber($searchTerms[$i + 1]) && $this->dictionary->getModifier($searchTerms[$i + 2]) === 'last' && $this->dictionary->getUnit($searchTerms[$i + 3])) {
             $unit = $this->dictionary->getUnit($searchTerms[$i + 3]);
             $duration = $this->toNumeric($searchTerms[$i + 1]);
-            array_push($toRemove, $searchTerms[$i + 3]);
-            array_push($toRemove, $searchTerms[$i + 1]);
+            $toRemove[] = $searchTerms[$i + 3];
+            $toRemove[] = $searchTerms[$i + 1];
         }
         /*
          * <since> <last> "numeric" "(year|day|month)"
@@ -969,22 +969,22 @@ class QueryAnalyzer {
         else if ($i + 3 < $l && $this->dictionary->getModifier($searchTerms[$i + 1]) === 'last' && $this->isNumeric($searchTerms[$i + 2]) && $this->dictionary->getUnit($searchTerms[$i + 3])) {
             $unit = $this->dictionary->getUnit($searchTerms[$i + 3]);
             $duration = $this->toNumeric($searchTerms[$i + 2]);
-            array_push($toRemove, $searchTerms[$i + 3]);
-            array_push($toRemove, $searchTerms[$i + 2]);
+            $toRemove[] = $searchTerms[$i + 3];
+            $toRemove[] = $searchTerms[$i + 2];
         }
         /*
          * <since> <last> "(year|day|month)"
          */
         else if ($i + 2 < $l && $this->dictionary->getModifier($searchTerms[$i + 1]) === 'last' && $this->dictionary->getUnit($searchTerms[$i + 2])) {
             $unit = $this->dictionary->getUnit($searchTerms[$i + 2]);
-            array_push($toRemove, $searchTerms[$i + 2]);
+            $toRemove[] = $searchTerms[$i + 2];
         }
         /*
          * <since> "(year|day|month)" <last>
          */
         else if ($i + 2 < $l && $this->dictionary->getModifier($searchTerms[$i + 2]) === 'last' && $this->dictionary->getUnit($searchTerms[$i + 1])) {
             $unit = $this->dictionary->getUnit($searchTerms[$i + 1]);
-            array_push($toRemove, $searchTerms[$i + 1]);
+            $toRemove[] = $searchTerms[$i + 1];
         }
 
         /*
@@ -1028,8 +1028,8 @@ class QueryAnalyzer {
         if ($i + 2 < $l && $this->isNumeric($searchTerms[$i + 1]) && $this->dictionary->getUnit($searchTerms[$i + 2])) {
             $unit = $this->dictionary->getUnit($searchTerms[$i + 2]);
             $duration = $this->toNumeric($searchTerms[$i + 1]);
-            array_push($toRemove, $searchTerms[$i + 2]);
-            array_push($toRemove, $searchTerms[$i + 1]);
+            $toRemove[] = $searchTerms[$i + 2];
+            $toRemove[] = $searchTerms[$i + 1];
         }
         /*
          * "numeric" <last> "(year|day|month)"
@@ -1037,22 +1037,22 @@ class QueryAnalyzer {
         else if ($i - 1 >= 0 && $i + 1 < $l && $this->isNumeric($searchTerms[$i - 1]) && $this->dictionary->getUnit($searchTerms[$i + 1])) {
             $unit = $this->dictionary->getUnit($searchTerms[$i + 1]);
             $duration = $this->toNumeric($searchTerms[$i - 1]);
-            array_push($toRemove, $searchTerms[$i - 1]);
-            array_push($toRemove, $searchTerms[$i + 1]);
+            $toRemove[] = $searchTerms[$i - 1];
+            $toRemove[] = $searchTerms[$i + 1];
         }
         /*
          * "(year|day|month)" <last>
          */
         else if ($i - 1 >= 0 && $this->dictionary->getUnit($searchTerms[$i - 1])) {
             $unit = $this->dictionary->getUnit($searchTerms[$i - 1]);
-            array_push($toRemove, $searchTerms[$i - 1]);
+            $toRemove[] = $searchTerms[$i - 1];
         }
         /*
          * <last> "(year|day|month)"
          */
         else if ($i + 1 < $l && $this->dictionary->getUnit($searchTerms[$i + 1])) {
             $unit = $this->dictionary->getUnit($searchTerms[$i + 1]);
-            array_push($toRemove, $searchTerms[$i + 1]);
+            $toRemove[] = $searchTerms[$i + 1];
         }
 
         /*
@@ -1127,22 +1127,22 @@ class QueryAnalyzer {
              */
             if ($i - 1 >= 0 && $this->dictionary->getQuantity($searchTerms[$i - 1])) {
                 $searchFilter = $this->getSearchFilter($this->dictionary->getQuantity($searchTerms[$i - 1]));
-                array_push($toRemove, $searchTerms[$i - 1]);
+                $toRemove[] = $searchTerms[$i - 1];
             }
             /*
              * <...> "numeric" "unit" "quantity" 
              */
             else if ($i + 2 + $c < $l && $this->dictionary->getQuantity($searchTerms[$i + 2 + $c])) {
                 $searchFilter = $this->getSearchFilter($this->dictionary->getQuantity($searchTerms[$i + 2 + $c]));
-                array_push($toRemove, $searchTerms[$i + 2 + $c]);
+                $toRemove[] = $searchTerms[$i + 2 + $c];
             }
             /*
              * <...> "numeric" "unit" of "quantity" 
              */
             else if ($i + 3 + $c < $l && $this->dictionary->getModifier($searchTerms[$i + 2 + $c]) && $this->dictionary->getQuantity($searchTerms[$i + 3 + $c])) {
                 $searchFilter = $this->getSearchFilter($this->dictionary->getQuantity($searchTerms[$i + 3 + $c]));
-                array_push($toRemove, $searchTerms[$i + 2 + $c]);
-                array_push($toRemove, $searchTerms[$i + 3 + $c]);
+                $toRemove[] = $searchTerms[$i + 2 + $c];
+                $toRemove[] = $searchTerms[$i + 3 + $c];
             }
             if ($searchFilter) {
 
@@ -1179,10 +1179,10 @@ class QueryAnalyzer {
                 }
             }
             if ($c === 2) {
-                array_push($toRemove, $searchTerms[$i + 1]);
+                $toRemove[] = $searchTerms[$i + 1];
             }
-            array_push($toRemove, $searchTerms[$i + $c]);
-            array_push($toRemove, $searchTerms[$i + $c + 1]);
+            $toRemove[] = $searchTerms[$i + $c];
+            $toRemove[] = $searchTerms[$i + $c + 1];
         }
     }
     
@@ -1202,8 +1202,8 @@ class QueryAnalyzer {
         if ($i - 2 >= 0 && $this->isNumeric($searchTerms[$i - 2]) && $this->dictionary->getUnit($searchTerms[$i - 1])) {
             $unit = $this->dictionary->getUnit($searchTerms[$i - 1]);
             $duration = $this->toNumeric($searchTerms[$i - 2]);
-            array_push($toRemove, $searchTerms[$i - 1]);
-            array_push($toRemove, $searchTerms[$i - 2]);
+            $toRemove[] = $searchTerms[$i - 1];
+            $toRemove[] = $searchTerms[$i - 2];
 
             /*
              * Known duration unit
@@ -1234,7 +1234,7 @@ class QueryAnalyzer {
                 }
             }
             if ($add) {
-                array_push($output, $input[$i]);
+                $output[] = $input[$i];
             }
         }
 

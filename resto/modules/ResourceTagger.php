@@ -155,7 +155,7 @@ class ResourceTagger {
             $terms = array();
             for ($i = 0, $l = count($options['tags']); $i < $l; $i++) {
                 if (substr($options['tags'][$i] , 0, 1) === '#') {
-                    array_push($terms, pg_escape_string(strtolower(str_replace(' ', '', $options['tags'][$i]))) . ' => NULL');
+                    $terms[] = pg_escape_string(strtolower(str_replace(' ', '', $options['tags'][$i]))) . ' => NULL';
                 }
             }
             $baseQuery = 'UPDATE ' . $this->Controller->getDbConnector()->getSchema(). '.' . $this->Controller->getDbConnector()->getTable() . ' SET ' . $tagColumn . ' = ' . $tagColumn . ' || \'' . join(',', $terms) . '\'';
@@ -197,7 +197,7 @@ class ResourceTagger {
                      * Spatial filter
                      */
                     if ($options['query']['geometry']) {
-                        array_push($whereFilters, 'ST_intersects(' . getModelName($this->description['model'], 'geometry') . ', ST_GeomFromText(\'' . geoJSONGeometryToWKT($options['query']['geometry']) . '\', 4326))');
+                        $whereFilters[] = 'ST_intersects(' . getModelName($this->description['model'], 'geometry') . ', ST_GeomFromText(\'' . geoJSONGeometryToWKT($options['query']['geometry']) . '\', 4326))';
                     }
                     
                     /*

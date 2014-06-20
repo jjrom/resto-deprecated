@@ -517,7 +517,7 @@ function geoJSONGeometryToWKT($geometry) {
     else if ($type === 'LINESTRING') {
         $pairs = array();
         for ($i = 0, $l = count($geometry['coordinates']); $i < $l; $i++) {
-            array_push($pairs, join(' ', $geometry['coordinates'][$i]));
+            $pairs[] = join(' ', $geometry['coordinates'][$i]);
         }
         $wkt = $type . '(' . join(',', $pairs) . ')';
     }
@@ -526,9 +526,9 @@ function geoJSONGeometryToWKT($geometry) {
         for ($i = 0, $l = count($geometry['coordinates']); $i < $l; $i++) {
             $pairs = array();
             for ($j = 0, $k = count($geometry['coordinates'][$i]); $j < $k; $j++) {
-                array_push($pairs, join(' ', $geometry['coordinates'][$i][$j]));
+                $pairs[] = join(' ', $geometry['coordinates'][$i][$j]);
             }
-            array_push($rings, '(' . join(',', $pairs) . ')');
+            $rings[] = '(' . join(',', $pairs) . ')';
         }
         $wkt = $type . '(' . join(',', $rings) . ')';
     }
@@ -721,7 +721,7 @@ function toAtom($response, $dictionary, $version = '1.0', $encoding = 'UTF-8') {
         $geometry = array();
         foreach ($product['geometry']['coordinates'] as $key) {
             foreach ($key as $value) {
-                array_push($geometry, $value[1] . ' ' . $value[0]);
+                $geometry[] = $value[1] . ' ' . $value[0];
             }
         }
         $xml->startElement('georss:where');
@@ -816,7 +816,7 @@ function toAtom($response, $dictionary, $version = '1.0', $encoding = 'UTF-8') {
         if ($product['properties']['keywords']) {
             $keywords = array();
             foreach ($product['properties']['keywords'] as $keyword => $value) {
-                array_push($keywords, '<a href="' . updateURL($value['href'], array('format' => 'atom')) . '">' . $keyword . '</a>');
+                $keywords[] = '<a href="' . updateURL($value['href'], array('format' => 'atom')) . '">' . $keyword . '</a>';
             }
             $content .= '<p>' . $dictionary->translate('Keywords') . ' ' . join(' | ', $keywords) . '</p>';
         }
@@ -1049,7 +1049,7 @@ function getFiles($options) {
                 throw new Exception('Invalid posted file(s)', 500);
             }
             if ($options['permissive'] || ($json['type'] === 'FeatureCollection' && is_array($json['features']))) {
-                array_push($arr, $json);
+                $arr[] = $json;
             } else {
                 throw new Exception('Invalid posted file(s)', 500);
             }
@@ -1063,20 +1063,20 @@ function getFiles($options) {
              * The file content is transformed as array by file function
              */
             if ($isFile) {
-                array_push($arr, file($tmpFiles[$i]));
+                $arr[] = file($tmpFiles[$i]);
             }
             /*
              * Explode the texte line by line to obtain an array 
              * and push it to the final array
              */
             else if (isset($options['delimiter'])) {
-                array_push($arr, explode($options['delimiter'], $tmpFiles[$i]));
+                $arr[] = explode($options['delimiter'], $tmpFiles[$i]);
             }
             /*
              * By default, the exploding character is "\n"
              */
             else {
-                array_push($arr, explode("\n", $tmpFiles[$i]));
+                $arr[] = explode("\n", $tmpFiles[$i]);
             }
         }
     }

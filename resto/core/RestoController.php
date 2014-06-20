@@ -988,17 +988,17 @@ abstract class RestoController {
                      */
                     $s = ($exclusion ? '-' : '') . $splitted[$i];
                     if (substr($s, 0, 1) === '-') {
-                        array_push($without, "'" . pg_escape_string(str_replace('-', ' ', substr($s, 1))) . "'");
+                        $without[] =  "'" . pg_escape_string(str_replace('-', ' ', substr($s, 1))) . "'";
                     }
                     else {
-                        array_push($with, "'" . pg_escape_string(str_replace('-', ' ', $s)) . "'");
+                        $with[] =  "'" . pg_escape_string(str_replace('-', ' ', $s)) . "'";
                     }
                 }
                 if (count($without) > 0) {
-                    array_push($terms, 'NOT ' . $key . "?&ARRAY[" . join(',', $without) . "]");
+                    $terms[] = 'NOT ' . $key . "?&ARRAY[" . join(',', $without) . "]";
                 }
                 if (count($with) > 0) {
-                    array_push($terms, $key . "?&ARRAY[" . join(',', $with) . "]");
+                    $terms[] = $key . "?&ARRAY[" . join(',', $with) . "]";
                 }
                 return join(' AND ', $terms);
             }
@@ -1099,7 +1099,7 @@ abstract class RestoController {
          */
         for ($i = 0, $l = count($this->description['searchFiltersList']); $i < $l; $i++) {
             if (substr($this->description['searchFiltersList'][$i], -1) !== '?' && (!$this->request['params'][$this->description['searchFiltersList'][$i]])) {
-                array_push($missing, $this->description['searchFiltersList'][$i]);
+                $missing[] =  $this->description['searchFiltersList'][$i];
             }
         }
         
@@ -1132,7 +1132,7 @@ abstract class RestoController {
          */
         $filters = array();
         for ($i = 0, $l = count($this->description['searchFiltersList']); $i < $l; $i++) {
-            array_push($filters, $this->prepareFilterQuery($this->request['realParams'], $this->description['searchFiltersList'][$i]));
+            $filters[] = $this->prepareFilterQuery($this->request['realParams'], $this->description['searchFiltersList'][$i]);
         }
         
         /**
@@ -1169,7 +1169,7 @@ abstract class RestoController {
                             }
                         }
                         if (isset($arr)) {
-                            array_push($filters, $this->prepareFilterQuery($arr, $modelKey, $modifier === 'exclude' ? true : false));
+                            $filters[] = $this->prepareFilterQuery($arr, $modelKey, $modifier === 'exclude' ? true : false);
                         }        
                     }
                 }
@@ -1423,31 +1423,31 @@ abstract class RestoController {
             /*
              * Set alternate urls
              */
-            array_push($product['links'], array(
+            $product['links'][] = array(
                 'rel' => 'alternate',
                 'type' => Resto::$contentTypes['html'],
                 'title' => $this->description['dictionary']->translate('_htmlLink', $product['identifier']),
                 'href' => updateUrl($collectionUrl . $product['identifier'] . '/', array('format' => 'html'))
-            ));
+            );
             
-            array_push($product['links'], array(
+            $product['links'][] = array(
                 'rel' => 'alternate',
                 'type' => Resto::$contentTypes['atom'],
                 'title' => $this->description['dictionary']->translate('_atomLink', $product['identifier']),
                 'href' => updateUrl($collectionUrl . $product['identifier'] . '/', array('format' => 'atom'))
-            ));
+            );
             
-            array_push($product['links'], array(
+            $product['links'][] = array(
                 'rel' => 'alternate',
                 'type' => Resto::$contentTypes['json'],
                 'title' => $this->description['dictionary']->translate('_jsonLink', $product['identifier']),
                 'href' => updateUrl($collectionUrl . $product['identifier'] . '/', array('format' => 'json'))
-            ));
+            );
             
             /*
              * Add feature array to feature collection array
              */
-            array_push($features, $this->toFeature($product));
+            $features[] = $this->toFeature($product);
 
             /*
              * ...and set the total number of result without LIMIT constraint
@@ -1560,24 +1560,22 @@ abstract class RestoController {
          * startIndex cannot be lower than 1
          */
         if ($startIndex > 1) {
-            array_push($this->response['links'], array(
+            $this->response['links'][] = array(
                 'rel' => 'previous',
                 'type' => Resto::$contentTypes['json'],
                 'title' => $this->description['dictionary']->translate('_previousCollectionLink'),
                 'href' => updateUrl($baseUrl, $this->writeRequestParams(array(
                             'startIndex' => max($startIndex - $limit, 1),
                             'count' => $limit)))
-                )
             );
             // First URL is the first search URL i.e. with startIndex = 1
-            array_push($this->response['links'], array(
+            $this->response['links'][] = array(
                 'rel' => 'first',
                 'type' => Resto::$contentTypes['json'],
                 'title' => $this->description['dictionary']->translate('_firstCollectionLink'),
                 'href' => updateUrl($baseUrl, $this->writeRequestParams(array(
                             'startIndex' => 1,
                             'count' => $limit)))
-                )
             );
         }
 
@@ -1586,24 +1584,23 @@ abstract class RestoController {
          * startIndex cannot be greater than the one from lastURL 
          */
         if ($lastIndex < $total) {
-            array_push($this->response['links'], array(
+            $this->response['links'][] = array(
                 'rel' => 'next',
                 'type' => Resto::$contentTypes['json'],
                 'title' => $this->description['dictionary']->translate('_nextCollectionLink'),
                 'href' => updateUrl($baseUrl, $this->writeRequestParams(array(
                             'startIndex' => min($startIndex + $limit, $total - $limit + 1),
                             'count' => $limit)))
-                )
             );
+            
             // Last URL has the highest startIndex
-            array_push($this->response['links'], array(
+            $this->response['links'][] = array(
                 'rel' => 'last',
                 'type' => Resto::$contentTypes['json'],
                 'title' => $this->description['dictionary']->translate('_lastCollectionLink'),
                 'href' => updateUrl($baseUrl, $this->writeRequestParams(array(
                             'startIndex' => max($total - $limit + 1, 1),
                             'count' => $limit)))
-                )
             );
         }
         
@@ -1614,14 +1611,13 @@ abstract class RestoController {
          * The last index cannot be displayed
          */
         if ($total === -1 && $count >= $limit) {
-            array_push($this->response['links'], array(
+            $this->response['links'][] = array(
                 'rel' => 'next',
                 'type' => Resto::$contentTypes['json'],
                 'title' => $this->description['dictionary']->translate('_nextCollectionLink'),
                 'href' => updateUrl($baseUrl, $this->writeRequestParams(array(
                             'startIndex' => $startIndex + $limit,
                             'count' => $limit)))
-                )
             );
         }
         
@@ -1730,24 +1726,24 @@ abstract class RestoController {
             if (!is_array($product['links'])) {
                 $product['links'] = array();
             }
-            array_push($product['links'], array(
+            $product['links'][] = array(
                 'rel' => 'alternate',
                 'type' => Resto::$contentTypes['html'],
                 'title' => $this->description['dictionary']->translate('_htmlLink', $product['identifier']),
                 'href' => updateUrl($resourceUrl, updateUrl($resourceUrl, array($this->description['searchFiltersDescription']['language']['osKey'] => $this->description['dictionary']->language, 'format' => 'html')))
-            ));
-            array_push($product['links'], array(
+            );
+            $product['links'][] = array(
                 'rel' => 'alternate',
                 'type' => Resto::$contentTypes['json'],
                 'title' => $this->description['dictionary']->translate('_jsonLink', $product['identifier']),
                 'href' => updateUrl($resourceUrl, updateUrl($resourceUrl, array($this->description['searchFiltersDescription']['language']['osKey'] => $this->description['dictionary']->language, 'format' => 'json')))
-            ));
-            array_push($product['links'], array(
+            );
+            $product['links'][] = array(
                 'rel' => 'alternate',
                 'type' => Resto::$contentTypes['atom'],
                 'title' => $this->description['dictionary']->translate('_atomLink', $product['identifier']),
                 'href' => updateUrl($resourceUrl, updateUrl($resourceUrl, array($this->description['searchFiltersDescription']['language']['osKey'] => $this->description['dictionary']->language, 'format' => 'atom')))
-            ));
+            );
             $this->response = array(
                 'type' => 'FeatureCollection',
                 'totalResults' => 1,
@@ -2171,24 +2167,71 @@ abstract class RestoController {
              */
             if ($key === 'geometry') {
                 $postgisVersion = $this->dbConnector->postgisVersion;
-                array_push($fields, 'ST_AsGeoJSON(' . $v . ') AS ' . $key);
-                array_push($fields, ($postgisVersion < 2 ? 'ST_' : '') . 'Box2D(ST_Transform(' . $v . ', 3857)) AS bbox3857');
+                $fields[] = 'ST_AsGeoJSON(' . $v . ') AS ' . $key;
+                $fields[] = ($postgisVersion < 2 ? 'ST_' : '') . 'Box2D(ST_Transform(' . $v . ', 3857)) AS bbox3857';
             }
             /*
              * Force keywords to be retrieved AS JSON
              */ else if ($key === 'keywords') {
-                array_push($fields, $v . ' AS ' . $key);
+                $fields[] =  $v . ' AS ' . $key;
             }
             /*
              * Other fields are retrieved normally
              */ else {
-                array_push($fields, $v . ' AS "' . $key . '"');
+                $fields[] = $v . ' AS "' . $key . '"';
             }
         }
 
         return $fields;
     }
 
+    /*
+     * Return array of filter rights to apply to search
+     */
+    final private function getRightsFilter($rights) {
+        
+        $filters = array();
+        
+        if (is_array($rights)) {
+            foreach(array('include', 'exclude') as $modifier) {
+                if (isset($rights[$modifier])) {
+                    foreach ($rights[$modifier] as $key => $value) {
+                        $modelKey = $this->modelNameFromRestoKey($key);
+                        $arr = null;
+                        if ($key === 'keywords') {
+                            $arr = array(
+                                $modelKey => join(' ', $value)
+                            );
+                        }
+                        /*
+                         * Geometry in WKT
+                         */
+                        else if ($key === 'geometry') {
+                            $arr = array(
+                                $modelKey => geoJSONGeometryToWKT($value)
+                            );
+                        }
+                        else {
+                            /*
+                             * Currently only exclusion of 'keywords' is supported
+                             */
+                            if ($rights['modifier'] === 'include') {
+                                $arr = array(
+                                    $modelKey => $value
+                                );
+                            }
+                        }
+                        if (isset($arr)) {
+                            $filters[] = $this->prepareFilterQuery($arr, $modelKey, $modifier === 'exclude' ? true : false);
+                        }        
+                    }
+                }
+            }
+        }
+        
+        return $filters;
+        
+    }
     /*
      * Below are mandatory functions that
      * need to be defined within each extended

@@ -167,7 +167,7 @@ class ResourceManager {
                  * Check that resource does not already exist in database
                  */
                 if ($this->resourceExists($properties['identifier'])) {
-                    array_push($alreadyInDatabase, $properties['identifier']);
+                    $alreadyInDatabase[] = $properties['identifier'];
                     $status = 'partially';
                     continue;
                 }
@@ -207,13 +207,13 @@ class ResourceManager {
                          */
                         if ($key === 'keywords') {
                             foreach (array_values($value) as $keywords) {
-                                array_push($propertyTags, $this->quoteForHstore($keywords['type'] . ':' . $keywords['id']) . '=>' . (isset($keywords['value']) ? '"' . $keywords['value'] . '"' : 'NULL'));
+                                $propertyTags[] = $this->quoteForHstore($keywords['type'] . ':' . $keywords['id']) . '=>' . (isset($keywords['value']) ? '"' . $keywords['value'] . '"' : 'NULL');
                             }
                         }
                         else {
-                            array_push($keys, pg_escape_string($columnName));
+                            $keys[] = pg_escape_string($columnName);
                             $columnType = getRESToType(getModelType($this->description['model'], $key));
-                            array_push($values, $columnType === 'numeric' ? pg_escape_string($value) : '\'' . pg_escape_string($value) . '\'');
+                            $values[] = $columnType === 'numeric' ? pg_escape_string($value) : '\'' . pg_escape_string($value) . '\'';
                         }
                     }
                 }
@@ -222,16 +222,16 @@ class ResourceManager {
                  * Special columns
                  */
                 if (getModelName($this->description['model'], 'published')) {
-                    array_push($keys, getModelName($this->description['model'], 'published'));
-                    array_push($values, 'now()');
+                    $keys[] = getModelName($this->description['model'], 'published');
+                    $values[] = 'now()';
                 }
                 if (getModelName($this->description['model'], 'updated')) {
-                    array_push($keys, getModelName($this->description['model'], 'updated'));
-                    array_push($values, 'now()');
+                    $keys[] = getModelName($this->description['model'], 'updated');
+                    $values[] = 'now()';
                 }
                 $wkt = geoJSONGeometryToWKT($feature['geometry']);
-                array_push($keys, getModelName($this->description['model'], 'geometry'));
-                array_push($values, 'ST_GeomFromText(\'' . $wkt . '\', 4326)');
+                $keys[] = getModelName($this->description['model'], 'geometry');
+                $values[] = 'ST_GeomFromText(\'' . $wkt . '\', 4326)';
                 
                 /*
                  * Tag metadata
@@ -239,8 +239,8 @@ class ResourceManager {
                 if ($this->iTag) {
                     $tags = '\'' . pg_escape_string(join(',', array_merge($this->getTags($wkt), $propertyTags))) . '\'';
                     if ($tags) {
-                        array_push($keys, getModelName($this->description['model'], 'keywords'));
-                        array_push($values, $tags);
+                        $keys[] = getModelName($this->description['model'], 'keywords');
+                        $values[] = $tags;
                     }
                 }
                 
@@ -250,11 +250,11 @@ class ResourceManager {
                         throw new Exception();
                     }
                 } catch (Exception $e) {
-                    array_push($inError, $properties['identifier']);
+                    $inError[] = $properties['identifier'];
                     $status = 'error';
                     continue;
                 }
-                array_push($inserted, $properties['identifier']);
+                $inserted[] = $properties['identifier'];
             }
             
         }
@@ -357,27 +357,27 @@ class ResourceManager {
         $properties = $json['features'][0]['properties'];
         if ($properties['political']) {
             foreach (array_values($properties['political']['continents']) as $continent) {
-                array_push($pairs, $this->quoteForHstore('continent:' . $continent) . '=>NULL');
+                $pairs[] = $this->quoteForHstore('continent:' . $continent) . '=>NULL';
             }
             foreach (array_values($properties['political']['countries']) as $country) {
-                array_push($pairs, $this->quoteForHstore('country:' . $country['name']) . '=>"' . $country['pcover'] . '"');
+                $pairs[] = $this->quoteForHstore('country:' . $country['name']) . '=>"' . $country['pcover'] . '"';
             }
             foreach (array_values($properties['political']['cities']) as $city) {
-                array_push($pairs, $this->quoteForHstore('city:' . $city) . '=>NULL');
+                $pairs[] = $this->quoteForHstore('city:' . $city) . '=>NULL';
             }
             foreach (array_values($properties['political']['regions']) as $region) {
-                array_push($pairs, $this->quoteForHstore('region:' . $region) . '=>NULL');
+                $pairs[] = $this->quoteForHstore('region:' . $region) . '=>NULL';
             }
             foreach (array_values($properties['political']['states']) as $state) {
-                array_push($pairs, $this->quoteForHstore('state:' . $state['name']) . '=>"' . $state['pcover'] . '"');
+                $pairs[] = $this->quoteForHstore('state:' . $state['name']) . '=>"' . $state['pcover'] . '"';
             }
         }
         if ($properties['landCover']) {
             foreach (array_values($properties['landCover']['landUse']) as $landuse) {
-                array_push($pairs, $this->quoteForHstore('landuse:' . $landuse['name']) . '=>"' . $landuse['pcover'] . '"');
+                $pairs[] = $this->quoteForHstore('landuse:' . $landuse['name']) . '=>"' . $landuse['pcover'] . '"';
             }
             foreach (array_values($properties['landCover']['landUseDetails']) as $landuse) {
-                array_push($pairs, $this->quoteForHstore('landuse_details:' . $landuse['name']) . '=>"' . $landuse['pcover'] . '"');
+                $pairs[] = $this->quoteForHstore('landuse_details:' . $landuse['name']) . '=>"' . $landuse['pcover'] . '"';
             }
         }
         return $pairs;

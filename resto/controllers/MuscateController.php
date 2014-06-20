@@ -295,7 +295,7 @@ class MuscateController extends RestoController {
         ));
         $features = array();
         for ($i = 0, $l = count($files); $i < $l; $i++) {
-            array_push($features, $this->parse(implode('', $files[$i])));
+            $features[] = $this->parse(implode('', $files[$i]));
         }
         return $featureCollection = array(
             'type' => 'FeatureCollection',
