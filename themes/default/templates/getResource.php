@@ -6,9 +6,17 @@
      */
     $collectionUrl = $this->request['restoUrl'] . $this->request['collection'] . '/';
     $templateName = 'default';
-    $product = isset($this->response['features']) && isset($this->response['features'][0]) ? $this->response['features'][0] : array(
-        'properties' => array()
-    );           
+    
+    /*
+     * 404.html if product is not found
+     */
+    if (!isset($this->response['features']) || !isset($this->response['features'][0])) {
+        header("HTTP/1.0 404 Not Found");
+        include '404.php';
+        exit;
+    }
+    
+    $product = $this->response['features'][0];           
     $thumbnail = $product['properties']['thumbnail'];
     $quicklook = $product['properties']['quicklook'];
     if (!isset($thumbnail) && isset($quicklook)) {
@@ -27,9 +35,10 @@
     }
     
 ?>
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="<?php echo $this->request['language'] ?>">
     <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title><?php echo strip_tags($this->R->getTitle()); ?></title>
+        <title><?php echo strip_tags($this->R->getTitle()); ?></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
         <link rel="shortcut icon" href="<?php echo $this->request['restoUrl'] ?>/favicon.ico" />
         <link rel="stylesheet" type="text/css" href="<?php echo $this->request['restoUrl'] ?>/js/css/dependencies.min.css" />

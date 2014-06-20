@@ -1128,7 +1128,7 @@ abstract class RestoController {
         }
 
         /*
-         * Prepare WHERE clause from filter
+         * Prepare WHERE clause from filters
          */
         $filters = array();
         for ($i = 0, $l = count($this->description['searchFiltersList']); $i < $l; $i++) {
@@ -1138,53 +1138,13 @@ abstract class RestoController {
         /**
          * Add filters depending on user rights
          */
-        $rights = $this->R->getUser()->getRights($this->description['name'], 'get', 'search');
-        if (is_array($rights)) {
-            foreach(array('include', 'exclude') as $modifier) {
-                if (isset($rights[$modifier])) {
-                    foreach ($rights[$modifier] as $key => $value) {
-                        $modelKey = $this->modelNameFromRestoKey($key);
-                        $arr = null;
-                        if ($key === 'keywords') {
-                            $arr = array(
-                                $modelKey => join(' ', $value)
-                            );
-                        }
-                        /*
-                         * Geometry in WKT
-                         */
-                        else if ($key === 'geometry') {
-                            $arr = array(
-                                $modelKey => geoJSONGeometryToWKT($value)
-                            );
-                        }
-                        else {
-                            /*
-                             * Currently only exclusion of 'keywords' is supported
-                             */
-                            if ($rights['modifier'] === 'include') {
-                                $arr = array(
-                                    $modelKey => $value
-                                );
-                            }
-                        }
-                        if (isset($arr)) {
-                            $filters[] = $this->prepareFilterQuery($arr, $modelKey, $modifier === 'exclude' ? true : false);
-                        }        
-                    }
-                }
-            }
-        }
+        $oFilter = superImplode(' AND ', array_merge($filters, $this->getRightsFilters($this->R->getUser()->getRights($this->description['name'], 'get', 'search'))));
+        
         /**
          * Default order is acquisition startDate
          */
         $orderBy = $this->dbConnector->get('orderBy') ? $this->dbConnector->get('orderBy') : $this->getModelName('startDate') . ' DESC';
 
-        /**
-         * Filters
-         */
-        $oFilter = superImplode(' AND ', $filters);
-        
         /*
          * Note that the total number of results (i.e. with no LIMIT constraint)
          * is retrieved with PostgreSQL "count(*) OVER()" technique
@@ -1654,7 +1614,8 @@ abstract class RestoController {
             if (!$dbh) {
                 throw new Exception('Database connection error', 500);
             }
-            $products = pg_query($dbh, 'SELECT ' . superImplode(',', $fields) . ($this->R->realCount ? ',count(*) OVER() AS totalcount' : '') . ' FROM ' . $this->dbConnector->getSchema() . '.' . $this->dbConnector->getTable() . ' WHERE ' . $this->getModelName('identifier') . "='" . pg_escape_string($identifier) . "'");
+            $rightsFilters = $this->getRightsFilters($this->R->getUser()->getRights($this->description['name'], 'get', 'search'));
+            $products = pg_query($dbh, 'SELECT ' . superImplode(',', $fields) . ($this->R->realCount ? ',count(*) OVER() AS totalcount' : '') . ' FROM ' . $this->dbConnector->getSchema() . '.' . $this->dbConnector->getTable() . ' WHERE ' . $this->getModelName('identifier') . "='" . pg_escape_string($identifier) . "'" . (count($rightsFilters) > 0 ? ' AND ' . join(' AND ', $rightsFilters) : ''));
             if (!$products) {
                 pg_close($dbh);
                 throw new Exception('Database connection error', 500);
@@ -1795,7 +1756,8 @@ abstract class RestoController {
                 if (!$dbh) {
                     throw new Exception('Database connection error', 500);
                 }
-                $products = pg_query($dbh, 'SELECT ' . $this->getModelName('archive') . ' AS archive' . ($this->getModelName('mimetype') ? ',' . $this->getModelName('mimetype') . ' AS mimetype  ' : '') . ' FROM ' . $this->dbConnector->getSchema() . '.' . $this->dbConnector->getTable() . ' WHERE ' . $this->getModelName('identifier') . "='" . pg_escape_string($identifier) . "'");
+                $rightsFilters = $this->getRightsFilters($this->R->getUser()->getRights($this->description['name'], 'get', 'search'));
+                $products = pg_query($dbh, 'SELECT ' . $this->getModelName('archive') . ' AS archive' . ($this->getModelName('mimetype') ? ',' . $this->getModelName('mimetype') . ' AS mimetype  ' : '') . ' FROM ' . $this->dbConnector->getSchema() . '.' . $this->dbConnector->getTable() . ' WHERE ' . $this->getModelName('identifier') . "='" . pg_escape_string($identifier) . "'" . (count($rightsFilters) > 0 ? ' AND ' . join(' AND ', $rightsFilters) : ''));
                 if (!$products) {
                     pg_close($dbh);
                     throw new Exception('Database connection error', 500);
@@ -2188,7 +2150,7 @@ abstract class RestoController {
     /*
      * Return array of filter rights to apply to search
      */
-    final private function getRightsFilter($rights) {
+    final private function getRightsFilters($rights) {
         
         $filters = array();
         
