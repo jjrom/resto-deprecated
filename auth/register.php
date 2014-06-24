@@ -183,7 +183,7 @@ try {
      * Insert user into database
      */
     $password = md5($params['password']);
-    $activationcode = md5($email + microtime());
+    $activationcode = md5(microtime().rand());
     $groups = 'default';
     $username = pg_escape_string(trim($params['username']));
     $givenname = isset($params['givenname']) ? pg_escape_string(trim($params['givenname'])) : '';
