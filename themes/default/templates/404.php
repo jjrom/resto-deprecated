@@ -3,7 +3,7 @@
     <head>
         <title>RESTo</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
         <link rel="shortcut icon" href="<?php echo $this->request['restoUrl'] ?>/favicon.ico" />
         <link rel="stylesheet" type="text/css" href="<?php echo $this->request['restoUrl'] ?>/js/css/dependencies.min.css" />
         <link rel="stylesheet" href="<?php echo $this->request['restoUrl'] ?>/themes/<?php echo $templateName ?>/style.css" type="text/css" />

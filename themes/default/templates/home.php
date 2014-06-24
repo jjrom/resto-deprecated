@@ -1,11 +1,12 @@
-<!DOCTYPE html>
 <?php
 $templateName = 'default';
 $user = $this->R->getUser();
 ?>
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
     <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>RESTo framework</title>
+        <title>RESTo framework</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
         <link rel="shortcut icon" href="<?php echo $this->request['restoUrl'] ?>/favicon.ico" />
         <link rel="stylesheet" href="<?php echo $this->request['restoUrl'] ?>/js/css/dependencies.min.css" type="text/css" />

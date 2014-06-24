@@ -256,30 +256,34 @@ class Resto {
                     $this->collections[$collection['collection']][$key] = $value;
                 }
             }
+        
+            /*
+             * Explode relative URI into collection, identifier and modifier (see .htaccess)
+             */
+            $RESToURL = isset($_GET['RESToURL']) && !empty($_GET['RESToURL']) ? $_GET['RESToURL'] : null;
+            if ($RESToURL) {
+                $RESToURL = substr($RESToURL, -1) === '/' ? substr($RESToURL, 0, strlen($RESToURL) - 1) : $RESToURL;
+                $splitted = explode('/', $RESToURL);
+                if (isset($splitted[0])) {
+                    $this->request['collection'] = $splitted[0];
+                }
+                if (isset($splitted[1])) {
+                    $this->request['identifier'] = urldecode($splitted[1]);
+                    if ($this->request['identifier'] === '\'' || $this->request['identifier'] === '"') {
+                        throw new Exception('Not Found', 404);
+                    }
+                }
+                if (isset($splitted[2])) {
+                    $this->request['modifier'] = urldecode($splitted[2]);
+                }
+            }
+        
         } catch (Exception $e) {
             $this->request['format'] = self::DEFAULT_RESPONSE_FORMAT;
             $this->response = array('ErrorCode' => $e->getCode(), 'ErrorMessage' => $e->getMessage());
             $this->responseStatus = $e->getCode();
             $this->response()->send();
             exit();
-        }
-
-        /*
-         * Explode relative URI into collection, identifier and modifier (see .htaccess)
-         */
-        $RESToURL = isset($_GET['RESToURL']) && !empty($_GET['RESToURL']) ? $_GET['RESToURL'] : null;
-        if ($RESToURL) {
-            $RESToURL = substr($RESToURL, -1) === '/' ? substr($RESToURL, 0, strlen($RESToURL) - 1) : $RESToURL;
-            $splitted = explode('/', $RESToURL);
-            if (isset($splitted[0])) {
-                $this->request['collection'] = $splitted[0];
-            }
-            if (isset($splitted[1])) {
-                $this->request['identifier'] = urldecode($splitted[1]);
-            }
-            if (isset($splitted[2])) {
-                $this->request['modifier'] = urldecode($splitted[2]);
-            }
         }
 
         /*
