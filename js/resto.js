@@ -310,6 +310,19 @@
         },
         
         /**
+         * Protect user input from XSS attacks by removing html tags
+         * from user input
+         * 
+         * @param {Object/String} jqueryObj
+         */
+        sanitizeValue: function(jqueryObj) {
+            if (!jqueryObj || !jqueryObj.length) {
+                return '';
+            }
+            return ($.type(jqueryObj) === 'string' ? jqueryObj : jqueryObj.val()).replace( /<.*?>/g, '' );
+        },
+        
+        /**
          * Set the RESTo toolbar actions
          */
         updateRestoToolbar: function() {
@@ -320,7 +333,7 @@
              * Share on facebook
              */
             $('.shareOnFacebook').click(function() {
-                window.open('https://www.facebook.com/sharer.php?u=' + encodeURIComponent(window.History.getState().cleanUrl) + '&t=' + encodeURIComponent($('#search').val()));
+                window.open('https://www.facebook.com/sharer.php?u=' + encodeURIComponent(window.History.getState().cleanUrl) + '&t=' + encodeURIComponent(self.sanitizeValue($('#search'))));
                 return false;
             });
 
@@ -328,7 +341,7 @@
              * Share to twitter
              */
             $('.shareOnTwitter').click(function() {
-                window.open('http://twitter.com/intent/tweet?status=' + encodeURIComponent($('#search').val() + " - " + window.History.getState().cleanUrl));
+                window.open('http://twitter.com/intent/tweet?status=' + encodeURIComponent(self.sanitizeValue($('#search')) + " - " + window.History.getState().cleanUrl));
                 /*
                  * TODO use url shortener supporting CORS
                  * 
@@ -337,7 +350,7 @@
                  url:'http://tinyurl.com/api-create.php?url=' + encodeURIComponent(window.History.getState().cleanUrl),
                  success: function(txt) {
                  self.hideMask();
-                 window.open('http://twitter.com/intent/tweet?status='+encodeURIComponent($('#search').val() + " - " + txt));
+                 window.open('http://twitter.com/intent/tweet?status='+encodeURIComponent(self.sanitizeValue($('#search')) + " - " + txt));
                  },
                  error: function(e) {
                  self.hideMask();
@@ -818,7 +831,7 @@
                 self.ajax({
                     url: self.restoUrl + 'auth/connect.php',
                     headers: {
-                        'Authorization': "Basic " + btoa($('#userEmail').val() + ":" + $('#userPassword').val())
+                        'Authorization': "Basic " + btoa(self.sanitizeValue($('#userEmail')) + ":" + self.sanitizeValue($('#userPassword')))
                     },
                     dataType:'json',
                     success: function(json) {
@@ -909,7 +922,7 @@
             
             $('.register').click(function(e){
                 e.preventDefault();
-                var username = $('#userName').val(), password1 = $('#userPassword1').val(), password2 = $('#userPassword2').val(), email = $('#userEmail').val();
+                var username = self.sanitizeValue($('#userName')), password1 = self.sanitizeValue($('#userPassword1')), password2 = self.sanitizeValue($('#userPassword2')), email = self.sanitizeValue($('#userEmail'));
                 if (!email || !self.isEmailAdress(email)) {
                     self.message('Email is not valid');
                     return false;
@@ -932,8 +945,8 @@
                         email:email,
                         password:password1,
                         username:username,
-                        givenname:$('#givenName').val(),
-                        lastname:$('#lastName').val()
+                        givenname:self.sanitizeValue($('#givenName')),
+                        lastname:self.sanitizeValue($('#lastName'))
                     },
                     success: function(json) {
                         if (json && json.status === 'OK') {
@@ -1020,13 +1033,13 @@
              * Update search input form
              */
             if ($('#search').length > 0) {
-                $('#search').val(json.query ? json.query.original.searchTerms : '');
+                $('#search').val(json.query ? self.sanitizeValue(json.query.original.searchTerms) : '');
             }
             
             /*
              * Update result summary
              */
-            $('#resultsummary').html(self.translate('_resultFor', [(json.query.original.searchTerms ? '<font class="red">' + json.query.original.searchTerms + '</font>' : '')]));
+            $('#resultsummary').html(self.translate('_resultFor', [(json.query.original.searchTerms ? '<font class="red">' + self.sanitizeValue(json.query.original.searchTerms) + '</font>' : '')]));
             
             /*
              * Update query analysis result
