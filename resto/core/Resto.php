@@ -205,6 +205,18 @@ class Resto {
                 $_SERVER['PHP_AUTH_USER'] = isset($tmp[0]) ? $tmp[0] : null;
                 $_SERVER['PHP_AUTH_PW'] = isset($tmp[1]) ? $tmp[1] : null;
             }
+            
+            /*
+             * Method is one of GET, POST, PUT or DELETE
+             */
+            $this->request['method'] = strtolower($_SERVER['REQUEST_METHOD']);
+
+            /*
+             * Output format should be listed in self::$contentTypes otherwise
+             * it is set to self::DEFAULT_RESPONSE_FORMAT if method is not GET and 
+             * self::DEFAULT_GET_RESPONSE_FORMAT if method is GET
+             */
+            $this->request['format'] = isset($_GET['format']) && array_key_exists(trim($_GET['format']), self::$contentTypes) ? trim($_GET['format']) : ($this->request['method'] === 'get' ? self::DEFAULT_GET_RESPONSE_FORMAT : self::DEFAULT_RESPONSE_FORMAT);
 
             /*
              * READ configuration file
@@ -269,7 +281,7 @@ class Resto {
                 }
                 if (isset($splitted[1])) {
                     $this->request['identifier'] = urldecode($splitted[1]);
-                    if ($this->request['identifier'] === '\'' || $this->request['identifier'] === '"') {
+                    if (strrpos($this->request['identifier'], '\'') !== false || strrpos($this->request['identifier'], '"') !== false) {
                         throw new Exception('Not Found', 404);
                     }
                 }
@@ -279,7 +291,14 @@ class Resto {
             }
         
         } catch (Exception $e) {
-            $this->request['format'] = self::DEFAULT_RESPONSE_FORMAT;
+            
+            /*
+             * 404 - Not Found
+             */
+            if ($e->getCode() !== 404) {
+                $this->request['format'] = self::DEFAULT_RESPONSE_FORMAT;
+            }
+            
             $this->response = array('ErrorCode' => $e->getCode(), 'ErrorMessage' => $e->getMessage());
             $this->responseStatus = $e->getCode();
             $this->response()->send();
@@ -308,18 +327,6 @@ class Resto {
             unset($_GET['access_token']);
         }
         
-        /*
-         * Method is one of GET, POST, PUT or DELETE
-         */
-        $this->request['method'] = strtolower($_SERVER['REQUEST_METHOD']);
-
-        /*
-         * Output format should be listed in self::$contentTypes otherwise
-         * it is set to self::DEFAULT_RESPONSE_FORMAT if method is not GET and 
-         * self::DEFAULT_GET_RESPONSE_FORMAT if method is GET
-         */
-        $this->request['format'] = isset($_GET['format']) && array_key_exists(trim($_GET['format']), self::$contentTypes) ? trim($_GET['format']) : ($this->request['method'] === 'get' ? self::DEFAULT_GET_RESPONSE_FORMAT : self::DEFAULT_RESPONSE_FORMAT);
-
         /*
          * Set special parameters
          */
@@ -775,9 +782,15 @@ class Resto {
         );
         
         /*
+         * 404 Not Found
+         */
+        if (isset($this->response['ErrorCode']) && $this->response['ErrorCode'] === 404) {
+            $template = new Template($templatesPath . '404.php', $this, null, $description);
+        }
+        /*
          * No collection set => renders home page
          */
-        if (!isset($this->request['collection']) || !$this->request['collection']) {
+        else if (!isset($this->request['collection']) || !$this->request['collection']) {
             $template = new Template($templatesPath . 'home.php', $this, null, $description);
         }
         /*
@@ -850,9 +863,8 @@ class Resto {
      * Returns response array
      *  (status, body)
      */
-
     private function response() {
-        if ($this->responseStatus !== 200) {
+        if (!isset($this->request['format'])) {
             $this->request['format'] = self::DEFAULT_RESPONSE_FORMAT;
         }
         $method = $this->request['format'] . 'Response';
