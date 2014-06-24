@@ -277,7 +277,10 @@ class Resto {
                 $RESToURL = substr($RESToURL, -1) === '/' ? substr($RESToURL, 0, strlen($RESToURL) - 1) : $RESToURL;
                 $splitted = explode('/', $RESToURL);
                 if (isset($splitted[0])) {
-                    $this->request['collection'] = $splitted[0];
+                    $this->request['collection'] = urldecode($splitted[0]);
+                    if (strrpos($this->request['collection'], '\'') !== false || strrpos($this->request['collection'], '"') !== false) {
+                        throw new Exception('Not Found', 404);
+                    }
                 }
                 if (isset($splitted[1])) {
                     $this->request['identifier'] = urldecode($splitted[1]);
@@ -678,7 +681,7 @@ class Resto {
      * 
      * @return string $pageUrl
      */
-    private function getBaseURL() {
+    public function getBaseURL() {
         $pageURL = 'http';
         if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
             $pageURL .= 's';
