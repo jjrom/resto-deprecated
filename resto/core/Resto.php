@@ -230,7 +230,7 @@ class Resto {
             /*
              * restoUrl is the root url of the webapp (e.g. http(s)://host/resto/)
              */
-            $this->request['restoUrl'] = $this->config['general']['restoUrl'] ? $this->config['general']['restoUrl'] . (substr($this->config['general']['restoUrl'], -1) !== '/' ? '/' : '') : '/';
+            $this->request['restoUrl'] = $this->getBaseURL();
 
             /*
              * If set to true, each query include returns a real count
@@ -676,6 +676,30 @@ class Resto {
         return $this->restoUser;
     }
     
+    /**
+     * Get url with no parameters
+     * 
+     * @return string $pageUrl
+     */
+    private function getBaseURL() {
+        
+        $pageURL = 'http';
+        if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
+            $pageURL .= 's';
+        }
+        
+        if (!$this->config['general']['restoUrl']) {
+            throw new Exception('Missing mandatory restoUrl parameter in configuration file', 500);
+        }
+        
+        $restoUrl = $this->config['general']['restoUrl'];
+        if (substr($restoUrl, -1) !== '/') {
+            $restoUrl .= '/';
+        }
+        
+        return substr($restoUrl, 0, 2) === '//' ? $pageURL . ':' . $restoUrl : $restoUrl;
+    }
+
     /**
      * Get browser language
      * (see http://www.thefutureoftheweb.com/blog/use-accept-language-header)
