@@ -230,7 +230,7 @@ class Resto {
             /*
              * restoUrl is the root url of the webapp (e.g. http(s)://host/resto/)
              */
-            $this->request['restoUrl'] = $this->config['general']['restoUrl'];
+            $this->request['restoUrl'] = $this->config['general']['restoUrl'] ? $this->config['general']['restoUrl'] . (substr($this->config['general']['restoUrl'], -1) !== '/' ? '/' : '') : '/';
 
             /*
              * If set to true, each query include returns a real count
