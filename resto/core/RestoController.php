@@ -358,7 +358,7 @@ abstract class RestoController {
         $request = $R->getRequest();
         foreach ($request['params'] as $key => $value) {
             if ($value !== "") {
-                $this->request['params'][$this->modelName($key)] = $value;
+                $this->request['params'][$this->modelName($key)] =  preg_replace('/<.*?>/', '', $value);
             }
         }
     }

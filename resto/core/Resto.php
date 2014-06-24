@@ -429,13 +429,15 @@ class Resto {
                    /*
                     * Change parameter keys to model parameter key
                     * and remove unset parameters
+                    * 
+                    * Warning - remove all HTML tags from input to avoid XSS injection
                     */
                     $params = array();
                     foreach ($this->request['params'] as $key => $value) {
                         if ($value) {
                             foreach(array_keys(RestoController::$searchFiltersDescription) as $filterKey) {
                                 if ($key === RestoController::$searchFiltersDescription[$filterKey]['osKey']) {
-                                    $params[$filterKey] = $value;
+                                    $params[$filterKey] = preg_replace('/<.*?>/', '', $value);
                                 }
                             }
                         }
