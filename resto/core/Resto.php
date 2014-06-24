@@ -226,6 +226,11 @@ class Resto {
                 throw new Exception('Missing mandatory configuration file', 500);
             }
             $this->config = IniParser::read($configFile);
+            
+            /*
+             * restoUrl is the root url of the webapp (e.g. http(s)://host/resto/)
+             */
+            $this->request['restoUrl'] = $this->config['general']['restoUrl'];
 
             /*
              * If set to true, each query include returns a real count
@@ -277,19 +282,19 @@ class Resto {
                 $RESToURL = substr($RESToURL, -1) === '/' ? substr($RESToURL, 0, strlen($RESToURL) - 1) : $RESToURL;
                 $splitted = explode('/', $RESToURL);
                 if (isset($splitted[0])) {
-                    $this->request['collection'] = urldecode($splitted[0]);
+                    $this->request['collection'] = $splitted[0];
                     if (strrpos($this->request['collection'], '\'') !== false || strrpos($this->request['collection'], '"') !== false) {
                         throw new Exception('Not Found', 404);
                     }
                 }
                 if (isset($splitted[1])) {
-                    $this->request['identifier'] = urldecode($splitted[1]);
+                    $this->request['identifier'] = $splitted[1];
                     if (strrpos($this->request['identifier'], '\'') !== false || strrpos($this->request['identifier'], '"') !== false) {
                         throw new Exception('Not Found', 404);
                     }
                 }
                 if (isset($splitted[2])) {
-                    $this->request['modifier'] = urldecode($splitted[2]);
+                    $this->request['modifier'] = $splitted[2];
                 }
             }
         
@@ -307,11 +312,6 @@ class Resto {
             $this->response()->send();
             exit();
         }
-
-        /*
-         * restoUrl is the root url of the webapp (e.g. http(s)://host/resto/)
-         */
-        $this->request['restoUrl'] = $RESToURL ? substr($this->getBaseURL(), 0, -(strlen($RESToURL) + 1)) : $this->getBaseURL();
         
         /*
          * [SSO] Authorize urls and access_token
@@ -676,30 +676,6 @@ class Resto {
         return $this->restoUser;
     }
     
-    /**
-     * Get url with no parameters
-     * 
-     * @return string $pageUrl
-     */
-    public function getBaseURL() {
-        $pageURL = 'http';
-        if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
-            $pageURL .= 's';
-        }
-        $pageURL .= '://';
-        if ($_SERVER['SERVER_PORT'] !== '80') {
-            $pageURL .= $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT'] . $_SERVER['REQUEST_URI'];
-        } else {
-            $pageURL .= $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
-        }
-        $splitted = explode('?', $pageURL);
-        if (substr($splitted[0], -1) === '/') {
-            return $splitted[0];
-        }
-
-        return $splitted[0] . '/';
-    }
-
     /**
      * Get browser language
      * (see http://www.thefutureoftheweb.com/blog/use-accept-language-header)
