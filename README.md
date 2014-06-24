@@ -227,6 +227,7 @@ RESTo configuration
 All configuration parameters are defined within $RESTO_TARGET/resto/resto.ini file
 
 The configuration file is self explanatory. For a standard installation you should only check that :
+* The restoUrl points to your RESTo installation webpage
 * **db.password** value is **the same as the 'resto' user password set during database installation**
 * **db.spassword** value is **the same as the 'sresto' user password set during database installation**
 * (optional) mapshup.url value is changed accordingly to your configuration.
