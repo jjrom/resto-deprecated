@@ -276,6 +276,7 @@ abstract class RestoController {
         $this->request = $R->getRequest();
         $collectionDescription = $R->getCollectionDescription($this->request['collection']);
         $controller = get_class($this);
+        
         /*
          * Initialize $this->description array
          */
@@ -975,32 +976,60 @@ abstract class RestoController {
              * hstore case - i.e. searchTerms in keywords column
              */
             else if ($operation === 'hstore') {
-                $key = $this->getModelName($this->description['searchFiltersDescription'][$filterName]['key']);
+                
                 $terms = array();
-                $with = array();
-                $without = array();
                 $splitted = explode(' ', $requestParams[$filterName]);
-                for ($i = 0, $l = count($splitted); $i < $l; $i++) {
+            
+                /*
+                 * PostgresSQL < 9 has a limited hstore function support
+                 */
+                if ($this->R->postgresqlVersion < 9) {
+                    
+                    for ($i = 0, $l = count($splitted); $i < $l; $i++) {
 
-                    /*
-                     * If term as a '-' prefix then performs a "NOT hstore"
-                     * If keyword contain a + then transform it into a ' '
-                     */
-                    $s = ($exclusion ? '-' : '') . $splitted[$i];
-                    if (substr($s, 0, 1) === '-') {
-                        $without[] =  "'" . pg_escape_string(str_replace('-', ' ', substr($s, 1))) . "'";
+                        /*
+                         * If term as a '-' prefix then performs a "NOT hstore"
+                         * If keyword contain a + then transform it into a ' '
+                         */
+                        $s = ($exclusion ? '-' : '') . $splitted[$i];
+                        $not = '';
+                        if (substr($s, 0, 1) === '-') {
+                            $not = ' NOT ';
+                            $s = substr($s, 1);
+                        }
+                        array_push($terms, $not . $this->getModelName($this->description['searchFiltersDescription'][$filterName]['key']) . "?'" . pg_escape_string(str_replace('-', ' ', $s)) . "'");
                     }
-                    else {
-                        $with[] =  "'" . pg_escape_string(str_replace('-', ' ', $s)) . "'";
+                    
+                }
+                else {
+                    
+                    $key = $this->getModelName($this->description['searchFiltersDescription'][$filterName]['key']);
+                    $with = array();
+                    $without = array();
+                    for ($i = 0, $l = count($splitted); $i < $l; $i++) {
+
+                        /*
+                         * If term as a '-' prefix then performs a "NOT hstore"
+                         * If keyword contain a + then transform it into a ' '
+                         */
+                        $s = ($exclusion ? '-' : '') . $splitted[$i];
+                        if (substr($s, 0, 1) === '-') {
+                            $without[] =  "'" . pg_escape_string(str_replace('-', ' ', substr($s, 1))) . "'";
+                        }
+                        else {
+                            $with[] =  "'" . pg_escape_string(str_replace('-', ' ', $s)) . "'";
+                        }
+                    }
+                    if (count($without) > 0) {
+                        $terms[] = 'NOT ' . $key . "?&ARRAY[" . join(',', $without) . "]";
+                    }
+                    if (count($with) > 0) {
+                        $terms[] = $key . "?&ARRAY[" . join(',', $with) . "]";
                     }
                 }
-                if (count($without) > 0) {
-                    $terms[] = 'NOT ' . $key . "?&ARRAY[" . join(',', $without) . "]";
-                }
-                if (count($with) > 0) {
-                    $terms[] = $key . "?&ARRAY[" . join(',', $with) . "]";
-                }
+                
                 return join(' AND ', $terms);
+                
             }
 
             /*

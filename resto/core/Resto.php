@@ -157,6 +157,11 @@ class Resto {
     public $realCount;
 
     /*
+     * PostgreSQL < 9.0 has a very limited support of hstore functions
+     */
+    public $postgresqlVersion;
+    
+    /*
      * [SSO] Oauth2 authentification services
      */
     public $ssoServices = array();
@@ -237,7 +242,12 @@ class Resto {
              * of the total number of resources relative to the query
              */
             $this->realCount = isset($this->config['general']['realCount']) ? $this->config['general']['realCount'] : true;
-
+            
+            /*
+             * PostgreSQL Version
+             */
+            $this->postgresqlVersion = isset($this->config['general']['postgresqlVersion']) ? floatval($this->config['general']['postgresqlVersion']) : 9;
+            
             /*
              * Set dictionary instance
              * 
