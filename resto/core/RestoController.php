@@ -1928,7 +1928,7 @@ abstract class RestoController {
                         'geometry',
                         'archive',
                         'wms',
-                        'bbox3857',
+                        'bbox4326',
                         'totalcount',
                         'identifier'
                     ))) {
@@ -1956,7 +1956,7 @@ abstract class RestoController {
          * 
          * Notes :
          * 
-         *          bbox3857 format is BOX(xmin xmax,ymin ymax)
+         *          bbox4326 format is BOX(xmin xmax,ymin ymax)
          * 
          *      GetMap Url format is
          * 
@@ -1976,19 +1976,26 @@ abstract class RestoController {
          *                  &HEIGHT=256
          */
         if (isset($product['wms'])) {
-            $wms = $this->getModelValue('wms', array($product['wms'], str_replace(' ', ',', substr(substr($product['bbox3857'], 0, strlen($product['bbox3857']) - 1), 4))));
-            if ($wms) {
-                $properties['services']['browse'] = array(
-                    'title' => 'Display full resolution product on map',
-                    'layer' => array(
-                        'type' => 'WMS',
-                        'url' => $wms,
-                        // mapshup needs layers to be set -> to be changed in mapshup
-                        'layers' => ''
-                    )
-                );
+            
+            /*
+             * Check that product can be projected in EPSG:3857
+             */
+            $bbox3857 = bboxToMercator(str_replace(' ', ',', substr(substr($product['bbox4326'], 0, strlen($product['bbox4326']) - 1), 4)));
+            
+            if ($bbox3857) {
+                $wms = $this->getModelValue('wms', array($product['wms'], $bbox3857));
+                if ($wms) {
+                    $properties['services']['browse'] = array(
+                        'title' => 'Display full resolution product on map',
+                        'layer' => array(
+                            'type' => 'WMS',
+                            'url' => $wms,
+                            // mapshup needs layers to be set -> to be changed in mapshup
+                            'layers' => ''
+                        )
+                    );
+                }
             }
-
         }
         
         /*
@@ -2159,7 +2166,7 @@ abstract class RestoController {
             if ($key === 'geometry') {
                 $postgisVersion = $this->dbConnector->postgisVersion;
                 $fields[] = 'ST_AsGeoJSON(' . $v . ') AS ' . $key;
-                $fields[] = ($postgisVersion < 2 ? 'ST_' : '') . 'Box2D(ST_Transform(' . $v . ', 3857)) AS bbox3857';
+                $fields[] = ($postgisVersion < 2 ? 'ST_' : '') . 'Box2D(' . $v . ') AS bbox4326';
             }
             /*
              * Force keywords to be retrieved AS JSON

@@ -1161,3 +1161,79 @@ function isValidIdentifier($identifier) {
     }
     return true;
 }
+
+/**
+ * Transform EPSG:3857 coordinate into EPSG:4326
+ * 
+ * @param {array} $xy : array(x, y) 
+ */
+function inverseMercator($xy) {
+    
+    if (!is_array($xy) || count($xy) !== 2) {
+        return null;
+    }
+    
+    return array(
+        180.0 * $xy[0] / 20037508.34,
+        180.0 / M_PI * (2.0 * atan(exp(($xy[1] / 20037508.34) * M_PI)) - M_PI / 2.0)
+    );
+}
+
+/**
+ * Transform EPSG:4326 coordinate into EPSG:3857
+ * 
+ * @param {array} $lonlat : array(lon, lat) 
+ */
+function forwardMercator($lonlat) {
+    
+    if (!is_array($lonlat) || count($lonlat) !== 2) {
+        return null;
+    }
+    
+    /*
+     * Latitude limits are -85/+85 degrees
+     */
+    if ($lonlat[1] > 85 || $lonlat[1] < -85) {
+        return null;
+    }
+    
+    return array(
+        $lonlat[0] * 20037508.34 / 180.0,
+        max(-20037508.34, min(log(tan((90.0 + $lonlat[1]) * M_PI / 360.0)) / M_PI * 20037508.34, 20037508.34))
+    );
+}
+
+/**
+ * Transform EPSG:4326 BBOX to EPSG:3857 bbox
+ * 
+ * @param {String} $bbox : bbox in EPSG:4326 (i.e. lonmin,latmin,lonmax,latmax) 
+ */
+function bboxToMercator($bbox) {
+    
+    if (!$bbox) {
+        return null;
+    }
+    $coords = preg_split('/,/', $bbox);
+    if (count($coords) !== 4) {
+        return null;
+    }
+    
+    /*
+     * Lower left coordinate
+     */
+    $ll = forwardMercator(array(floatval($coords[0]), floatval($coords[1])));
+    if (!$ll) {
+        return null;
+    }
+    
+    /*
+     * Upper right coordinate
+     */
+    $ur = forwardMercator(array(floatval($coords[2]), floatval($coords[3])));
+    if (!$ur) {
+        return null;
+    }
+    
+    return join(',', $ll) . ',' . join(',', $ur);
+    
+}
