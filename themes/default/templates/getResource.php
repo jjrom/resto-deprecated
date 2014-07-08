@@ -133,28 +133,28 @@
                         foreach ($product['properties']['keywords'] as $keyword => $value) {
                             if (strtolower($value['type']) === 'continent') {
             ?>
-                <h2><a title="<?php echo $this->description['dictionary']->translate('_thisResourceIsLocated', $keyword) ?>" href="<?php echo updateUrl($collectionUrl, array('format' => 'html', 'q' => $keyword)) ?>"><?php echo $keyword; ?></a></h2>
+                <h2><a title="<?php echo $this->description['dictionary']->translate('_thisResourceIsLocated', str_replace(' ', '-', $keyword)) ?>" href="<?php echo updateUrl($collectionUrl, array('format' => 'html', 'q' => $keyword)) ?>"><?php echo $keyword; ?></a></h2>
             <?php }}} ?>
             <?php
                     if ($product['properties']['keywords']) {
                         foreach ($product['properties']['keywords'] as $keyword => $value) {
                             if (strtolower($value['type']) === 'country') {
             ?>
-                <h2><a title="<?php echo $this->description['dictionary']->translate('_thisResourceIsLocated', $keyword) ?>" href="<?php echo updateUrl($collectionUrl, array('format' => 'html', 'q' => $keyword)) ?>"><?php echo $keyword; ?></a></h2>
+                <h2><a title="<?php echo $this->description['dictionary']->translate('_thisResourceIsLocated', str_replace(' ', '-', $keyword)) ?>" href="<?php echo updateUrl($collectionUrl, array('format' => 'html', 'q' => $keyword)) ?>"><?php echo $keyword; ?></a></h2>
             <?php }}} ?>
             <?php
                     if ($product['properties']['keywords']) {
                         foreach ($product['properties']['keywords'] as $keyword => $value) {
                             if (strtolower($value['type']) === 'region') {
             ?>
-                <h2><a title="<?php echo $this->description['dictionary']->translate('_thisResourceIsLocated', $keyword) ?>" href="<?php echo updateUrl($collectionUrl, array('format' => 'html', 'q' => $keyword)) ?>"><?php echo $keyword; ?></a></h2>
+                <h2><a title="<?php echo $this->description['dictionary']->translate('_thisResourceIsLocated', str_replace(' ', '-', $keyword)) ?>" href="<?php echo updateUrl($collectionUrl, array('format' => 'html', 'q' => $keyword)) ?>"><?php echo $keyword; ?></a></h2>
             <?php }}} ?>
             <?php
                     if ($product['properties']['keywords']) {
                         foreach ($product['properties']['keywords'] as $keyword => $value) {
                             if (strtolower($value['type']) === 'state') {
             ?>
-                <h2><a title="<?php echo $this->description['dictionary']->translate('_thisResourceIsLocated', $keyword) ?>" href="<?php echo updateUrl($collectionUrl, array('format' => 'html', 'q' => $keyword)) ?>"><?php echo $keyword; ?></a></h2>
+                <h2><a title="<?php echo $this->description['dictionary']->translate('_thisResourceIsLocated', str_replace(' ', '-', $keyword)) ?>" href="<?php echo updateUrl($collectionUrl, array('format' => 'html', 'q' => $keyword)) ?>"><?php echo $keyword; ?></a></h2>
             <?php }}} ?>
             </div>
         </div>
@@ -170,7 +170,7 @@
                         foreach ($product['properties']['keywords'] as $keyword => $value) {
                             if (strtolower($value['type']) === 'landuse') {
             ?>
-                <h2><?php echo round($value['value']); ?> % <a title="<?php echo $this->description['dictionary']->translate('_thisResourceContainsLanduse', $value['value'], $keyword) ?>" href="<?php echo updateUrl($collectionUrl, array('format' => 'html', 'q' => $keyword)) ?>"><?php echo $keyword; ?></a></h2>
+                <h2><?php echo round($value['value']); ?> % <a title="<?php echo $this->description['dictionary']->translate('_thisResourceContainsLanduse', $value['value'], $keyword) ?>" href="<?php echo updateUrl($collectionUrl, array('format' => 'html', 'q' => str_replace(' ', '-', $keyword))) ?>"><?php echo $keyword; ?></a></h2>
             <?php }}} ?>
             </div>
         </div>
