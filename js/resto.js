@@ -1244,7 +1244,7 @@
                  * Keywords are splitted in different types 
                  * 
                  *  - type = landuse (forest, water, etc.)
-                 *  - type = country/continent/city
+                 *  - type = country/continent/region/state/city
                  *  - type = platform/instrument
                  *  - type = date
                  *  - type = null and keyword start with a '#' = tags
@@ -1286,7 +1286,7 @@
                             addClass = ' resto-updatebbox resto-keyword-' + keyword.id;
                             title = self.translate('_thisResourceContainsLanduse', [keyword.value, key]);
                         }
-                        else if (keyword.type === 'country' || keyword.type === 'continent') {
+                        else if (keyword.type === 'country' || keyword.type === 'continent' || keyword.type === 'region' || keyword.type === 'state') {
                             type = 'location';
                             addClass = ' centerMap';
                             title = self.translate('_thisResourceIsLocated', [key]);
