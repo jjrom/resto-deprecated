@@ -129,6 +129,10 @@ class MuscateController extends RestoController {
         'nb_rows' => array(
             'dbKey' => 'db:nbrows',
             'type' => 'INTEGER'
+        ),
+        'tileId' => array(
+            'dbKey' => 'db:tileid',
+            'type' => 'VARCHAR(20)'
         )
     );
 
@@ -155,9 +159,25 @@ class MuscateController extends RestoController {
         'eo:productType?', // Product type
         'eo:parentIdentifier?', // Project name
         'eo:organisationName?', // Organisation name (authority)
-        'eo:resolution?' // Resolution
+        'eo:resolution?', // Resolution,
+        'ptsc:tileId' // Tile identifier
     );
 
+    /*
+     * Search filters list
+     */
+    public static $searchFiltersDescription = array(
+        'ptsc:tileId' => array(
+            'key' => 'tileId',
+            'osKey' => 'tileId',
+            'operation' => '=',
+            'keyword' => array(
+                'value' => 'tileId={a:1}',
+                'type' => 'other'
+            )
+        )
+    );
+    
     /**
      * Process HTTP GET Requests
      */
