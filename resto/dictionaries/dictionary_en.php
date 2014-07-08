@@ -433,7 +433,7 @@ return array(
         'desert' => 'Desert',
         'water' => 'Water',
         'forest' => 'Forest',
-        'THR' => 'Images with resolution lower than 2.5 m',
+        'THR' => 'Images with resolution between 0 and 2.5 m',
         'HR' => 'Images with resolution between 2.5 and 30 m',
         'MR' => 'Images with resolution between 30 and 500 m',
         'LR' => 'Images with resolution greater than 500 m',

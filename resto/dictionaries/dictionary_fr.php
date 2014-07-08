@@ -639,7 +639,7 @@ return array(
         '_platform' => 'Satellite',
         '_tags' => 'Tags',
         '_other' => 'Autre',
-        'THR' => 'Images de résolution inférieure à 2.5 m',
+        'THR' => 'Images de résolution comprise entre 0 et 2.5 m',
         'HR' => 'Images de résolution comprise entre 2.5 et 30 m',
         'MR' => 'Images de résolution comprise entre 30 et 500 m',
         'LR' => 'Images de résolution supérieure à 500 m',
