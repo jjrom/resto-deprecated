@@ -184,7 +184,9 @@ class ResourceManager {
                 $values = array();
                 $propertyTags = array();
                 foreach ($properties as $key => $value) {
+                    
                     $columnName = getModelName($this->description['model'], $key);
+                    
                     if ($columnName) {
                         
                         /*
@@ -211,8 +213,17 @@ class ResourceManager {
                             }
                         }
                         else {
-                            $keys[] = pg_escape_string($columnName);
+                            
                             $columnType = getRESToType(getModelType($this->description['model'], $key));
+                            
+                            /*
+                             * Do not process uncorrect numeric values
+                             */
+                            if ($columnType === 'numeric' && !is_numeric($value)) {
+                                continue;
+                            }
+                            
+                            $keys[] = pg_escape_string($columnName);
                             $values[] = $columnType === 'numeric' ? pg_escape_string($value) : '\'' . pg_escape_string($value) . '\'';
                         }
                     }
