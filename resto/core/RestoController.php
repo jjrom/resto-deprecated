@@ -1142,7 +1142,7 @@ abstract class RestoController {
             $splitted = explode(' ', $this->request['realParams']['searchTerms']);
             for ($i = count($splitted); $i--;) {
                 $arr = explode(':', $splitted[$i]);
-                if ($arr[0] === 'continent' || $arr[0] === 'country' || $arr[0] === 'city') {
+                if ($arr[0] === 'continent' || $arr[0] === 'country' || $arr[0] === 'region' || $arr[0] === 'state' || $arr[0] === 'city') {
                     unset($this->request['realParams']['geo:box']);
                     break;
                 }
@@ -1487,7 +1487,7 @@ abstract class RestoController {
         
         /*
          * Determine if real query contain a location i.e.
-         * geo:name or searchTerms containing keyword of type 'city', 'country' or 'continent'
+         * geo:name or searchTerms containing keyword of type 'city', 'country', 'state', 'region' or 'continent'
          */
         $hasLocation = false;
         if ($real['geo:name']) {
@@ -1497,7 +1497,7 @@ abstract class RestoController {
             $splitted = explode(' ', $real['searchTerms']);
             for ($i = count($splitted); $i--;) {
                 $arr = explode(':', $splitted[$i]);
-                if ($arr[0] === 'continent' || $arr[0] === 'country' || $arr[0] === 'city') {
+                if ($arr[0] === 'continent' || $arr[0] === 'country' || $arr[0] === 'region' || $arr[0] === 'state'|| $arr[0] === 'city') {
                     $hasLocation = true;
                     break;
                 }
