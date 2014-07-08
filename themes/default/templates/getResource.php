@@ -142,6 +142,20 @@
             ?>
                 <h2><a title="<?php echo $this->description['dictionary']->translate('_thisResourceIsLocated', $keyword) ?>" href="<?php echo updateUrl($collectionUrl, array('format' => 'html', 'q' => $keyword)) ?>"><?php echo $keyword; ?></a></h2>
             <?php }}} ?>
+            <?php
+                    if ($product['properties']['keywords']) {
+                        foreach ($product['properties']['keywords'] as $keyword => $value) {
+                            if (strtolower($value['type']) === 'region') {
+            ?>
+                <h2><a title="<?php echo $this->description['dictionary']->translate('_thisResourceIsLocated', $keyword) ?>" href="<?php echo updateUrl($collectionUrl, array('format' => 'html', 'q' => $keyword)) ?>"><?php echo $keyword; ?></a></h2>
+            <?php }}} ?>
+            <?php
+                    if ($product['properties']['keywords']) {
+                        foreach ($product['properties']['keywords'] as $keyword => $value) {
+                            if (strtolower($value['type']) === 'state') {
+            ?>
+                <h2><a title="<?php echo $this->description['dictionary']->translate('_thisResourceIsLocated', $keyword) ?>" href="<?php echo updateUrl($collectionUrl, array('format' => 'html', 'q' => $keyword)) ?>"><?php echo $keyword; ?></a></h2>
+            <?php }}} ?>
             </div>
         </div>
         
