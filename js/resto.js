@@ -82,6 +82,11 @@
         userRights: null,
         
         /*
+         * Language
+         */
+        language: 'en',
+        
+        /*
          * Initialize RESTo
          * 
          * @param {Object} options
@@ -95,6 +100,7 @@
             self.translation = options.translation || {};
             self.restoUrl = options.restoUrl;
             self.issuer = options.issuer;
+            self.language = options.language || 'en';
             
             /*
              * SSO authentication server is available
@@ -1197,7 +1203,7 @@
                 if ($.isArray(feature.properties['links'])) {
                     for (j = 0, k = feature.properties['links'].length; j < k; j++) {
                         if (feature.properties['links'][j]['type'] === 'text/html') {
-                            resourceUrl = feature.properties['links'][j]['href'];
+                            resourceUrl = self.updateURL(feature.properties['links'][j]['href'], {lang:self.language});
                         }
                     }
                 }
