@@ -230,7 +230,6 @@ The configuration file is self explanatory. For a standard installation you shou
 * The restoUrl points to your RESTo installation webpage
 * **db.password** value is **the same as the 'resto' user password set during database installation**
 * **db.spassword** value is **the same as the 'sresto' user password set during database installation**
-* (optional) mapshup.url value is changed accordingly to your configuration.
 If you do not want to see products on map comment this line.
 * (optional) ResourceManager.iTag value is changed accordingly to your configuration. If this line
 is commented, then iTag will not be used (i.e. products will not be tagged)
