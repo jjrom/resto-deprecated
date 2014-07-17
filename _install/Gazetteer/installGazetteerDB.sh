@@ -129,13 +129,13 @@ CREATE TABLE gazetteer.countryinfo (
 );
 
 -- Toponyms (english)
-COPY gazetteer.geoname (geonameid,name,asciiname,alternatenames,latitude,longitude,fclass,fcode,country,cc2,admin1,admin2,admin3,admin4,population,elevation,gtopo30,timezone,moddate) FROM '$DATADIR/geonames/allCountries.txt' NULL AS '' ENCODING 'UTF8';
+COPY gazetteer.geoname (geonameid,name,asciiname,alternatenames,latitude,longitude,fclass,fcode,country,cc2,admin1,admin2,admin3,admin4,population,elevation,gtopo30,timezone,moddate) FROM '$DATADIR/allCountries.txt' NULL AS '' ENCODING 'UTF8';
 
 -- Toponyms (other languages) 
-COPY gazetteer.alternatename (alternatenameid,geonameid,isolanguage,alternatename,ispreferredname,isshortname,iscolloquial,ishistoric) from '$DATADIR/geonames/alternateNames.txt' NULL AS '' ENCODING 'UTF8';
+COPY gazetteer.alternatename (alternatenameid,geonameid,isolanguage,alternatename,ispreferredname,isshortname,iscolloquial,ishistoric) from '$DATADIR/alternateNames.txt' NULL AS '' ENCODING 'UTF8';
 
 -- Countries
-COPY gazetteer.countryinfo (iso_alpha2,iso_alpha3,iso_numeric,fips_code,name,capital,areainsqkm,population,continent,tld,currencycode,currencyname,phone,postalcode,postalcoderegex,languages,geonameid,neighbors,equivfipscode) from '$DATADIR/geonames/countryInfo.txt' NULL AS '' ENCODING 'UTF8';
+COPY gazetteer.countryinfo (iso_alpha2,iso_alpha3,iso_numeric,fips_code,name,capital,areainsqkm,population,continent,tld,currencycode,currencyname,phone,postalcode,postalcoderegex,languages,geonameid,neighbors,equivfipscode) from '$DATADIR/countryInfo.txt' NULL AS '' ENCODING 'UTF8';
 
 -- PostGIS
 SELECT AddGeometryColumn ('gazetteer','geoname','geom',4326,'POINT',2);

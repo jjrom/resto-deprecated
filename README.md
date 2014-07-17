@@ -71,6 +71,10 @@ First you need to download geonames data in $GEONAMES_DIR directory
         wget http://download.geonames.org/export/dump/iso-languagecodes.txt
         unzip allCountries.zip
         unzip alternateNames.zip
+        
+        # Remove unwanted comment from countryInfo.txt
+        grep -v "#" countryInfo.txt > tmp.txt
+        mv tmp.txt countryInfo.txt
 
 Next install the gazetteer within RESTo
         
