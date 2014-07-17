@@ -162,8 +162,8 @@ and 'AllowOverride All' are set in the apache directory configuration
 
 For instance to access resto at http://localhost/resto (change "/directory/to/resto" by $RESTO_TARGET below):
 
-        Alias /resto/ "/directory/to/resto"
-        <Directory "/directory/to/resto">
+        Alias /resto/ "/directory/to/resto/"
+        <Directory "/directory/to/resto/">
             Options FollowSymLinks
             AllowOverride All
             Order allow,deny
