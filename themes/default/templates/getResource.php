@@ -217,6 +217,7 @@
                     language: '<?php echo $this->request['language']; ?>',
                     data:<?php echo json_encode($this->response) ?>,
                     translation:<?php echo json_encode($this->description['dictionary']->getTranslation()) ?>,
+                    collection: '<?php echo $this->request['collection'] ?>',
                     restoUrl: '<?php echo $this->request['restoUrl'] ?>',
                     ssoServices:<?php echo json_encode($this->R->ssoServices) ?>
                 });
