@@ -47,6 +47,11 @@
         VERSION_NUMBER: 'RESTo 1.0',
         
         /*
+         * Current collection
+         */
+        collection:null,
+        
+        /*
          * Issuer : 'getCollection' or 'getResource'
          */
         issuer:'getCollection',
@@ -101,6 +106,7 @@
             self.restoUrl = options.restoUrl;
             self.issuer = options.issuer;
             self.language = options.language || 'en';
+            self.collection = options.collection;
             
             /*
              * SSO authentication server is available
