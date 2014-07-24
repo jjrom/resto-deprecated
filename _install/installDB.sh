@@ -203,6 +203,19 @@ CREATE TABLE admin.rights (
 );
 EOF
 
+--
+-- Keywords table
+--
+CREATE TABLE admin.keywords (
+    gid                 SERIAL PRIMARY KEY, -- unique id
+    keyword             VARCHAR(255), -- keyword in the given language (7 bit ASCII in lower case, space replaced by '-')
+    type                VARCHAR(50), -- type of keyword (i.e. region, state, location, etc.)
+    lang                VARCHAR(2), -- ISO A2 language code in lowercase
+    value               VARCHAR(255), -- keyword value as stored in iTag keywords column
+    name                VARCHAR(255) -- keyword as displayed to user (i.e. human readable translation)
+);
+EOF
+
 # Rights
 psql -U $SUPERUSER -d $DB << EOF
 
@@ -224,7 +237,10 @@ GRANT SELECT,INSERT,UPDATE,DELETE ON admin.collections TO $ADMIN;
 GRANT SELECT,INSERT,UPDATE,DELETE ON admin.osdescriptions TO $ADMIN;
 GRANT SELECT,INSERT,UPDATE,DELETE ON admin.rights TO $ADMIN;
 GRANT SELECT,INSERT,UPDATE,DELETE ON admin.users TO $ADMIN;
-GRANT ALL ON admin.users_userid_seq TO $ADMIN;
+GRANT ALL ON admin.keywords_gid_seq TO $ADMIN;
+GRANT SELECT,INSERT,UPDATE,DELETE ON admin.keywords TO $ADMIN;
+
+GRANT SELECT,INSERT,UPDATE,DELETE ON admin.collections TO $ADMIN;
 EOF
 
 

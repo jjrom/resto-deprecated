@@ -463,7 +463,17 @@ function getModelType($model, $key) {
         'published' => 'TIMESTAMP',
         'geometry' => 'POLYGON',
         // Add DEFAULT '' to avoid strange behavior in some versions of postgres
-        'keywords' => 'hstore DEFAULT \'\''
+        'keywords' => 'hstore DEFAULT \'\'',
+        'cultivatedCover' => 'NUMERIC',
+        'desertCover' => 'NUMERIC',
+        'floodedCover' => 'NUMERIC',
+        'forestCover' => 'NUMERIC',
+        'herbaceousCover' => 'NUMERIC',
+        'snowCover' => 'NUMERIC',
+        'urbanCover' => 'NUMERIC',
+        'waterCover' => 'NUMERIC',
+        'continents' => 'TEXT[]',
+        'countries' => 'TEXT[]'
     );
 
     if (!$key || !$model[$key]) {
@@ -499,7 +509,11 @@ function getRESToType($sqlType) {
     if ($sqlType === 'timestamp' || $sqlType === 'date') {
         return 'date';
     }
-
+    
+    if ($sqlType === 'text[]') {
+        return 'array';
+    }
+    
     return 'string';
 }
 

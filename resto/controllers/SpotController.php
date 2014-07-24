@@ -98,6 +98,15 @@ class SpotController extends RestoController {
         'published' => 'db:creationdate',
         'keywords' => 'db:keywords',
         'geometry' => 'db:geometry',
+        'cultivatedCover' => 'db:lu_cultivated',
+        'desertCover' => 'db:lu_desert',
+        'floodedCover' => 'db:lu_flooded',
+        'forestCover' => 'db:lu_forest',
+        'herbaceousCover' => 'db:lu_herbaceous',
+        'urbanCover' => 'db:lu_urban',
+        'waterCover' => 'db:lu_water',
+        'continents' => 'db:lo_continents',
+        'countries' => 'db:lo_countries',
         'archivingCenter' => array(
             'dbKey' => 'db:archivingstation',
             'type' => 'VARCHAR(3)'

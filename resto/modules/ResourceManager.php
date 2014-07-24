@@ -248,10 +248,42 @@ class ResourceManager {
                  * Tag metadata
                  */
                 if ($this->iTag) {
-                    $tags = '\'' . pg_escape_string(join(',', array_merge($this->getTags($wkt), $propertyTags))) . '\'';
-                    if ($tags) {
+                    
+                    $tags = array_merge($this->getTags($wkt), $propertyTags);
+                    if (count($tags) > 0) {
                         $keys[] = getModelName($this->description['model'], 'keywords');
-                        $values[] = $tags;
+                        $values[] = '\'' . pg_escape_string(join(',', $tags)) . '\'';
+                    }
+                    
+                    /*
+                     * Special keywords type (i.e. landuse, country and continent) are
+                     * also stored in dedicated table columns to speed up search requests
+                     * 
+                     * Note: tag format is 'type:keyword=>value'
+                     */
+                    $countries = array();
+                    $continents = array();
+                    for ($i = 0, $l = count($tags); $i < $l; $i++) {
+                        $arr = explode('=>', str_replace('\'', '', str_replace('"', '', $tags[$i])));
+                        list($type, $keyword) = explode(':', $arr[0]);
+                        if ($type === 'landuse') {
+                            $keys[] = 'lu_' . $keyword;
+                            $values[] = $arr[1];
+                        }
+                        else if ($type === 'country') {
+                            $countries[] = '"' . pg_escape_string($keyword) . '"';
+                        }
+                        else if ($type === 'continent') {
+                            $continents[] = '"' . pg_escape_string($keyword) . '"';
+                        }
+                    }
+                    if (count($countries) > 0) {
+                        $keys[] = 'lo_countries';
+                        $values[] = '\'{' . join(',', $countries) . '}\'';
+                    }
+                    if (count($continents) > 0) {
+                        $keys[] = 'lo_continents';
+                        $values[] = '\'{' . join(',', $continents) . '}\'';
                     }
                 }
                 

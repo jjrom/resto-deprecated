@@ -199,6 +199,10 @@ Solution
 --------
 
 Extract highly represented keys from **keywords** column and to add a dedicated column for each of them i.e.
+    
+    -- -------------------------------------------
+    --    LANDUSE
+    -- -------------------------------------------
 
     -- CREATE new columns for landuse
     ALTER TABLE spot.products ADD COLUMN lu_cultivated NUMERIC;
@@ -238,6 +242,17 @@ Extract highly represented keys from **keywords** column and to add a dedicated 
     CREATE INDEX products_lu_snow_idx ON spot.products USING btree(lu_snow);
     CREATE INDEX products_lu_urban_idx ON spot.products USING btree(lu_urban);
     CREATE INDEX products_lu_water_idx ON spot.products USING btree(lu_water);
+    
+    -- -------------------------------------------
+    --    CONTINENT and COUNTRY
+    -- -------------------------------------------
+
+    -- CREATE new array columns for continent and country
+    ALTER TABLE spot.products ADD COLUMN lo_continents text[];
+    ALTER TABLE spot.products ADD COLUMN lo_countries text[];
+
+    CREATE INDEX products_lo_continents_idx ON spot.products USING GIN (lo_continents);
+    CREATE INDEX products_lo_countries_idx ON spot.products USING GIN (lo_countries);
 
 **Queries details**
 
@@ -252,6 +267,8 @@ Extract highly represented keys from **keywords** column and to add a dedicated 
          Total runtime: 0.901 ms
         (5 rows)
 
+2. Search on 'landuse:forest' - returns first 500 results
+
         EXPLAIN ANALYZE SELECT * FROM spot.products WHERE lu_forest > 0 ORDER BY acquisitiondate DESC LIMIT 500;
 
         Limit  (cost=0.42..4202.38 rows=500 width=1037) (actual time=0.015..1.640 rows=500 loops=1)
@@ -260,3 +277,54 @@ Extract highly represented keys from **keywords** column and to add a dedicated 
                  Rows Removed by Filter: 710
          Total runtime: 1.700 ms
         (5 rows)
+
+3. Search on 'country:italy' - returns first 50 results
+
+        EXPLAIN ANALYZE SELECT * FROM spot.products WHERE lo_countries @> '{italy}' ORDER BY acquisitiondate DESC LIMIT 50;
+
+        Limit  (cost=8432.56..8432.68 rows=50 width=1110) (actual time=4.773..4.785 rows=50 loops=1)
+           ->  Sort  (cost=8432.56..8437.95 rows=2158 width=1110) (actual time=4.773..4.777 rows=50 loops=1)
+                 Sort Key: acquisitiondate
+                 Sort Method: top-N heapsort  Memory: 114kB
+                 ->  Bitmap Heap Scan on products  (cost=36.72..8360.87 rows=2158 width=1110) (actual time=0.725..3.064 rows=1321 loops=1)
+                       Recheck Cond: (lo_countries @> '{italy}'::text[])
+                       ->  Bitmap Index Scan on products_lo_countries_idx  (cost=0.00..36.18 rows=2158 width=0) (actual time=0.529..0.529 rows=1321 loops=1)
+                             Index Cond: (lo_countries @> '{italy}'::text[])
+         Total runtime: 4.858 ms
+        (9 rows)
+
+4. Search on 'country:italy' - returns first 500 results
+
+        EXPLAIN ANALYZE SELECT * FROM spot.products WHERE lo_countries @> '{italy}' ORDER BY acquisitiondate DESC LIMIT 500;
+        
+        Limit  (cost=8468.40..8469.65 rows=500 width=1110) (actual time=4.818..4.926 rows=500 loops=1)
+           ->  Sort  (cost=8468.40..8473.80 rows=2158 width=1110) (actual time=4.817..4.870 rows=500 loops=1)
+                 Sort Key: acquisitiondate
+                 Sort Method: top-N heapsort  Memory: 969kB
+                 ->  Bitmap Heap Scan on products  (cost=36.72..8360.87 rows=2158 width=1110) (actual time=0.540..2.703 rows=1321 loops=1)
+                       Recheck Cond: (lo_countries @> '{italy}'::text[])
+                       ->  Bitmap Index Scan on products_lo_countries_idx  (cost=0.00..36.18 rows=2158 width=0) (actual time=0.344..0.344 rows=1321 loops=1)
+                             Index Cond: (lo_countries @> '{italy}'::text[])
+         Total runtime: 5.288 ms
+        (9 rows)
+        
+5. Search on 'continent:asia' - returns first 50 results
+
+        EXPLAIN ANALYZE SELECT * FROM spot.products WHERE lo_continents @> '{asia}' ORDER BY acquisitiondate DESC LIMIT 50;
+
+        Limit  (cost=0.42..773.45 rows=50 width=1107) (actual time=1.331..1.675 rows=50 loops=1)
+        ->  Index Scan Backward using products_acquisitiondate_idx on products  (cost=0.42..2933769.03 rows=189758 width=1107) (actual time=1.330..1.668 rows=50 loops=1)
+              Filter: (lo_continents @> '{asia}'::text[])
+              Rows Removed by Filter: 1087
+        Total runtime: 1.731 ms
+        (5 rows)
+
+6. Search on 'continent:asia' - returns first 500 results
+
+        Limit  (cost=0.42..7730.71 rows=500 width=1107) (actual time=1.306..4.729 rows=500 loops=1)
+          ->  Index Scan Backward using products_acquisitiondate_idx on products  (cost=0.42..2933769.03 rows=189758 width=1107) (actual time=1.304..4.663 rows=500 loops=1)
+                Filter: (lo_continents @> '{asia}'::text[])
+                Rows Removed by Filter: 2362
+        Total runtime: 4.802 ms
+        (5 rows)
+

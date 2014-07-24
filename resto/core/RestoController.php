@@ -53,7 +53,7 @@ abstract class RestoController {
         'searchTerms' => array(
             'key' => 'keywords',
             'osKey' => 'q',
-            'operation' => 'hstore'
+            'operation' => 'keywords'
         ),
         'count' => array(
             'osKey' => 'maxRecords'
@@ -217,7 +217,7 @@ abstract class RestoController {
      *              'osKey' => OpenSearch key
      *              'key' => Equivalent column name within RESTo database model
      *              'type' => string | numeric | date
-     *              'operation' => hstore | intersects | distance | interval | = | >= | <=
+     *              'operation' => keywords | intersects | distance | interval | = | >= | <=
      *              'keyword' => array(
      *                  'value' => value display as keyword (form "vcsc{a:1}")
      *                  'type' => type of keyword
@@ -973,61 +973,102 @@ abstract class RestoController {
             
             }
             /*
-             * hstore case - i.e. searchTerms in keywords column
+             * keywords case - i.e. searchTerms in keywords column
+             * 
+             * Keywords structure is "type:keyword".
+             * 
+             * Keyword storage (i.e. column in table) depends on keyword "type", i.e. 
+             * 
+             *  - country           :   column "lo_counties" (TEXT[]) 
+             *  - continent         :   column "lo_continents" (TEXT[])
+             *  - region            :   column "keywords" (hstore)
+             *  - state             :   column "keywords" (hstore)
+             *  - city              :   column "keywords" (hstore)
+             *  - landuse           :   columns "lu_*" (NUMERIC)
+             *  - landuse_details   :   column "keywords" (hstore)
+             *  - .etc.             :   column "keywords" (hstore)
+             * 
+             * 
              */
-            else if ($operation === 'hstore') {
+            else if ($operation === 'keywords') {
                 
                 $terms = array();
                 $splitted = explode(' ', $requestParams[$filterName]);
-            
-                /*
-                 * PostgresSQL < 9 has a limited hstore function support
-                 */
-                if ($this->R->postgresqlVersion < 9) {
-                    
-                    for ($i = 0, $l = count($splitted); $i < $l; $i++) {
+                $key = $this->getModelName($this->description['searchFiltersDescription'][$filterName]['key']);
+                $arr = array(
+                    'lo_countries' => array(
+                        'operator' => '@>',
+                        'with' => array(),
+                        'without' => array()
+                    ),
+                    'lo_continents' => array(
+                        'operator' => '@>',
+                        'with' => array(),
+                        'without' => array()
+                    ),
+                    $key => array(
+                        'operator' => '?&',
+                        'with' => array(),
+                        'without' => array()
+                    )
+                );
+                for ($i = 0, $l = count($splitted); $i < $l; $i++) {
 
-                        /*
-                         * If term as a '-' prefix then performs a "NOT hstore"
-                         * If keyword contain a + then transform it into a ' '
-                         */
-                        $s = ($exclusion ? '-' : '') . $splitted[$i];
-                        $not = '';
-                        if (substr($s, 0, 1) === '-') {
-                            $not = ' NOT ';
-                            $s = substr($s, 1);
-                        }
-                        array_push($terms, $not . $this->getModelName($this->description['searchFiltersDescription'][$filterName]['key']) . "?'" . pg_escape_string(str_replace('-', ' ', $s)) . "'");
+                    /*
+                     * If term as a '-' prefix then performs a "NOT keyword"
+                     * If keyword contain a + then transform it into a ' '
+                     */
+                    $s = ($exclusion ? '-' : '') . $splitted[$i];
+                    $not = false;
+                    if (substr($s, 0, 1) === '-') {
+                        $not = true;
+                        $s = substr($s, 1);
                     }
-                    
-                }
-                else {
-                    
-                    $key = $this->getModelName($this->description['searchFiltersDescription'][$filterName]['key']);
-                    $with = array();
-                    $without = array();
-                    for ($i = 0, $l = count($splitted); $i < $l; $i++) {
+
+                    /*
+                     * Check type
+                     */
+                    list($kType, $kValue) = explode(':', $s);
+
+                    /*
+                     * Landuse columns are NUMERIC columns
+                     */
+                    if ($kType === 'landuse') {
+                        $terms[] = 'lu_' . $kValue . ($not ? ' = ' : ' > ') . '0';
+                    }
+                    /*
+                     * Country and Continents are stored within TEXT[] columns
+                     */
+                    else if ($kType === 'country' || $kType === 'continent') {
+                        $tmpKey = $kType === 'country' ? 'lo_countries' : 'lo_continents';
+                        $arr[$tmpKey][$not ? 'without' : 'with'][] = "'" . pg_escape_string(str_replace('-', ' ', $kValue)) . "'";
+                    }
+                    /*
+                     * Everything other types are stored within hstore column
+                     */
+                    else {
 
                         /*
-                         * If term as a '-' prefix then performs a "NOT hstore"
-                         * If keyword contain a + then transform it into a ' '
+                         * PostgresSQL < 9 has a limited hstore function support
                          */
-                        $s = ($exclusion ? '-' : '') . $splitted[$i];
-                        if (substr($s, 0, 1) === '-') {
-                            $without[] =  "'" . pg_escape_string(str_replace('-', ' ', substr($s, 1))) . "'";
+                        if ($this->R->postgresqlVersion < 9) {
+                            $terms[] = ($not ? ' NOT ' : '') . $this->getModelName($this->description['searchFiltersDescription'][$filterName]['key']) . "?'" . pg_escape_string(str_replace('-', ' ', $s)) . "'";
                         }
                         else {
-                            $with[] =  "'" . pg_escape_string(str_replace('-', ' ', $s)) . "'";
+                            $arr[$key][$not ? 'without' : 'with'][] = "'" . pg_escape_string(str_replace('-', ' ', $s)) . "'";
                         }
                     }
-                    if (count($without) > 0) {
-                        $terms[] = 'NOT ' . $key . "?&ARRAY[" . join(',', $without) . "]";
+                }
+
+                foreach (array_keys($arr) as $tmpKey) {
+                    if (count($arr[$tmpKey]['without']) > 0) {
+                        $terms[] = 'NOT ' . $tmpKey . $arr[$tmpKey]['operator'] . "ARRAY[" . join(',', $arr[$tmpKey]['without']) . "]";
                     }
-                    if (count($with) > 0) {
-                        $terms[] = $key . "?&ARRAY[" . join(',', $with) . "]";
+                    if (count($arr[$tmpKey]['with']) > 0) {
+                        $terms[] = $tmpKey . $arr[$tmpKey]['operator'] . "ARRAY[" . join(',', $arr[$tmpKey]['with']) . "]";
                     }
                 }
-                
+
                 return join(' AND ', $terms);
                 
             }

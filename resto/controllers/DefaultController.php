@@ -73,7 +73,17 @@ class DefaultController extends RestoController {
         'updated' => 'db:modifieddate',
         'published' => 'db:creationdate',
         'keywords' => 'db:keywords',
-        'geometry' => 'db:geometry'
+        'geometry' => 'db:geometry',
+        'cultivatedCover' => 'db:lu_cultivated',
+        'desertCover' => 'db:lu_desert',
+        'floodedCover' => 'db:lu_flooded',
+        'forestCover' => 'db:lu_forest',
+        'herbaceousCover' => 'db:lu_herbaceous',
+        'snowCover' => 'db:lu_snow',
+        'urbanCover' => 'db:lu_urban',
+        'waterCover' => 'db:lu_water',
+        'continents' => 'db:lo_continents',
+        'countries' => 'db:lo_countries',
     );
     
     /*

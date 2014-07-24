@@ -102,6 +102,16 @@ class MuscateController extends RestoController {
         'published' => 'db:published',
         'geometry' => 'db:geometry',
         'keywords' => 'db:keywords',
+        'cultivatedCover' => 'db:lu_cultivated',
+        'desertCover' => 'db:lu_desert',
+        'floodedCover' => 'db:lu_flooded',
+        'forestCover' => 'db:lu_forest',
+        'herbaceousCover' => 'db:lu_herbaceous',
+        'snowCover' => 'db:lu_snow',
+        'urbanCover' => 'db:lu_urban',
+        'waterCover' => 'db:lu_water',
+        'continents' => 'db:lo_continents',
+        'countries' => 'db:lo_countries',
         'location' => array(
             'dbKey' => 'db:zonegeo',
             'type' => 'VARCHAR(50)'
