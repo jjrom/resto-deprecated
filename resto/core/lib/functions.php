@@ -439,7 +439,7 @@ function getModelType($model, $key) {
      * Default SQL types for RESTo model properties
      */
     $sqlTypes = array(
-        'identifier' => 'VARCHAR(250)',
+        'identifier' => 'VARCHAR(250) UNIQUE',
         'parentIdentifier' => 'VARCHAR(250)',
         'title' => 'VARCHAR(250)',
         'description' => 'TEXT',
