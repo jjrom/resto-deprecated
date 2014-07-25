@@ -464,14 +464,14 @@ function getModelType($model, $key) {
         'geometry' => 'POLYGON',
         // Add DEFAULT '' to avoid strange behavior in some versions of postgres
         'keywords' => 'hstore DEFAULT \'\'',
-        'cultivatedCover' => 'NUMERIC',
-        'desertCover' => 'NUMERIC',
-        'floodedCover' => 'NUMERIC',
-        'forestCover' => 'NUMERIC',
-        'herbaceousCover' => 'NUMERIC',
-        'snowCover' => 'NUMERIC',
-        'urbanCover' => 'NUMERIC',
-        'waterCover' => 'NUMERIC',
+        'cultivatedCover' => 'NUMERIC DEFAULT 0',
+        'desertCover' => 'NUMERIC DEFAULT 0',
+        'floodedCover' => 'NUMERIC DEFAULT 0',
+        'forestCover' => 'NUMERIC DEFAULT 0',
+        'herbaceousCover' => 'NUMERIC DEFAULT 0',
+        'snowCover' => 'NUMERIC DEFAULT 0',
+        'urbanCover' => 'NUMERIC DEFAULT 0',
+        'waterCover' => 'NUMERIC DEFAULT 0',
         'continents' => 'TEXT[]',
         'countries' => 'TEXT[]'
     );
@@ -499,18 +499,21 @@ function getRESToType($sqlType) {
     if (!$sqlType) {
         return null;
     }
+    
+    /*
+     * Remove enventual DEFAULT stuff
+     */
+    $splitted = explode(' ', strtolower($sqlType));
 
-    $sqlType = strtolower($sqlType);
-
-    if ($sqlType === 'integer' || $sqlType === 'float' || substr($sqlType, 0, 7) === 'numeric') {
+    if ($splitted[0] === 'integer' || $splitted[0] === 'float' || substr($splitted[0], 0, 7) === 'numeric') {
         return 'numeric';
     }
 
-    if ($sqlType === 'timestamp' || $sqlType === 'date') {
+    if ($splitted[0] === 'timestamp' || $splitted[0] === 'date') {
         return 'date';
     }
     
-    if ($sqlType === 'text[]') {
+    if ($splitted[0] === 'text[]') {
         return 'array';
     }
     
