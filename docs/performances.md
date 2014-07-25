@@ -215,14 +215,14 @@ Extract highly represented keys from **keywords** column and to add a dedicated 
     ALTER TABLE spot.products ADD COLUMN lu_water NUMERIC;
     
     -- UPDATE newly created columns with hstore values
-    UPDATE spot.products SET lu_cultivated = (keywords->'landuse:cultivated')::numeric;
-    UPDATE spot.products SET lu_desert = (keywords->'landuse:desert')::numeric;
-    UPDATE spot.products SET lu_flooded = (keywords->'landuse:flooded')::numeric;
-    UPDATE spot.products SET lu_forest = (keywords->'landuse:forest')::numeric;
-    UPDATE spot.products SET lu_herbaceous = (keywords->'landuse:herbaceous')::numeric;
-    UPDATE spot.products SET lu_snow = (keywords->'landuse:snow and ice')::numeric;
-    UPDATE spot.products SET lu_urban = (keywords->'landuse:urban')::numeric;
-    UPDATE spot.products SET lu_water = (keywords->'landuse:water')::numeric;
+    UPDATE spot.products SET lu_cultivated = (keywords->'landuse:cultivated')::numeric,
+                             lu_desert = (keywords->'landuse:desert')::numeric,
+                             lu_flooded = (keywords->'landuse:flooded')::numeric,
+                             lu_forest = (keywords->'landuse:forest')::numeric,
+                             lu_herbaceous = (keywords->'landuse:herbaceous')::numeric,
+                             lu_snow = (keywords->'landuse:snow and ice')::numeric,
+                             lu_urban = (keywords->'landuse:urban')::numeric,
+                             lu_water = (keywords->'landuse:water')::numeric;
     
     -- SET NULL VALUE TO 0
     UPDATE spot.products SET lu_cultivated = 0 where lu_cultivated IS NULL;
@@ -253,6 +253,8 @@ Extract highly represented keys from **keywords** column and to add a dedicated 
 
     CREATE INDEX products_lo_continents_idx ON spot.products USING GIN (lo_continents);
     CREATE INDEX products_lo_countries_idx ON spot.products USING GIN (lo_countries);
+
+    # Launch _install/admin/hstore2Array.php script to populate countries and continents
 
 **Queries details**
 
