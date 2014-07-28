@@ -258,7 +258,7 @@
                      * Initialize page with no mapshup refresh
                      */
                     self.userProfile = json;
-                    self.userRights = self.userProfile['collections'] && self.userProfile['collections'][self.collection] ? $.extend(self.userProfile['rights']['default'], self.userProfile['collections'][self.collection]) : self.userProfile['rights']['default'];
+                    self.userRights = self.userProfile['rights']['collections'] && self.userProfile['rights']['collections'][self.collection] ? $.extend(self.userProfile['rights']['default'], self.userProfile['rights']['collections'][self.collection]) : self.userProfile['rights']['default'];
                     
                     if (self.issuer === 'getCollection') {
                         self.updateGetCollection(options.data, {
