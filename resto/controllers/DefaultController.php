@@ -83,7 +83,7 @@ class DefaultController extends RestoController {
         'urbanCover' => 'db:lu_urban',
         'waterCover' => 'db:lu_water',
         'continents' => 'db:lo_continents',
-        'countries' => 'db:lo_countries',
+        'countries' => 'db:lo_countries'
     );
     
     /*
