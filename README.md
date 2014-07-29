@@ -338,3 +338,10 @@ You can POST collections descriptions using a "key=value" mechanism instead of f
 To do so, you need to encode the json file (using javascript encodeURIComponent for instance) - see $RESTO_HOME/_examples/collections/Example.txt - and run the following command
 
         curl -X POST -d @$RESTO_HOME/_examples/collections/Example.txt http://admin:nimda@localhost/resto/
+
+
+My collection contains products but the welcome page of my collection is empty 
+------------------------------------------------------------------------------
+
+Check if all the mandatory search terms are defined. Mandatory search terms are the OpenSearch terms
+without a question mark '?' defined within the Url template of the OpenSearch Document Description (i.e. http://localhost/resto/{collection}/$describe)
