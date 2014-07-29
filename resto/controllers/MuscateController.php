@@ -170,7 +170,7 @@ class MuscateController extends RestoController {
         'eo:parentIdentifier?', // Project name
         'eo:organisationName?', // Organisation name (authority)
         'eo:resolution?', // Resolution,
-        'ptsc:tileId' // Tile identifier
+        'ptsc:tileId?' // Tile identifier
     );
 
     /*
