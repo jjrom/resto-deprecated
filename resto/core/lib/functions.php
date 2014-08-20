@@ -177,15 +177,15 @@ function toISO8601($dateStr) {
 
     // Year
     if (preg_match('/^\d{4}$/i', $dateStr)) {
-        return $dateStr . '-01-01T00:00:00';
+        return $dateStr . '-01-01T00:00:00Z';
     }
     // Month
     else if (preg_match('/^\d{4}-\d{2}$/i', $dateStr)) {
-        return $dateStr . '-01T00:00:00';
+        return $dateStr . '-01T00:00:00Z';
     }
     // Day
     else if (preg_match('/^\d{4}-\d{2}-\d{2}$/i', $dateStr)) {
-        return $dateStr . 'T00:00:00';
+        return $dateStr . 'T00:00:00Z';
     }
 
     return $dateStr;
