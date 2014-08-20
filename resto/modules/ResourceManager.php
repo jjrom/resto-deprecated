@@ -212,6 +212,12 @@ class ResourceManager {
                                 $propertyTags[] = $this->quoteForHstore($keywords['type'] . ':' . $keywords['id']) . '=>' . (isset($keywords['value']) ? '"' . $keywords['value'] . '"' : 'NULL');
                             }
                         }
+                        /*
+                         * Never process "updated" and "published" keywords (processed afterward)
+                         */
+                        else if ($columnName === 'updated' || $columnName === 'published') {
+                            continue;
+                        }
                         else {
                             
                             $columnType = getRESToType(getModelType($this->description['model'], $key));
