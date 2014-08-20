@@ -345,9 +345,9 @@ class Resto {
          * Set special parameters
          */
         $this->request['special'] = array();
-        if (isset($_GET['_callback'])) {
+        if (isset($_GET['callback'])) {
             $this->request['special']['_callback'] = $_GET['_callback'];
-            unset($_GET['_callback']);
+            unset($_GET['callback']);
         }
         foreach (array('_pretty', '_showQuery') as $key) {
             if (isset($_GET[$key])) {
