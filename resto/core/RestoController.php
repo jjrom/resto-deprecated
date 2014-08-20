@@ -1983,7 +1983,20 @@ abstract class RestoController {
              * (see getModelType() function in $RESTO_HOME/lib/functions.php)
              */
             else {
-                $properties[$key] = getRESToType($this->getModelType($key)) === 'numeric' ? floatval($this->getModelValue($key, $value)) : $this->getModelValue($key, $value);
+                $pType = getRESToType($this->getModelType($key));
+                $pValue = $this->getModelValue($key, $value);
+                if ($pType === 'numeric') {
+                    $properties[$key] = floatval($pValue);
+                }
+                else if ($pType === 'date') {
+                    if (strrpos($pValue, "Z") === false) {
+                        $pValue .= 'Z';
+                    }
+                    $properties[$key] = str_replace(' ', 'T', $pValue);
+                }
+                else {
+                    $properties[$key] = $pValue;
+                }
             }
         }
 

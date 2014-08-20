@@ -167,7 +167,7 @@ function isISO8601($dateStr) {
 
 /**
  * 
- * Return an ISO 8601 formatted YYYY-MM-DDT00:00:00 from
+ * Return an ISO 8601 formatted YYYY-MM-DDT00:00:00Z from
  * a valid iso8601 string
  * 
  * @param {String} $dateStr
