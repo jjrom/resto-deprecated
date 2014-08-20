@@ -110,7 +110,7 @@
  *      |______________________________________________________________________________________________
  *      | _pretty            |     boolean    | (For JSON output only) true to return pretty print JSON
  *      | _showQuery         |     boolean    | (For HTML output only) true to display query analysis result
- *      | _callback          |     string     | (For JSON output only) name of callback funtion for JSON-P
+ *      | callback           |     string     | (For JSON output only) name of callback funtion for JSON-P
  * 
  */
 class Resto {
@@ -346,7 +346,7 @@ class Resto {
          */
         $this->request['special'] = array();
         if (isset($_GET['callback'])) {
-            $this->request['special']['_callback'] = $_GET['_callback'];
+            $this->request['special']['callback'] = $_GET['callback'];
             unset($_GET['callback']);
         }
         foreach (array('_pretty', '_showQuery') as $key) {
@@ -771,8 +771,8 @@ class Resto {
         /*
          * JSON-P case
          */
-        if (isset($this->request['special']['_callback'])) {
-            return $this->request['special']['_callback'] . '(' . json_encode($this->response) . ')';
+        if (isset($this->request['special']['callback'])) {
+            return $this->request['special']['callback'] . '(' . json_encode($this->response) . ')';
         }
         
         return json_format($this->response, isset($this->request['special']['_pretty']) ? $this->request['special']['_pretty'] : false);
