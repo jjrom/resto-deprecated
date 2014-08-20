@@ -329,7 +329,9 @@ class MuscateController extends RestoController {
         }
         return $featureCollection = array(
             'type' => 'FeatureCollection',
-            'totalResults' => count($features),
+            'properties' => array(
+                'totalResults' => count($features)
+            ),
             'features' => $features
         );
     }

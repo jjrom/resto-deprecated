@@ -1388,10 +1388,12 @@ abstract class RestoController {
             ksort($prepared['missing']);
             $this->response = array(
                 'type' => 'FeatureCollection',
-                'totalResults' => 0,
-                'id' => UUIDv5(Resto::UUID, $this->request['collection'] . ':' . implode($prepared['missing'])),
-                'missing' => $prepared['missing'],
-                'links' => array(),
+                'properties' => array(
+                    'totalResults' => 0,
+                    'id' => UUIDv5(Resto::UUID, $this->request['collection'] . ':' . implode($prepared['missing'])),
+                    'missing' => $prepared['missing'],
+                    'links' => array()
+                ),
                 'features' => array()
             );
             $this->responseStatus = 200;
@@ -1556,30 +1558,32 @@ abstract class RestoController {
         ksort($query);
         $this->response = array(
             'type' => 'FeatureCollection',
-            'title' => $query['searchTerms'],
-            'id' => UUIDv5(Resto::UUID, $this->request['collection'] . ':' . implode($query)),
-            'totalResults' => $total !== -1 ? $total : null,
-            'startIndex' => $startIndex,
-            'lastIndex' => $lastIndex,
-            'query' => array(
-                'original' => $query,
-                'real' => $real,
-                'queryAnalyzeProcessingTime' => $this->request['queryAnalyzeProcessingTime'],
-                'searchProcessingTime' => $requestStopTime - $requestStartTime,
-                'hasLocation' => $hasLocation
-            ),
-            'links' => array(
-                array(
-                    'rel' => 'self',
-                    'type' => Resto::$contentTypes['json'],
-                    'title' => $this->description['dictionary']->translate('_selfCollectionLink'),
-                    'href' => updateUrl($baseUrl, $this->writeRequestParams())
+            'properties' => array(
+                'title' => $query['searchTerms'],
+                'id' => UUIDv5(Resto::UUID, $this->request['collection'] . ':' . implode($query)),
+                'totalResults' => $total !== -1 ? $total : null,
+                'startIndex' => $startIndex,
+                'lastIndex' => $lastIndex,
+                'query' => array(
+                    'original' => $query,
+                    'real' => $real,
+                    'queryAnalyzeProcessingTime' => $this->request['queryAnalyzeProcessingTime'],
+                    'searchProcessingTime' => $requestStopTime - $requestStartTime,
+                    'hasLocation' => $hasLocation
                 ),
-                array(
-                    'rel' => 'alternate',
-                    'type' => Resto::$contentTypes['html'],
-                    'title' => $this->description['dictionary']->translate('_alternateCollectionLink'),
-                    'href' => updateUrl(updateUrl($baseUrl, $this->writeRequestParams()), array('format' => 'html'))
+                'links' => array(
+                    array(
+                        'rel' => 'self',
+                        'type' => Resto::$contentTypes['json'],
+                        'title' => $this->description['dictionary']->translate('_selfCollectionLink'),
+                        'href' => updateUrl($baseUrl, $this->writeRequestParams())
+                    ),
+                    array(
+                        'rel' => 'alternate',
+                        'type' => Resto::$contentTypes['html'],
+                        'title' => $this->description['dictionary']->translate('_alternateCollectionLink'),
+                        'href' => updateUrl(updateUrl($baseUrl, $this->writeRequestParams()), array('format' => 'html'))
+                    )
                 )
             ),
             'features' => $features
@@ -1590,7 +1594,7 @@ abstract class RestoController {
          * startIndex cannot be lower than 1
          */
         if ($startIndex > 1) {
-            $this->response['links'][] = array(
+            $this->response['properties']['links'][] = array(
                 'rel' => 'previous',
                 'type' => Resto::$contentTypes['json'],
                 'title' => $this->description['dictionary']->translate('_previousCollectionLink'),
@@ -1599,7 +1603,7 @@ abstract class RestoController {
                             'count' => $limit)))
             );
             // First URL is the first search URL i.e. with startIndex = 1
-            $this->response['links'][] = array(
+            $this->response['properties']['links'][] = array(
                 'rel' => 'first',
                 'type' => Resto::$contentTypes['json'],
                 'title' => $this->description['dictionary']->translate('_firstCollectionLink'),
@@ -1614,7 +1618,7 @@ abstract class RestoController {
          * startIndex cannot be greater than the one from lastURL 
          */
         if ($lastIndex < $total) {
-            $this->response['links'][] = array(
+            $this->response['properties']['links'][] = array(
                 'rel' => 'next',
                 'type' => Resto::$contentTypes['json'],
                 'title' => $this->description['dictionary']->translate('_nextCollectionLink'),
@@ -1624,7 +1628,7 @@ abstract class RestoController {
             );
             
             // Last URL has the highest startIndex
-            $this->response['links'][] = array(
+            $this->response['properties']['links'][] = array(
                 'rel' => 'last',
                 'type' => Resto::$contentTypes['json'],
                 'title' => $this->description['dictionary']->translate('_lastCollectionLink'),
@@ -1641,7 +1645,7 @@ abstract class RestoController {
          * The last index cannot be displayed
          */
         if ($total === -1 && $count >= $limit) {
-            $this->response['links'][] = array(
+            $this->response['properties']['links'][] = array(
                 'rel' => 'next',
                 'type' => Resto::$contentTypes['json'],
                 'title' => $this->description['dictionary']->translate('_nextCollectionLink'),
@@ -1718,19 +1722,21 @@ abstract class RestoController {
             
             $this->response = array(
                 'type' => 'FeatureCollection',
-                'totalResults' => 0,
-                'links' => array(
-                    array(
-                        'rel' => 'self',
-                        'type' => Resto::$contentTypes['json'],
-                        'title' => $this->description['dictionary']->translate('_selfCollectionLink'),
-                        'href' => updateUrl($resourceUrl, $mods)
-                    ),
-                    array(
-                        'rel' => 'alternate',
-                        'type' => Resto::$contentTypes['html'],
-                        'title' => $this->description['dictionary']->translate('_alternateCollectionLink'),
-                        'href' => updateUrl($resourceUrl, array($this->description['searchFiltersDescription']['language']['osKey'] => $this->description['dictionary']->language, 'format' => 'html'))
+                'properties' => array(
+                    'totalResults' => 0,
+                    'links' => array(
+                        array(
+                            'rel' => 'self',
+                            'type' => Resto::$contentTypes['json'],
+                            'title' => $this->description['dictionary']->translate('_selfCollectionLink'),
+                            'href' => updateUrl($resourceUrl, $mods)
+                        ),
+                        array(
+                            'rel' => 'alternate',
+                            'type' => Resto::$contentTypes['html'],
+                            'title' => $this->description['dictionary']->translate('_alternateCollectionLink'),
+                            'href' => updateUrl($resourceUrl, array($this->description['searchFiltersDescription']['language']['osKey'] => $this->description['dictionary']->language, 'format' => 'html'))
+                        )
                     )
                 ),
                 'features' => array()
@@ -1777,8 +1783,10 @@ abstract class RestoController {
             );
             $this->response = array(
                 'type' => 'FeatureCollection',
-                'totalResults' => 1,
-                'links' => $product['links'],
+                'properties' => array(
+                    'totalResults' => 1,
+                    'links' => $product['links']
+                ),
                 'features' => array($this->toFeature($product))
             );
         }

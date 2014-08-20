@@ -1010,9 +1010,10 @@
         */
         updateGetCollection: function(json, options) {
 
-            var foundFilters, key, self = window.R;
+            var foundFilters, key, p, self = window.R;
 
             json = json || {};
+            p = json.properties || {};
             options = options || {};
 
             /*
@@ -1045,23 +1046,23 @@
              * Update search input form
              */
             if ($('#search').length > 0) {
-                $('#search').val(json.query ? self.sanitizeValue(json.query.original.searchTerms) : '');
+                $('#search').val(p.query ? self.sanitizeValue(p.query.original.searchTerms) : '');
             }
             
             /*
              * Update result summary
              */
-            $('#resultsummary').html(self.translate('_resultFor', [(json.query.original.searchTerms ? '<font class="red">' + self.sanitizeValue(json.query.original.searchTerms) + '</font>' : '')]));
+            $('#resultsummary').html(self.translate('_resultFor', [(p.query.original.searchTerms ? '<font class="red">' + self.sanitizeValue(p.query.original.searchTerms) + '</font>' : '')]));
             
             /*
              * Update query analysis result
              */
-            if (json.query && json.query.real) {
+            if (p.query && p.query.real) {
                 foundFilters = "";
-                for (key in json.query.real) {
-                    if (json.query.real[key]) {
+                for (key in p.query.real) {
+                    if (p.query.real[key]) {
                         if (key !== 'language') {
-                            foundFilters += '<b>' + key + '</b> ' + json.query.real[key] + '</br>';
+                            foundFilters += '<b>' + key + '</b> ' + p.query.real[key] + '</br>';
                         }
                     }
                 }
@@ -1072,8 +1073,8 @@
                     $('.resto-queryanalyze').html('<div class="resto-query"><span class="resto-warning">' + self.translate('_notUnderstood') + '</span></div>');
                 }
             }
-            else if (json.missing) {
-                $('.resto-queryanalyze').html('<div class="resto-query"><span class="resto-warning">Missing mandatory search filters - ' + json.missing.concat() + '</span></div>');
+            else if (p.missing) {
+                $('.resto-queryanalyze').html('<div class="resto-query"><span class="resto-warning">Missing mandatory search filters - ' + p.missing.concat() + '</span></div>');
             }
 
             /*
@@ -1108,51 +1109,52 @@
          */
         updateGetCollectionResultEntries: function(json) {
 
-            var i, l, j, k, thumbnail, feature, key, keyword, keywords, type, $content, $actions, value, title, addClass, platform, results, resolution, self = this;
+            var i, l, j, k, p, thumbnail, feature, key, keyword, keywords, type, $content, $actions, value, title, addClass, platform, results, resolution, self = this;
 
             json = json || {};
+            p = json.properties || {};
 
             /*
              * Update pagination
              */
             var first = '', previous = '', next = '', last = '', pagination = '', selfUrl = '#';
 
-            if (json.missing) {
+            if (p.missing) {
                 pagination = '';
             }
-            else if (json.totalResults === 0) {
+            else if (p.totalResults === 0) {
                 pagination = self.translate('_noResult');
             }
             else {
 
-                if ($.isArray(json.links)) {
-                    for (i = 0, l = json.links.length; i < l; i++) {
-                        if (json.links[i]['rel'] === 'first') {
-                            first = ' <a class="resto-ajaxified" href="' + self.updateURL(json.links[i]['href'], {format: 'html'}) + '">' + self.translate('_firstPage') + '</a> ';
+                if ($.isArray(p.links)) {
+                    for (i = 0, l = p.links.length; i < l; i++) {
+                        if (p.links[i]['rel'] === 'first') {
+                            first = ' <a class="resto-ajaxified" href="' + self.updateURL(p.links[i]['href'], {format: 'html'}) + '">' + self.translate('_firstPage') + '</a> ';
                         }
-                        if (json.links[i]['rel'] === 'previous') {
-                            previous = ' <a class="resto-ajaxified" href="' + self.updateURL(json.links[i]['href'], {format: 'html'}) + '">' + self.translate('_previousPage') + '</a> ';
+                        if (p.links[i]['rel'] === 'previous') {
+                            previous = ' <a class="resto-ajaxified" href="' + self.updateURL(p.links[i]['href'], {format: 'html'}) + '">' + self.translate('_previousPage') + '</a> ';
                         }
-                        if (json.links[i]['rel'] === 'next') {
-                            next = ' <a class="resto-ajaxified" href="' + self.updateURL(json.links[i]['href'], {format: 'html'}) + '">' + self.translate('_nextPage') + '</a> ';
+                        if (p.links[i]['rel'] === 'next') {
+                            next = ' <a class="resto-ajaxified" href="' + self.updateURL(p.links[i]['href'], {format: 'html'}) + '">' + self.translate('_nextPage') + '</a> ';
                         }
-                        if (json.links[i]['rel'] === 'last') {
-                            last = ' <a class="resto-ajaxified" href="' + self.updateURL(json.links[i]['href'], {format: 'html'}) + '">' + self.translate('_lastPage') + '</a> ';
+                        if (p.links[i]['rel'] === 'last') {
+                            last = ' <a class="resto-ajaxified" href="' + self.updateURL(p.links[i]['href'], {format: 'html'}) + '">' + self.translate('_lastPage') + '</a> ';
                         }
-                        if (json.links[i]['rel'] === 'self') {
-                            selfUrl = json.links[i]['href'];
+                        if (p.links[i]['rel'] === 'self') {
+                            selfUrl = p.links[i]['href'];
                         }
                     }
                 }
 
-                if (json.totalResults === 1) {
-                    pagination += self.translate('_oneResult', [json.totalResults]);
+                if (p.totalResults === 1) {
+                    pagination += self.translate('_oneResult', [p.totalResults]);
                 }
-                else if (json.totalResults > 1) {
-                    pagination += self.translate('_multipleResult', [json.totalResults]);
+                else if (p.totalResults > 1) {
+                    pagination += self.translate('_multipleResult', [p.totalResults]);
                 }
 
-                pagination += json.startIndex ? first + previous + self.translate('_pagination', [json.startIndex, json.lastIndex]) + next + last : '';
+                pagination += p.startIndex ? first + previous + self.translate('_pagination', [p.startIndex, p.lastIndex]) + next + last : '';
 
             }
 

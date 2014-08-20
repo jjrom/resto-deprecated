@@ -590,20 +590,20 @@ function toAtom($response, $dictionary, $version = '1.0', $encoding = 'UTF-8') {
 
     /*
      * Element 'title' 
-     *  read from $response['title']
+     *  read from $response['properties']['title']
      */
-    $xml->writeElement('title', isset($response['title']) ? $response['title'] : '');
+    $xml->writeElement('title', isset($response['properties']['title']) ? $response['properties']['title'] : '');
 
     /*
      * Element 'subtitle' 
-     *  constructed from $response['title']
+     *  constructed from $response['properties']['title']
      */
-    if (isset($response['totalResults'])) {
-        $subtitle = $dictionary->translate($response['totalResults'] === 1 ? '_oneResult' : '_multipleResult', $response['totalResults']);
+    if (isset($response['properties']['totalResults'])) {
+        $subtitle = $dictionary->translate($response['properties']['totalResults'] === 1 ? '_oneResult' : '_multipleResult', $response['properties']['totalResults']);
     }
-    $previous = isset($response['links']['previous']) ? '<a href="' . updateURL($response['links']['previous'], array('format' => 'atom')) . '">' . $dictionary->translate('_previousPage') . '</a>&nbsp;' : '';
-    $next = isset($response['links']['next']) ? '&nbsp;<a href="' . updateURL($response['links']['next'], array('format' => 'atom')) . '">' . $dictionary->translate('_nextPage') . '</a>' : '';
-    $subtitle .= isset($response['startIndex']) ? '&nbsp;|&nbsp;' . $previous . $dictionary->translate('_pagination', $response['startIndex'], $response['lastIndex']) . $next : '';
+    $previous = isset($response['properties']['links']['previous']) ? '<a href="' . updateURL($response['properties']['links']['previous'], array('format' => 'atom')) . '">' . $dictionary->translate('_previousPage') . '</a>&nbsp;' : '';
+    $next = isset($response['properties']['links']['next']) ? '&nbsp;<a href="' . updateURL($response['properties']['links']['next'], array('format' => 'atom')) . '">' . $dictionary->translate('_nextPage') . '</a>' : '';
+    $subtitle .= isset($response['properties']['startIndex']) ? '&nbsp;|&nbsp;' . $previous . $dictionary->translate('_pagination', $response['properties']['startIndex'], $response['properties']['lastIndex']) . $next : '';
 
     $xml->startElement('subtitle');
     $xml->writeAttribute('type', 'html');
@@ -623,18 +623,18 @@ function toAtom($response, $dictionary, $version = '1.0', $encoding = 'UTF-8') {
     /*
      * Element 'id' - UUID generate from RESTo::UUID and response URL
      */
-    $xml->writeElement('id', $response['id']);
+    $xml->writeElement('id', $response['properties']['id']);
 
     /*
      * Links
      */
-    if (is_array($response['links'])) {
-        for ($i = 0, $l = count($response['links']); $i < $l; $i++) {
+    if (is_array($response['properties']['links'])) {
+        for ($i = 0, $l = count($response['properties']['links']); $i < $l; $i++) {
             $xml->startElement('link');
-            $xml->writeAttribute('rel', $response['links'][$i]['rel']);
+            $xml->writeAttribute('rel', $response['properties']['links'][$i]['rel']);
             $xml->writeAttribute('type', 'application/atom+xml');
-            $xml->writeAttribute('title', $response['links'][$i]['title']);
-            $xml->writeAttribute('href', updateURL($response['links'][$i]['href'], array('format' => 'atom')));
+            $xml->writeAttribute('title', $response['properties']['links'][$i]['title']);
+            $xml->writeAttribute('href', updateURL($response['properties']['links'][$i]['href'], array('format' => 'atom')));
             $xml->endElement(); // link
         }
     }
@@ -642,14 +642,14 @@ function toAtom($response, $dictionary, $version = '1.0', $encoding = 'UTF-8') {
     /*
      * Total results, startIndex and itemsPerpage
      */
-    if (isset($response['totalResults'])) {
-        $xml->writeElement('os:totalResults', $response['totalResults']);
+    if (isset($response['properties']['totalResults'])) {
+        $xml->writeElement('os:totalResults', $response['properties']['totalResults']);
     }
-    if (isset($response['startIndex'])) {
-        $xml->writeElement('os:startIndex', $response['startIndex']);
+    if (isset($response['properties']['startIndex'])) {
+        $xml->writeElement('os:startIndex', $response['properties']['startIndex']);
     }
-    if (isset($response['startIndex']) && isset($response['lastIndex'])) {
-        $xml->writeElement('os:itemsPerPage', $response['lastIndex'] - $response['startIndex'] + 1);
+    if (isset($response['properties']['startIndex']) && isset($response['properties']['lastIndex'])) {
+        $xml->writeElement('os:itemsPerPage', $response['properties']['lastIndex'] - $response['properties']['startIndex'] + 1);
     }
     
     /*
@@ -657,8 +657,8 @@ function toAtom($response, $dictionary, $version = '1.0', $encoding = 'UTF-8') {
      */
     $xml->startElement('os:Query');
     $xml->writeAttribute('role', 'request');
-    if (isset($response['query'])) {
-        foreach ($response['query']['original'] as $key => $value) {
+    if (isset($response['properties']['query'])) {
+        foreach ($response['properties']['query']['original'] as $key => $value) {
             $xml->writeAttribute($key, $value);
         }
     }
