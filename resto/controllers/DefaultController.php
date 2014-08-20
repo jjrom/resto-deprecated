@@ -68,7 +68,7 @@ class DefaultController extends RestoController {
         'thumbnail' => 'db:thumbnail',
         'metadata' => 'db:metadata',
         'archive' => 'db:archive',
-        'mimetype' => 'db:mimetype',
+        'mimeType' => 'db:mimetype',
         'wms' => 'db:wms',
         'updated' => 'db:modifieddate',
         'published' => 'db:creationdate',

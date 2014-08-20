@@ -457,7 +457,7 @@ function getModelType($model, $key) {
         'thumbnail' => 'VARCHAR(250)',
         'metadata' => 'VARCHAR(250)',
         'archive' => 'VARCHAR(250)',
-        'mimetype' => 'VARCHAR(20)',
+        'mimeType' => 'VARCHAR(20)',
         'wms' => 'VARCHAR(250)',
         'updated' => 'TIMESTAMP',
         'published' => 'TIMESTAMP',

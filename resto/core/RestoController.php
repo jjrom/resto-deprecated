@@ -1827,7 +1827,7 @@ abstract class RestoController {
                     throw new Exception('Database connection error', 500);
                 }
                 $rightsFilters = $this->getRightsFilters($this->R->getUser()->getRights($this->description['name'], 'get', 'search'));
-                $products = pg_query($dbh, 'SELECT ' . $this->getModelName('archive') . ' AS archive' . ($this->getModelName('mimetype') ? ',' . $this->getModelName('mimetype') . ' AS mimetype  ' : '') . ' FROM ' . $this->dbConnector->getSchema() . '.' . $this->dbConnector->getTable() . ' WHERE ' . $this->getModelName('identifier') . "='" . pg_escape_string($identifier) . "'" . (count($rightsFilters) > 0 ? ' AND ' . join(' AND ', $rightsFilters) : ''));
+                $products = pg_query($dbh, 'SELECT ' . $this->getModelName('archive') . ' AS archive' . ($this->getModelName('mimeType') ? ',' . $this->getModelName('mimeType') . ' AS mimeType  ' : '') . ' FROM ' . $this->dbConnector->getSchema() . '.' . $this->dbConnector->getTable() . ' WHERE ' . $this->getModelName('identifier') . "='" . pg_escape_string($identifier) . "'" . (count($rightsFilters) > 0 ? ' AND ' . join(' AND ', $rightsFilters) : ''));
                 if (!$products) {
                     pg_close($dbh);
                     throw new Exception('Database connection error', 500);
@@ -1893,7 +1893,7 @@ abstract class RestoController {
         header('HTTP/1.1 200 OK');
         header('Access-Control-Allow-Origin: *');
         header('Content-Disposition: attachment; filename="' . basename($product['archive']) . '"');
-        header('Content-Type: ' . $product['mimetype'] ? $product['mimetype'] : 'application/unknown');
+        header('Content-Type: ' . $product['mimeType'] ? $product['mimeType'] : 'application/unknown');
         readfile_chunked($product['archive'], 1024 * 1024);
     }
 
@@ -2046,7 +2046,7 @@ abstract class RestoController {
         if (isset($archive)) {
             $properties['services']['download'] = array(
                 'url' => isUrl($archive) ? $archive : $this->request['restoUrl'] . $this->request['collection'] . '/' . $product['identifier'] . '/$download',
-                'mimeType' => $this->getModelValue('mimetype', isset($product['mimetype']) ? $product['mimetype'] : null)
+                'mimeType' => $this->getModelValue('mimeType', isset($product['mimeType']) ? $product['mimeType'] : null)
             );
         }
 

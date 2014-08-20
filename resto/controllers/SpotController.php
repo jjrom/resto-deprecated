@@ -93,7 +93,7 @@ class SpotController extends RestoController {
             'dbKey' => 'db:identifier',
             'template' => ' http://www.astrium-geo.com/satellite-image/{a:1}'
         ),
-        'mimetype' => 'text/html',
+        'mimeType' => 'text/html',
         'updated' => 'db:modifieddate',
         'published' => 'db:creationdate',
         'keywords' => 'db:keywords',

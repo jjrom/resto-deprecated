@@ -97,7 +97,7 @@ class MuscateController extends RestoController {
         'metadata' => 'SHOULD_BE_DEFINED_IN_COLLECTION_DEFINITION',
         'archive' => 'SHOULD_BE_DEFINED_IN_COLLECTION_DEFINITION',
         'wms' => 'SHOULD_BE_DEFINED_IN_COLLECTION_DEFINITION',
-        'mimetype' => 'application/x-gzip',
+        'mimeType' => 'application/x-gzip',
         'updated' => 'db:updated',
         'published' => 'db:published',
         'geometry' => 'db:geometry',
