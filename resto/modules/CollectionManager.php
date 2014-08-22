@@ -348,7 +348,17 @@ class CollectionManager {
                 'startDate' => 'btree',
                 'completionDate' => 'btree',
                 'geometry' => 'gist',
-                'keywords' => 'gin'
+                'keywords' => 'gin',
+                'cultivatedCover' => 'btree',
+                'desertCover' => 'btree',
+                'floodedCover' => 'btree',
+                'forestCover' => 'btree',
+                'herbaceousCover' => 'btree',
+                'snowCover' => 'btree',
+                'urbanCover' => 'btree',
+                'waterCover' => 'btree',
+                'continents' => 'gin',
+                'countries' => 'gin'
             );
             $indices = array();
             foreach ($modelNames as $key => $indexType) {
@@ -359,7 +369,7 @@ class CollectionManager {
             }
             foreach ($indices as $key => $indexType) {
                 pg_query($this->dbh, 'CREATE INDEX ' . $this->request['dbDescription']['table'] . '_' . $key . '_idx ON ' . $this->request['dbDescription']['schema'] . '.' . $this->request['dbDescription']['table'] . ' USING ' . $indexType . ' (' . $key . ')');
-            }
+            }   
 
             pg_query($this->dbh, 'GRANT ALL ON SCHEMA ' . $this->request['dbDescription']['schema'] . ' TO ' . $this->user);
             pg_query($this->dbh, 'GRANT SELECT ON TABLE ' . $this->request['dbDescription']['schema'] . '.' . $this->request['dbDescription']['table'] . ' TO ' . $this->user);
