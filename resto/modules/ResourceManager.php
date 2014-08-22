@@ -415,10 +415,10 @@ class ResourceManager {
                 $pairs[] = $this->quoteForHstore('city:' . $city) . '=>NULL';
             }
             foreach (array_values($properties['political']['regions']) as $region) {
-                $pairs[] = $this->quoteForHstore('region:' . $region) . '=>NULL';
+                $pairs[] = $this->quoteForHstore('region:' . $region) . '=>"{\"name\":\"' . $region .'\"}"';
             }
             foreach (array_values($properties['political']['states']) as $state) {
-                $pairs[] = $this->quoteForHstore('state:' . $state['name']) . '=>"' . $state['pcover'] . '"';
+                $pairs[] = $this->quoteForHstore('state:' . $state['name']) . '=>"{\"name\":\"' . $state['name'] .'\", \"value\":\"' . $state['pcover'] . '\"}"';
             }
         }
         if ($properties['landCover']) {
@@ -441,7 +441,7 @@ class ResourceManager {
         $string = trim($string);
         $splitted = split(' ', $string);
         $quote = count($splitted) > 1 ? '"' : '';
-        return $quote . strtolower($string) . $quote;
+        return $quote . strtolower(asciify($string)) . $quote;
         
     }
     

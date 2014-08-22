@@ -2136,18 +2136,23 @@ abstract class RestoController {
         /*
          * Add keywords read from database
          * 
-         * Keywords are produced from PostgreSQL which returns a string "#name" => "value" or "type:name" => "value" e.g.
+         * Keywords are produced from PostgreSQL which returns one of the following string :
+         * 
+         *     - "#name" => "value"
+         *     - "type:name" => "value"
+         *     - "type:name" => NULL
+         *     - "type:name" => "{\"value\":\"value\", \"name\":\"name\"}"
          * 
          *      "disaster:flood"=>NULL, "country:canada"=>"23.5", "continent:north america"=>NULL
          *
          * Note : hstore_to_array() is only available in PostgreSQL >= 9.3
          */
-        $json = json_decode('{' . str_replace('"=>"', '":"', str_replace('NULL', '""', $product[$this->description['searchFiltersDescription']['searchTerms']['key']])) . '}', true);
+        $json = json_decode('{' . str_replace('}"', '}', str_replace('\"', '"', str_replace('"{', '{', str_replace('"=>"', '":"', str_replace('NULL', '""', $product[$this->description['searchFiltersDescription']['searchTerms']['key']]))))) . '}', true);
         
         /* 
          * Sort results by value (highest to lowest)
          */
-        arsort($json);
+        //arsort($json);
         
         foreach ($json as $key => $value) {
 
@@ -2170,7 +2175,17 @@ abstract class RestoController {
 
                 $name = substr($key, strlen($splitted[0]) + 1);
             }
-            $translated = ucwords($this->description['dictionary']->translate($name));
+            
+            /*
+             * Value is an array -> replace by name otherwise translate
+             */
+            if (is_array($value)) {
+                $translated = $value['name'];
+                $value = $value['value'];
+            }
+            else {
+                $translated = ucwords($this->description['dictionary']->translate($name));
+            }
             
             $keywords[$translated] = array();
             $keywords[$translated]['id'] = $name;
