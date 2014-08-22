@@ -143,17 +143,13 @@ UPDATE gazetteer.geoname SET geom = ST_PointFromText('POINT(' || longitude || ' 
 CREATE INDEX idx_geoname_geom ON gazetteer.geoname USING gist(geom);
 
 -- Text search
-ALTER TABLE gazetteer.geoname ADD COLUMN searchname VARCHAR(200);
-UPDATE gazetteer.geoname SET searchname = lower(replace(asciiname, ' ', '-'));
-CREATE INDEX idx_geoname_searchname ON gazetteer.geoname (searchname);
+CREATE INDEX idx_geoname_name ON gazetteer.geoname (lower(unaccent(name)));
 CREATE INDEX idx_geoname_country ON gazetteer.geoname (country);
 CREATE INDEX idx_fclass_country ON gazetteer.geoname (fclass);
 
 CREATE INDEX idx_alternatename_isolanguage ON gazetteer.alternatename (isolanguage);
 DELETE FROM gazetteer.alternatename WHERE isolanguage IS NULL;
-ALTER TABLE gazetteer.alternatename ADD COLUMN searchname VARCHAR(200);
-UPDATE gazetteer.alternatename SET searchname = lower(replace(alternatename, ' ', '-'));
-CREATE INDEX idx_alternatename_searchname ON gazetteer.alternatename (searchname);
+CREATE INDEX idx_alternatename_alternatename ON gazetteer.alternatename (lower(unaccent(alternatename)));
 
 -- Constraints
 ALTER TABLE ONLY gazetteer.alternatename ADD CONSTRAINT pk_alternatenameid PRIMARY KEY (alternatenameid);
