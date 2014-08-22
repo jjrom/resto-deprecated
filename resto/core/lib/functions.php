@@ -299,60 +299,13 @@ function stripURN($str) {
 }
 
 /**
- * Transform input string to 7bits ascii equivalent (i.e. remove accent on letters and so on)
+ * Transform input string to 7bits ascii equivalent
+ * (i.e. remove accent on letters and so on)
  * 
  * @param {string} $text
  */
 function asciify($text) {
-    return strtr(utf8_decode($text), utf8_decode('ŠŒŽšœžŸ¥µÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýÿ'), 'SOZsozYYuAAAAAAACEEEEIIIIDNOOOOOOUUUUYsaaaaaaaceeeeiiiionoooooouuuuyy');
-}
-
-/**
- * Transform input string to 7bits ascii equivalent (i.e. remove accent on letters and so on)
- * (see http://www.php.net/manual/fr/function.iconv.php)
- * 
- * Note : apparently this function does not work on mapshup.info server
- *  
- * @param {string} $text
- * @param {string} $charset
- */
-function asciify2($text, $charset = 'UTF-8') {
-
-    /*
-     * Includes combinations of characters that present as a single glyph
-     */
-    if (is_string($text)) {
-        $text = preg_replace_callback('/\X/u', __FUNCTION__, $text);
-    }
-    else if (is_array($text) && count($text) == 1 && is_string($text[0])) {
-
-        /*
-         * IGNORE characters that can't be TRANSLITerated to ASCII
-         */
-        $text = iconv($charset, 'ASCII//IGNORE//TRANSLIT', $text[0]);
-
-        /*
-         * The documentation says that iconv() returns false on failure but it returns ''
-         */
-        if ($text === '' || !is_string($text)) {
-            $text = '?';
-        }
-        /*
-         * If the text contains any letters...then remove all non-letters
-         */
-        else if (preg_match('/\w/', $text)) {
-            $text = preg_replace('/\W+/', '', $text);
-        }
-    }
-    /*
-     * Text is not a string
-     */
-    else {
-        $text = '';
-    }
-
-    return $text;
-
+    return strtr(utf8_decode($text), utf8_decode('ææ̆áàâãäåāăąạắằẵÀÁÂÃÄÅĀĂĄÆəèééêëēĕėęěệÈÉÊĒĔĖĘĚıìíîïìĩīĭịÌÍÎÏÌĨĪĬİḩòóồôõöōŏőợộÒÓÔÕÖŌŎŐØùúûüũūŭůưửÙÚÛÜŨŪŬŮČÇçćĉčċøơßýÿñşšŠŞŚŒŻŽžźżœðÝŸ¥µđÐĐÑŁţğġħňĠĦ'), 'aaaaaaaaaaaaaaaAAAAAAAAAAeeeeeeeeeeeeEEEEEEEEiiiiiiiiiiIIIIIIIIIhoooooooooooOOOOOOOOOuuuuuuuuuuUUUUUUUUCCcccccoosyynssSSSOZZzzzooYYYudDDNLtgghnGH');
 }
 
 /**

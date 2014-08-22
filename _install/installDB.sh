@@ -102,6 +102,22 @@ psql -d $DB -U $SUPERUSER << EOF
 -- hstore is used for collection datasources
 CREATE EXTENSION hstore;
 
+--
+-- Create Unaccent function
+--
+CREATE OR REPLACE FUNCTION unaccent(text)
+RETURNS text
+IMMUTABLE
+STRICT
+LANGUAGE SQL
+AS $$
+SELECT translate(
+    $1,
+    'ææ̆áàâãäåāăąạắằẵÀÁÂÃÄÅĀĂĄÆəèééêëēĕėęěệÈÉÊĒĔĖĘĚıìíîïìĩīĭịÌÍÎÏÌĨĪĬİḩòóồôõöōŏőợộÒÓÔÕÖŌŎŐØùúûüũūŭůưửÙÚÛÜŨŪŬŮČÇçćĉčċøơßýÿñşšŠŞŚŒŻŽžźżœðÝŸ¥µđÐĐÑŁţğġħňĠĦ',
+    'aaaaaaaaaaaaaaaAAAAAAAAAAeeeeeeeeeeeeEEEEEEEEiiiiiiiiiiIIIIIIIIIhoooooooooooOOOOOOOOOuuuuuuuuuuUUUUUUUUCCcccccoosyynssSSSOZZzzzooYYYudDDNLtgghnGH'
+);
+$$;
+
 -- 
 -- admin schema contains history and collections tables
 --
