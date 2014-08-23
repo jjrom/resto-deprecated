@@ -395,12 +395,6 @@ class Gazetteer {
         }
         
         /*
-         * Convert $toponym to a searchable name
-         * i.e. no accents and lower case
-         */
-        $toponym = trim(strtolower(asciify($toponym)));
-        
-        /*
          * Constrain search on country name
          */
         if ($countryName && $this->getCountryCode(trim($countryName))) {
@@ -435,7 +429,7 @@ class Gazetteer {
          * First search in native language within alternatename table
          */
         if ($lang !== 'en') {
-            $toponyms = pg_query($this->dbh, 'SELECT name, country as countrycode, latitude, longitude, fclass, fcode, population FROM ' . $this->schema . '.geoname WHERE geonameid = ANY((SELECT array(SELECT geonameid FROM ' . $this->schema . '.alternatename WHERE lower(unaccent(alternatename)) =\'' . pg_escape_string($toponym) . '\'  AND isolanguage=\'' . $lang . '\'))::integer[])' . $where . $orderBy);
+            $toponyms = pg_query($this->dbh, 'SELECT name, country as countrycode, latitude, longitude, fclass, fcode, population FROM ' . $this->schema . '.geoname WHERE geonameid = ANY((SELECT array(SELECT geonameid FROM ' . $this->schema . '.alternatename WHERE lower(unaccent(alternatename)) =lower(unaccent(\'' . pg_escape_string($toponym) . '\'))  AND isolanguage=\'' . $lang . '\'))::integer[])' . $where . $orderBy);
             if (!$toponyms) {
                 return $result;
             }
@@ -445,7 +439,7 @@ class Gazetteer {
          * No result - search in english
          */
         if ($lang === 'en' || pg_num_rows($toponyms) === 0) {
-            $toponyms = pg_query($this->dbh, 'SELECT name, country as countrycode, latitude, longitude, fclass, fcode, population FROM ' . $this->schema . '.geoname WHERE lower(unaccent(name)) =\'' . pg_escape_string($toponym) . '\'' . $where . $bboxConstraint . $orderBy);
+            $toponyms = pg_query($this->dbh, 'SELECT name, country as countrycode, latitude, longitude, fclass, fcode, population FROM ' . $this->schema . '.geoname WHERE lower(unaccent(name)) =lower(unaccent(\'' . pg_escape_string($toponym) . '\'))' . $where . $bboxConstraint . $orderBy);
             if (!$toponyms) {
                 return $result;
             }
@@ -459,7 +453,7 @@ class Gazetteer {
          * No result - check without bbox
          */
         if (pg_num_rows($toponyms) === 0 && $bboxConstraint) {
-            $toponyms = pg_query($this->dbh, 'SELECT name, country as countrycode, latitude, longitude, fclass, fcode, population FROM ' . $this->schema . '.geoname WHERE lower(unaccent(name)) =\'' . pg_escape_string($toponym) . '\'' . $where . $orderBy);
+            $toponyms = pg_query($this->dbh, 'SELECT name, country as countrycode, latitude, longitude, fclass, fcode, population FROM ' . $this->schema . '.geoname WHERE lower(unaccent(name)) =lower(unaccent(\'' . pg_escape_string($toponym) . '\'))' . $where . $orderBy);
             if (!$toponyms) {
                 return $result;
             }
