@@ -297,7 +297,7 @@ class QueryAnalyzer {
          * Transliterate searchTerms string
          * Split each terms with (" "character)
          */
-        $searchTerms = preg_split('/ /', str_replace(array('!', '?'), '', asciify($params['searchTerms'])));
+        $searchTerms = preg_split('/ /', str_replace(array('!', '?'), '', $params['searchTerms']));
         
         /*
          * First extract explicit mapping i.e. words with '=' delimiter 
@@ -381,7 +381,7 @@ class QueryAnalyzer {
         $toRemove = array();
      
         for ($i = 0, $l = count($searchTerms); $i < $l; $i++) {
-
+            
             /*
              * Platforms is an associative array
              */

@@ -188,7 +188,10 @@ class Dictionary {
         if (!is_array($this->dictionary[$property])) {
             return null;
         }
-        return isset($this->dictionary[$property][$name]) ? $this->dictionary[$property][$name] : null;
+        
+        $asciified = strtolower(asciify($name));
+        
+        return isset($this->dictionary[$property][$asciified]) ? $this->dictionary[$property][$asciified] : null;
     }
     
     /**
@@ -266,12 +269,14 @@ class Dictionary {
             return null;
         }
         
+        $asciified = strtolower(asciify($name));
+        
         /*
          * keywords entry is an array of array
          */
         foreach(array_keys($this->dictionary['keywords']) as $type) {
-            if (isset($this->dictionary['keywords'][$type][$name])) {
-                return array('keyword' => $this->dictionary['keywords'][$type][$name], 'type' => $type); 
+            if (isset($this->dictionary['keywords'][$type][$asciified])) {
+                return array('keyword' => $this->dictionary['keywords'][$type][$asciified], 'type' => $type); 
             }
         }
         
@@ -305,7 +310,7 @@ class Dictionary {
         if (!is_array($this->dictionary['excluded'])) {
             return false;
         }
-        return in_array($name, $this->dictionary['excluded']);
+        return in_array(strtolower(asciify($name)), $this->dictionary['excluded']);
     }
        
     /**
