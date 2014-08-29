@@ -52,7 +52,7 @@ require realpath(dirname(__FILE__)) . '/resto/core/lib/functions.php';
  * Autoload controllers and modules
  */
 function autoload($className) {
-    foreach (array('resto/auth/', 'resto/controllers/', 'resto/core/', 'resto/modules/') as $current_dir) {
+    foreach (array('resto/controllers/', 'resto/core/', 'resto/modules/') as $current_dir) {
         $path = $current_dir . sprintf('%s.php', $className);
         if (file_exists($path)) {
             include $path;
@@ -71,4 +71,3 @@ session_start();
  * Create RESTo instance
  */
 $resto = new Resto();
-$resto->process();

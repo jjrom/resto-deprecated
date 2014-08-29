@@ -15,5 +15,5 @@
     
     # Rewrite /a/b/c/etc. to index.php?RESToURL=/a/b/c/etc.
     RewriteRule ^(.*)$ index.php?RESToURL=$1 [QSA,NC,L]
-
+    
 </IfModule>
