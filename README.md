@@ -1,4 +1,4 @@
 Notice
 ======
 
-resto v1 is deprecated. You should use [resto2](http://github.com/jjrom/resto2/)
+resto v1 is deprecated. You should use [resto-server](http://github.com/jjrom/resto-server/)
